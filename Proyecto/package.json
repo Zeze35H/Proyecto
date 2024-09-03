@@ -2,7 +2,7 @@
   "name": "proyecto",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -10,6 +10,8 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "mysql2": "^3.11.0",
+    "sequelize": "^6.37.3",
     "vue": "^3.4.29"
   },
   "devDependencies": {

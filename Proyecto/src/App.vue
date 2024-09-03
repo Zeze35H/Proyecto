@@ -1,5 +1,5 @@
 <script setup>
-import TestingApp from './components/TestingApp.vue'
+import LoginForm from './components/LoginForm.vue'
 </script>
 
 <template>
@@ -10,7 +10,7 @@ import TestingApp from './components/TestingApp.vue'
     </div>
   </header> -->
   <main>
-    <TestingApp />
+    <LoginForm />
   </main>
 </template>
 
