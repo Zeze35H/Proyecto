@@ -88,15 +88,15 @@ sequelize.sync().then(() => {
     //     console.error('Failed to retrieve data : ', error);
     // });
 
-    User.destroy({                                  // DELETE ONE USER (WHERE...)
-        where: {
-          id: 1
-        }
-    }).then(() => {
-        console.log("Successfully deleted record.")
-    }).catch((error) => {
-        console.error('Failed to delete record : ', error);
-    });
+    // User.destroy({                                  // DELETE ONE USER (WHERE...)
+    //     where: {
+    //       id: 1
+    //     }
+    // }).then(() => {
+    //     console.log("Successfully deleted record.")
+    // }).catch((error) => {
+    //     console.error('Failed to delete record : ', error);
+    // });
 
 }).catch((error) => {
     console.error('Unable to create table : ', error);
