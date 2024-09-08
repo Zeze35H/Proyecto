@@ -3,15 +3,24 @@ import LoginForm from './components/LoginForm.vue'
 </script>
 
 <template>
-  <!-- <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-    <div class="wrapper">
-      <HelloMessage user="Zeze" />
+  <nav class="navbar navbar-expand navbar-dark bg-dark">
+    <router-link to="/" class="navbar-brand">bezKoder</router-link>
+    <div class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <router-link to="/" class="nav-link">Tutorials</router-link>
+      </li>
+      <li class="nav-item">
+        <router-link to="/" class="nav-link">Add</router-link>
+      </li>
     </div>
-  </header> -->
-  <main>
+  </nav>
+
+  <div class="container mt-3">
+    <router-view />
+  </div>
+  <!-- <main>
     <LoginForm />
-  </main>
+  </main> -->
 </template>
 
 <style scoped>

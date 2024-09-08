@@ -1,12 +1,49 @@
-<script setup>
+<script>
 import { ref } from 'vue'
+import UserDataService from "../services/UserDataService.js";
 
-const username = ref("")
-const password = ref("")
+// const username = ref("")
+// const password = ref("")
 
-const loginUser = ()=>{
-  console.log(":D")
-}
+export default {
+  name: "create-user",
+  data() {
+    return {
+      username: "",
+      password: "",
+    };
+  },
+  methods: {
+    saveUser() {
+      var data = {
+        username: this.username,
+        name: "PESSOA",
+        email: "asd",
+        role: 1,
+        active: true,
+        access_token: "asd",
+        password_token: this.password,
+        active: true,
+      };
+
+      UserDataService.create(data)
+        .then(response => {
+          // this.user.id = response.data.id;
+          // console.log(response.data);
+          // this.submitted = true;
+          console.log(response)
+        })
+        .catch(e => {
+          console.log(e);
+        });
+    },
+    
+    // newUser() {
+    //   this.submitted = false;
+    //   this.user = {};
+    // }
+  }
+};
 
 </script>
 
@@ -14,7 +51,7 @@ const loginUser = ()=>{
 
   <form
     class="login-form"
-    @submit.prevent="loginUser">
+    @submit.prevent="saveUser">
   
     <input 
       v-model="username" 
@@ -24,25 +61,22 @@ const loginUser = ()=>{
       v-model="password"
       type="text" placeholder="Password">
 
-    <button
+    <button @click="saveUser"
       class="btn btn-primary"
       :disabled="username.length === 0 || password.length === 0">
       Login
     </button>
-
   </form>
-
 </template>
 
 
-<style scoped>
+<!-- <style scoped>
 body {
   background: #eff8ff;
   height: 100vh;
   width: 100vw;
   font-family: system-ui, BlinkMacSystemFont, -apple-system, Segoe UI, Roboto,
     Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-  display: flex;
   align-items: center;
   justify-content: center;
   margin: 0;
@@ -199,4 +233,4 @@ input[type="checkbox"]{
 </style>
 
 
-
+ -->
