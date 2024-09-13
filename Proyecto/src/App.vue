@@ -22,9 +22,9 @@ import Login from './components/Login.vue'
             <a class="nav-link active" aria-current="page" href="/confirm_email">Confirm Email</a>
           </li>
 
-          <!-- LINK -->
+          <!-- PASSWORD CHANGE -->
           <li class="nav-item">
-            <a class="nav-link" href="#">Link</a>
+            <a class="nav-link" href="/password_change">Password Change</a>
           </li>
 
           <!-- DROPDOWN -->
@@ -57,21 +57,7 @@ import Login from './components/Login.vue'
       </div>
     </div>
   </nav>
-  <!-- <nav class="navbar navbar-expand navbar-dark bg-dark">
-    <router-link to="/" class="navbar-brand">bezKoder</router-link>
-    <div class="navbar-nav mr-auto">
-      <li class="nav-item">
-        <router-link to="/" class="nav-link">Tutorials</router-link>
-      </li>
-      <li class="nav-item">
-        <router-link to="/" class="nav-link">Add</router-link>
-      </li>
-    </div>
-  </nav> -->
   <router-view />
-  <!-- <main>
-    <Login />
-  </main> -->
 </template>
 
 <style scoped>

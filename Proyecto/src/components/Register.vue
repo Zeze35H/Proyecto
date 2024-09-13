@@ -2,13 +2,7 @@
 import { ref } from 'vue'
 import UserDataService from "../services/UserDataService.js";
 
-import emailjs from 'emailjs-com';
-
-
-const USER_ID = 'ddiGiFFvge9R0YH9G'
-const SERVICE_ID = 'service_z64hsgr'
-const TEMPLATE_ID = 'template_dmzcvhr'
-
+// vars
 const correct_token = '3rhb23uydb238ry6g2429hrh' // TODO: MOVE TO BACKEND
 
 export default {
@@ -66,29 +60,6 @@ export default {
           this.used_username = true
         });
     },
-    sendEmail() {
-
-      console.log("ENTERED THE FUNCTION")
-
-
-      const emailParams = {
-        user_name: this.first_name + ' ' + this.last_name,
-        user_email: this.email,
-        message: 'asd',
-      };
-
-
-      // Initialize emailJS with user ID (get this from EmailJS)
-      emailjs.init(USER_ID);
-
-      // Send the email
-      emailjs.send(SERVICE_ID, TEMPLATE_ID, emailParams)
-        .then((response) => {
-          console.log('Email sent successfully!', response.status, response.text);
-        }, (error) => {
-          console.log('Failed to send email:', error);
-        });
-    }
   },
 };
 
@@ -228,16 +199,14 @@ export default {
 
                 </div>
               </form>
-              <button @click="sendEmail()">
-                EMAIL
-              </button>
             </div>
           </div>
         </div>
         <div class="col-12 col-md-6 col-xl-7">
           <div class="d-flex justify-content-center text-bg-primary">
             <div class="col-12 col-xl-9">
-              <img class="img-fluid rounded mb-4" loading="lazy" src="../assets/img/tajaver.png" width="100" alt="Vue Logo">
+              <img class="img-fluid rounded mb-4" loading="lazy" src="../assets/img/tajaver.png" width="100"
+                alt="Vue Logo">
               <hr class="border-primary-subtle mb-4">
               <h2 class="h1 mb-4">School Website Thingy</h2>
               <p class="lead mb-5">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor

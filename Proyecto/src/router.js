@@ -3,8 +3,8 @@ import { createWebHistory, createRouter } from "vue-router";
 const routes =  [
   {
     path: "/",
-    alias: "/users",
-    name: "users",
+    alias: "/login",
+    name: "login",
     component: () => import("./components/Login.vue")
   },
   {
@@ -19,23 +19,23 @@ const routes =  [
     name: "confirm_email",
     component: () => import("./components/ConfirmEmail.vue")
   },
-//   {
-//     path: "/tutorials/:id",
-//     name: "tutorial-details",
-//     component: () => import("./components/Tutorial")
-//   },
-//   {
-//     path: "/add",
-//     name: "add",
-//     component: () => import("./components/AddTutorial")
-//   }
+  {
+    path: "/password_reset",
+    alias: "/password_reset",
+    name: "password_reset",
+    component: () => import("./components/PasswordReset.vue")
+  },
+  {
+    path: "/password_change",
+    alias: "/password_change",
+    name: "password_change",
+    component: () => import("./components/PasswordChange.vue")
+  },
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
 });
-
-console.log("AAAAAAAAAAAAAAAAAAAAAAAA")
 
 export default router;
