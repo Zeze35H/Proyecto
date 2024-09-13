@@ -31,6 +31,12 @@ const routes =  [
     name: "password_change",
     component: () => import("./components/PasswordChange.vue")
   },
+  {
+    path: "/home_page",
+    alias: "/home_page",
+    name: "home_page",
+    component: () => import("./components/HomePage.vue")
+  },
 ];
 
 const router = createRouter({

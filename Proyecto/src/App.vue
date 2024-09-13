@@ -17,6 +17,11 @@ import Login from './components/Login.vue'
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
+          <!-- HOMEPAGE -->
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/home_page">HomePage</a>
+          </li>
+
           <!-- CONFIRM EMAIL -->
           <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="/confirm_email">Confirm Email</a>

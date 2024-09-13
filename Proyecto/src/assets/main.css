@@ -1,47 +1,26 @@
-/* html, body {
-  margin: 0;
-  height: 100%;
-} */
-
-
 nav + section  {
   min-height: 100vh;
 }
 
 
+.gradient-custom-1 {
+  /* fallback for old browsers */
+  background: rgba(13,110,253,1);
 
-/* @import './base.css';
+  /* Chrome 10-25, Safari 5.1-6 */
+  background: -webkit-linear-gradient(to bottom, rgba(13,110,253,1), rgb(146, 190, 255));
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  background: linear-gradient(to bottom, rgba(13,110,253,1), rgb(146, 190, 255))
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+table td,
+table th {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
-
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
+tbody td {
+  font-weight: 500;
+  color: #999999;
 }
-
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
-} */
