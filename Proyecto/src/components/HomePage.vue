@@ -13,14 +13,126 @@ export default {
         { first_name: 'Anais', last_name: 'Neto', email: 'nisneto123@outlook.com', subject: 'Psychology' },
         { first_name: 'Margarida', last_name: 'Garcia', email: 'mariamargaridag@hotmail.com', subject: 'Chemistry' },
         { first_name: 'Filippa', last_name: 'Psychomani', email: 'filippapsi@gmail.com', subject: 'Statistics' },
-      ]
+      ],
+      row_delete: { first_name: '', last_name: '', email: '', subject: '' },
+      row_index: null,
+      confirmationModal: false,
     };
   },
+  methods: {
+    deleteRowModal(index) {
+      this.row_delete = this.table_contents[index]
+      this.row_index = index
+
+    },
+    confirmDeleteRow() {
+      this.table_contents.splice(this.index,1)
+      setTimeout(() => {
+        this.confirmationModal = true
+      }, 500); // 1-second delay
+      
+    },
+    closeModal() {
+      this.row_delete = { first_name: '', last_name: '', email: '', subject: '' }
+      this.row_index = null
+      this.confirmationModal = false
+    }
+  }
 };
 
 </script>
 
-<template>
+<template class="gradient-custom-1 h-100 p-3 py-md-5 py-xl-8">
+  <!-- DELETE CONFIRMATION MODAL -->
+  <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-5"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <!-- MODAL HEADER -->
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel">Delete Topic Entry?</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <!-- MODAL BODY -->
+        <div class="modal-body">
+          <strong>Are you sure you want to delete the following topic entry?</strong>
+          <div class="table-responsive bg-white my-3">
+            <table class="table mb-0">
+              <thead>
+                  <tr>
+                    <th scope="col">NAME</th>
+                    <th scope="col">SURNAME</th>
+                    <th scope="col">E-MAIL</th>
+                    <th scope="col">TOPIC</th>
+                  </tr>
+                </thead>
+              <tbody>
+                <tr>
+                  <td>{{ row_delete.first_name }}</td>
+                  <td>{{ row_delete.last_name }}</td>
+                  <td>{{ row_delete.email }}</td>
+                  <td>{{ row_delete.subject }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- MODAL FOOTER -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button @click="confirmDeleteRow()" type="button" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+   <!-- CONFIRMATION MODAL -->
+   <div>
+    <div v-if="confirmationModal" class="modal fade show d-block" id="exampleModal" tabindex="-1"
+      aria-labelledby="exampleModalLabel" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);"
+      @click.self="closeModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Topic Entry Deleted</h5>
+            <button type="button" class="btn-close" aria-label="Close" @click="closeModal"></button>
+          </div>
+          <div class="modal-body">
+            <p>Your topic entry has been deleted successfully!</p>
+            <div class="table-responsive bg-white my-3">
+            <table class="table mb-0">
+              <thead>
+                  <tr>
+                    <th scope="col">NAME</th>
+                    <th scope="col">SURNAME</th>
+                    <th scope="col">E-MAIL</th>
+                    <th scope="col">TOPIC</th>
+                  </tr>
+                </thead>
+              <tbody>
+                <tr>
+                  <td>{{ row_delete.first_name }}</td>
+                  <td>{{ row_delete.last_name }}</td>
+                  <td>{{ row_delete.email }}</td>
+                  <td>{{ row_delete.subject }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION -->
   <section class="gradient-custom-1 h-100 p-3 py-md-5 py-xl-8">
     <div class="container px-5">
       <div class="col-12 ">
@@ -51,14 +163,14 @@ export default {
                     <th scope="col">E-MAIL</th>
                     <th v-if="!master_student" scope="col">SUBJECT</th>
                     <th v-if="master_student" scope="col">TOPIC</th>
-                    <th v-if="master_student" scope="col"></th>
+                    <th v-if="master_student" scope="col" class="d-flex justify-content-end">ACTIONS</th>
                   </tr>
                 </thead>
 
                 <!-- TABLE BODY -->
                 <tbody>
                   <tr v-for="({ first_name, last_name, email, subject }, index) in table_contents">
-                    <th scope="row">{{ first_name }}</th>
+                    <td>{{ first_name }}</td>
                     <td>{{ last_name }}</td>
                     <td>{{ email }}</td>
                     <td>{{ subject }}</td>
@@ -68,7 +180,7 @@ export default {
                       <div class="d-flex justify-content-end">
 
                         <!-- EDIT BUTTON -->
-                        <button type="button" class="btn btn-outline-primary me-2">
+                        <button type="button" class="btn btn-outline-primary me-2" title="Edit">
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-pen" viewBox="0 0 16 16">
                             <path
@@ -78,7 +190,9 @@ export default {
                         </button>
 
                         <!-- DELETE BUTTON -->
-                        <button type="button" class="btn btn-outline-danger">
+                        <button @click="deleteRowModal(index)" type="button"
+                          class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#staticBackdrop"
+                          title="Delete">
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-trash" viewBox="0 0 16 16">
                             <path
