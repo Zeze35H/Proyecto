@@ -37,6 +37,12 @@ const routes =  [
     name: "home_page",
     component: () => import("./components/HomePage.vue")
   },
+  {
+    path: "/profile",
+    alias: "/profile",
+    name: "profile",
+    component: () => import("./components/Profile.vue")
+  },
 ];
 
 const router = createRouter({
