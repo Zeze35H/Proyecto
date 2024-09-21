@@ -48,6 +48,9 @@ export default {
         token: this.role === "Professor" ? this.token : null,
       };
 
+      console.log("inside Register.vue registerUser()")
+
+
       // Call the service to save user
       UserDataService.create(userData)
         .then(response => {

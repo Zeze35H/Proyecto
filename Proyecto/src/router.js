@@ -41,7 +41,7 @@ const routes =  [
     path: "/profile",
     alias: "/profile",
     name: "profile",
-    component: () => import("./components/Profile.vue")
+    component: () => import("./components/ProfileTest.vue")
   },
 ];
 

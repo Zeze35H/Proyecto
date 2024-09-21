@@ -10,6 +10,8 @@ class UserDataService {
   }
 
   create(data) {
+    console.log("inside UserDataService.js create()")
+    console.log(data)
     return http.post("/users", data);
   }
 
@@ -27,6 +29,10 @@ class UserDataService {
 
   findByUsername(username) {
     return http.get(`/users?username=${username}`);
+  }
+
+  uploadImage(data) {
+    return http.post('/uploadImage')
   }
 }
 

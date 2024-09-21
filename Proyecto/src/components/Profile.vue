@@ -21,13 +21,8 @@ export default {
     };
   },
   methods: {
-    /**
-     * Has changed
-     * @param  Object|undefined   newFile   Read only
-     * @param  Object|undefined   oldFile   Read only
-     * @return undefined
-     */
-    inputFile: function (newFile, oldFile) {
+
+    inputFile(newFile, oldFile) {
       if (newFile && oldFile && !newFile.active && oldFile.active) {
         // Get response data
         console.log('response', newFile.response)
@@ -37,14 +32,7 @@ export default {
         }
       }
     },
-    /**
-     * Pretreatment
-     * @param  Object|undefined   newFile   Read and write
-     * @param  Object|undefined   oldFile   Read only
-     * @param  Function           prevent   Prevent changing
-     * @return undefined
-     */
-    inputFilter: function (newFile, oldFile, prevent) {
+    inputFilter(newFile, oldFile, prevent)  {
       if (newFile && !oldFile) {
         // Filter non-image file
         if (!/\.(jpeg|jpe|jpg|gif|png|webp)$/i.test(newFile.name)) {

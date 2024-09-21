@@ -4,25 +4,31 @@ const Op = db.Sequelize.Op;
 
 // Create and Save a new User
 exports.create = (req, res) => {
-  // Validate request
-  if (!req.body.username) {
-    res.status(400).send({
-      message: "Content can not be empty!"
-    });
-    return;
-  }
+
+  console.log("inside user.controller.js create")
+
+  // console.log(req)
+  console.log(req.body)
+
+  // // Validate request
+  // if (!req.body.username) {
+  //   res.status(400).send({
+  //     message: "Content can not be empty!"
+  //   });
+  //   return;
+  // }
 
   // Create a User
   const user = {
     username: req.body.username,
     name: req.body.name,
     email: req.body.email,
-    role: req.body.role,
-    access_token: req.body.access_token,
-    password_token: req.body.password_token,
-    active: req.body.active,
+    role: 1,
+    access_token: "asd",
+    password_token: "asd",
+    active: true,
   };
-
+  
   // Save User in the database
   User.create(user)
     .then(data => {
@@ -157,14 +163,27 @@ exports.findAllStudents = (req, res) => {
 
 // find all professor users
 exports.findAllProfessors = (req, res) => {
-    User.findAll({ where: { role: 2 } })
-      .then(data => {
-        res.send(data);
-      })
+  User.findAll({ where: { role: 2 } })
+    .then(data => {
+      res.send(data);
+    })
     .catch(err => {
-    res.status(500).send({
+      res.status(500).send({
         message:
+          err.message || "Some error occurred while retrieving users."
+      });
+    });
+};
+
+// find all professor users
+exports.uploadImage = (req, res) => {
+  console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA").then(data => {
+    res.send(data);
+  })
+  .catch(err => {
+    res.status(500).send({
+      message:
         err.message || "Some error occurred while retrieving users."
     });
-    });
+  });
 };
