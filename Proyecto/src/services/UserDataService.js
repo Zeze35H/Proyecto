@@ -18,7 +18,7 @@ class UserDataService {
   findByUsername(username) {
     console.log("inside UserDataService.js findByUsername()")
     console.log(username)
-    return http.get("/users/${username}", username);
+    return http.get(`/users/${username}`);
   }
 
   // update(id, data) {

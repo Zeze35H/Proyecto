@@ -31,6 +31,8 @@ export default {
       this.used_username = false
       this.incorrect_token = false
 
+      this.loading = false
+
       if (this.password !== this.confirm_password) {
         this.unmatched_passwords = true
         return
@@ -67,14 +69,8 @@ export default {
               })
               .catch(error => {
                 // Handle errors
-                this.loading = false
                 console.error("Error registering user:", error);
-                this.used_username = true
                 this.incorrect_token = true
-
-                // if (this.role === "Professor" && this.token !== correct_token) {
-                //   return
-                // }
               });
           }
         })

@@ -46,11 +46,14 @@ exports.create = (req, res) => {
 
 // Retrieve all Users from the database.
 exports.findByUsername = (req, res) => {
-  console.log(req.query)
-  const username = req.body.username;
-  var condition = username ? { username: { [Op.like]: `%${username}%` } } : null;
 
-  User.findAll({ where: condition })
+  console.log("inside user.controller.js findByUsername")
+  console.log(req.params)
+  const username = req.params.username;
+  var condition = username ? { username: username } : null;
+  console.log(condition)
+
+  User.findOne({ where: condition })
     .then(data => {
       res.send(data);
     })
