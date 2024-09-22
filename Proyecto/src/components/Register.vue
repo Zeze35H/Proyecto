@@ -2,23 +2,23 @@
 import { ref } from 'vue'
 import UserDataService from "../services/UserDataService.js";
 
-// vars
-const correct_token = '3rhb23uydb238ry6g2429hrh' // TODO: MOVE TO BACKEND
-
 export default {
   data() {
     return {
-      first_name: "",
-      last_name: "",
+      name: "",
+      surname: "",
       username: "",
       email: "",
       password: "",
       confirm_password: "",
       role: "",
       token: "",
+
       unmatched_passwords: false,
       used_username: false,
       incorrect_token: false,
+
+      loading: false
     };
   },
   methods: {
@@ -33,37 +33,64 @@ export default {
 
       if (this.password !== this.confirm_password) {
         this.unmatched_passwords = true
+        return
       }
 
-      if (this.role === "Professor" && this.token !== correct_token) {
-        this.incorrect_token = true
-      }
-
-      const userData = {
-        name: this.first_name + ' ' + this.last_name,
-        username: this.username,
-        email: this.email,
-        password: this.password,
-        role: this.role,
-        token: this.role === "Professor" ? this.token : null,
-      };
-
-      console.log("inside Register.vue registerUser()")
-
-
-      // Call the service to save user
-      UserDataService.create(userData)
+      UserDataService.findByUsername(this.username)
         .then(response => {
-          // Handle successful registration
-          console.log("User registered:", response);
+          console.log(response.data)
+          if (response.data.length != 0) {
+            console.log("Username found:", response);
+            this.used_username = true
+            return
+          }
+          else {
+            console.log("Username not found:", response);
+
+            const userData = {
+              name: this.name,
+              surname: this.surname,
+              username: this.username,
+              email: this.email,
+              password: this.password,
+              role: this.role === "Professor" ? 2 : 1,
+              token: this.role === "Professor" ? this.token : null,
+            };
+
+            // Call the service to save user
+            UserDataService.create(userData)
+              .then(response => {
+                // Handle successful registration
+                console.log("User registered:", response);
+                this.loading = true
+                this.$router.push({ name: 'home_page', query: {} });
+              })
+              .catch(error => {
+                // Handle errors
+                this.loading = false
+                console.error("Error registering user:", error);
+                this.used_username = true
+                this.incorrect_token = true
+
+                // if (this.role === "Professor" && this.token !== correct_token) {
+                //   return
+                // }
+              });
+          }
         })
         .catch(error => {
           // Handle errors
           console.error("Error registering user:", error);
-          this.used_username = true
+          return
         });
     },
   },
+  beforeRouteLeave(to, from, next) {
+    // Add a delay before the route change is allowed
+    setTimeout(() => {
+      next(); // Continue the route transition after a delay
+    }, 1000); // 1-second delay
+  }
 };
 
 </script>
@@ -85,18 +112,18 @@ export default {
                   <!-- Name -->
                   <div class="col-12">
                     <div class="form-floating mb-1">
-                      <input v-model="first_name" type="text" class="form-control" name="first_name" id="first_name"
-                        placeholder="Name" required>
-                      <label for="first_name" class="form-label">Name</label>
+                      <input v-model="name" type="text" class="form-control" name="name" id="name" placeholder="Name"
+                        required>
+                      <label for="name" class="form-label">Name</label>
                     </div>
                   </div>
 
                   <!-- Surname -->
                   <div class="col-12">
                     <div class="form-floating mb-1">
-                      <input v-model="last_name" type="text" class="form-control" name="last_name" id="last_name"
+                      <input v-model="surname" type="text" class="form-control" name="surname" id="surname"
                         placeholder="Surname" required>
-                      <label for="last_name" class="form-label">Surname</label>
+                      <label for="surname" class="form-label">Surname</label>
                     </div>
                   </div>
 
@@ -158,8 +185,8 @@ export default {
                     <div class="row">
                       <div class="col">
                         <div class="form-floating mb-1">
-                          <input v-model="role" type="text" class="form-control" name="role" id="role" placeholder="Role"
-                            required disabled>
+                          <input v-model="role" type="text" class="form-control" name="role" id="role"
+                            placeholder="Role" required disabled>
                           <label for="role" class="form-label">Role</label>
                         </div>
                       </div>
@@ -202,6 +229,13 @@ export default {
 
                 </div>
               </form>
+
+              <!-- LOADING SPINNER -->
+              <div class="col-12 d-flex justify-content-center mt-4">
+                <div v-if="loading" class="spinner-border" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

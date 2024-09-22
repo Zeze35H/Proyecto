@@ -11,8 +11,13 @@ module.exports = (sequelize, Sequelize, Role) => {
         username: {
           type: Sequelize.STRING,
           allowNull: false,
+          unique: true,
         },
         name: {
+          type: Sequelize.STRING,
+          allowNull: false,
+        },
+        surname: {
           type: Sequelize.STRING,
           allowNull: false,
         },
@@ -40,7 +45,7 @@ module.exports = (sequelize, Sequelize, Role) => {
         active: {
           type: Sequelize.BOOLEAN,
           allowNull: false,
-          defaultValue: true,
+          defaultValue: false,
         },
       });
   

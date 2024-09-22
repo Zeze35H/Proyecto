@@ -2,33 +2,35 @@ const db = require("../models");
 const User = db.user;
 const Op = db.Sequelize.Op;
 
+const correct_token = '3rhb23uydb238ry6g2429hrh'
+
 // Create and Save a new User
 exports.create = (req, res) => {
 
   console.log("inside user.controller.js create")
 
-  // console.log(req)
   console.log(req.body)
 
-  // // Validate request
-  // if (!req.body.username) {
-  //   res.status(400).send({
-  //     message: "Content can not be empty!"
-  //   });
-  //   return;
-  // }
+  // Validate request
+  if (req.body.role == 2 && req.body.token != correct_token) {
+    res.status(400).send({
+      message: "Incorrect token."
+    });
+    return;
+  }
 
   // Create a User
   const user = {
     username: req.body.username,
     name: req.body.name,
+    surname: req.body.surname,
     email: req.body.email,
-    role: 1,
+    role: req.body.role,
     access_token: "asd",
     password_token: "asd",
     active: true,
   };
-  
+
   // Save User in the database
   User.create(user)
     .then(data => {
@@ -43,8 +45,9 @@ exports.create = (req, res) => {
 };
 
 // Retrieve all Users from the database.
-exports.findAll = (req, res) => {
-  const username = req.query.username;
+exports.findByUsername = (req, res) => {
+  console.log(req.query)
+  const username = req.body.username;
   var condition = username ? { username: { [Op.like]: `%${username}%` } } : null;
 
   User.findAll({ where: condition })
@@ -180,10 +183,10 @@ exports.uploadImage = (req, res) => {
   console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA").then(data => {
     res.send(data);
   })
-  .catch(err => {
-    res.status(500).send({
-      message:
-        err.message || "Some error occurred while retrieving users."
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving users."
+      });
     });
-  });
 };
