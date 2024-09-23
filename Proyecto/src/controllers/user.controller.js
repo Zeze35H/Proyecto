@@ -1,6 +1,5 @@
 const db = require("../models");
 const User = db.user;
-const Op = db.Sequelize.Op;
 
 const correct_token = '3rhb23uydb238ry6g2429hrh'
 
@@ -26,8 +25,6 @@ exports.create = (req, res) => {
     surname: req.body.surname,
     email: req.body.email,
     role: req.body.role,
-    access_token: "asd",
-    password_token: "asd",
     active: true,
   };
 

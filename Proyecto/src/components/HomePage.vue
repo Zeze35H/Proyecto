@@ -5,21 +5,33 @@ import UserDataService from "../services/UserDataService.js";
 export default {
   data() {
     return {
-      username: "Zezé",
+      username: "zeze35h",
       master_student: true,
-      table_contents: [
-        { first_name: 'Jose Eduardo', last_name: 'Henriques', email: 'zezeh35@hotmail.com', subject: 'Maths' },
-        { first_name: 'Pedro Miguel', last_name: 'Lages', email: 'pml00@gmail.com', subject: 'Biology' },
-        { first_name: 'Anais', last_name: 'Neto', email: 'nisneto123@outlook.com', subject: 'Psychology' },
-        { first_name: 'Margarida', last_name: 'Garcia', email: 'mariamargaridag@hotmail.com', subject: 'Chemistry' },
-        { first_name: 'Filippa', last_name: 'Psychomani', email: 'filippapsi@gmail.com', subject: 'Statistics' },
-      ],
+      table_contents: [],
       row_delete: { first_name: '', last_name: '', email: '', subject: '' },
       row_index: null,
       confirmationModal: false,
       edit: false,
       edit_row: { first_name: '', last_name: '', email: '', subject: '' }
     };
+  },
+  created() {
+    UserDataService.findAllRelations(this.username)
+      .then(response => {
+        // Handle successful registration
+        console.log(response.data);
+        for (let i = 0; i < response.data.length; i++) {
+          let prof_name = response.data[i].professor.name
+          let prof_surname = response.data[i].professor.surname
+          let prof_email = response.data[i].professor.email
+          let subject_name = response.data[i].subject.name
+          this.table_contents.push({ first_name: prof_name, last_name: prof_surname, email: prof_email, subject: subject_name })
+        }
+      })
+      .catch(error => {
+        // Handle errors
+        console.error("Error retrieving relations:", error);
+      });
   },
   methods: {
     // EDIT
@@ -28,12 +40,12 @@ export default {
       this.edit_row = this.table_contents[index]
       this.row_index = index
     },
-    closeEdit(){
+    closeEdit() {
       this.edit = false
       this.edit_row = { first_name: '', last_name: '', email: '', subject: '' }
       this.row_index = null
     },
-    confirmEdit(index){
+    confirmEdit(index) {
       this.table_contents[index] = this.edit_row
       this.closeEdit()
     },
@@ -197,26 +209,28 @@ export default {
                       <!-- ROW EDIT -->
                       <tr v-if="index === this.row_index">
                         <td>
-                          <input v-model="edit_row.first_name" type="text" class="form-control" name="first_name" id="first_name"
-                            :placeholder="first_name" required>
+                          <input v-model="edit_row.first_name" type="text" class="form-control" name="first_name"
+                            id="first_name" :placeholder="first_name" required>
                         </td>
                         <td>
-                          <input v-model="edit_row.last_name" type="text" class="form-control" name="last_name" id="last_name"
-                            :placeholder="last_name" required>
+                          <input v-model="edit_row.last_name" type="text" class="form-control" name="last_name"
+                            id="last_name" :placeholder="last_name" required>
                         </td>
                         <td>
-                          <input v-model="edit_row.email" type="text" class="form-control" name="email" id="email" :placeholder="email" required>
+                          <input v-model="edit_row.email" type="text" class="form-control" name="email" id="email"
+                            :placeholder="email" required>
                         </td>
                         <td>
-                          <input v-model="edit_row.subject" type="text" class="form-control" name="subject" id="subject" :placeholder="subject"
-                            required>
+                          <input v-model="edit_row.subject" type="text" class="form-control" name="subject" id="subject"
+                            :placeholder="subject" required>
                         </td>
                         <!-- MASTER STUDENT ACTION BUTTONS -->
                         <td v-if="master_student">
                           <div class="d-flex justify-content-end">
 
                             <!-- CANCEL BUTTON -->
-                            <button @click="closeEdit()" type="button" class="btn btn-outline-secondary me-2" title="Cancel Edit">
+                            <button @click="closeEdit()" type="button" class="btn btn-outline-secondary me-2"
+                              title="Cancel Edit">
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 class="bi bi-x" viewBox="0 0 16 16">
                                 <path

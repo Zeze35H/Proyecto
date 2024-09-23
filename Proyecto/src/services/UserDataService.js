@@ -21,6 +21,12 @@ class UserDataService {
     return http.get(`/users/${username}`);
   }
 
+  findAllRelations(username) {
+    console.log("inside UserDataService.js findAllRelations()")
+    console.log(username)
+    return http.get(`/relations/${username}`);
+  }
+
   // update(id, data) {
   //   return http.put(`/users/${id}`, data);
   // }
