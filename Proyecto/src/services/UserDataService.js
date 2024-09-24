@@ -27,6 +27,13 @@ class UserDataService {
     return http.get(`/relations/${username}`);
   }
 
+  login(data, withCredentials) {
+    console.log("inside UserDataService.js login()")
+    console.log(data)
+    console.log(withCredentials)
+    return http.post(`/auth/login`, data, withCredentials);
+  }
+
   // update(id, data) {
   //   return http.put(`/users/${id}`, data);
   // }

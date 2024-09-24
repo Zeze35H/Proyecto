@@ -23,29 +23,29 @@ export default {
     }
   },
   methods: {
-    saveUser() {
-      var data = {
-        username: this.username,
-        name: "PESSOA",
-        email: "asd",
-        role: 1,
-        active: true,
-        access_token: "asd",
-        password_token: this.password,
-        active: true,
-      };
+    login() {
 
-      UserDataService.create(data)
+      const userData = {
+        username: this.username,
+        password: this.password
+      }
+      console.log("inside Login.vue login()")
+
+      // Call the service to save user
+      UserDataService.login(userData, { withCredentials: true })
         .then(response => {
-          // this.user.id = response.data.id;
-          // console.log(response.data);
-          // this.submitted = true;
           console.log(response)
-          this.incorrect_login = true
+          // // Handle successful login
+          // if (response.data.message === 'Login successful') {
+          //   // Handle successful login (e.g., redirect, store user info)
+          //   console.log('Login successful', response.data.user);
+          // } else {
+          //   this.error = 'Login failed';
+          // }
         })
-        .catch(e => {
-          console.log(e);
-          this.incorrect_login = true
+        .catch(error => {
+          // Handle errors
+          console.error("An error occurred while logging in:", error);
         });
     },
     closeModal() {
@@ -120,7 +120,7 @@ export default {
               </div>
 
               <!-- FORM -->
-              <form class="login-form" @submit.prevent="saveUser">
+              <form class="login-form" @submit.prevent="login">
                 <div class="row gy-3 overflow-hidden">
 
                   <!-- USERNAME -->

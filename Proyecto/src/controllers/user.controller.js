@@ -1,6 +1,11 @@
 const db = require("../models");
 const User = db.user;
 
+var express = require('express');
+var passport = require('passport');
+var LocalStrategy = require('passport-local');
+var crypto = require('crypto');
+
 const correct_token = '3rhb23uydb238ry6g2429hrh'
 
 // Create and Save a new User
@@ -190,3 +195,19 @@ exports.uploadImage = (req, res) => {
       });
     });
 };
+
+exports.login = (req, res) => {
+
+  console.log("inside user.controller.js login")
+
+  User.findOne({ where: { username: "zeze35h" } })
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving users."
+      });
+    });
+}

@@ -3,19 +3,32 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const userController = require("./src/controllers/user.controller");
 
+const session = require('express-session');
+const passport = require('passport');
+
 const app = express();
 
 var corsOptions = {
-  origin: "http://localhost:8081"
+  origin: "http://localhost:8081",
+  credentials: true
 };
 
 app.use(cors(corsOptions));
-
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
-
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Middleware to parse JSON and handle session
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(session({
+  secret: 'your-secret-key', // Change this to a secure key
+  resave: false,
+  saveUninitialized: true
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 const db = require("./src/models");
 
@@ -92,7 +105,6 @@ db.sequelize.sync({ force: true }).then(() => {
   console.error('Unable to create table: ', error);
 });
 
-
 // simple route
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to bezkoder application." });
@@ -100,6 +112,7 @@ app.get("/", (req, res) => {
 
 require("./src/routes/user.routes.js")(app);
 require("./src/routes/reation.routes.js")(app);
+require("./src/routes/auth.routes.js")(app, passport, db);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
