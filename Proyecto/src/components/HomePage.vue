@@ -19,7 +19,6 @@ export default {
     UserDataService.findAllRelations(this.username)
       .then(response => {
         // Handle successful registration
-        console.log(response.data);
         for (let i = 0; i < response.data.length; i++) {
           let prof_name = response.data[i].professor.name
           let prof_surname = response.data[i].professor.surname

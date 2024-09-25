@@ -10,6 +10,8 @@ export default {
       password: "",
       incorrect_login: false,
       updated_password: 0,
+
+      loading: false
     };
   },
   created() {
@@ -24,24 +26,30 @@ export default {
   },
   methods: {
     login() {
+      
+      this.incorrect_login = false
+      
+      this.loading = false
 
       const userData = {
         username: this.username,
         password: this.password
       }
-      console.log("inside Login.vue login()")
 
       // Call the service to save user
       UserDataService.login(userData, { withCredentials: true })
         .then(response => {
-          console.log(response)
-          // // Handle successful login
-          // if (response.data.message === 'Login successful') {
-          //   // Handle successful login (e.g., redirect, store user info)
-          //   console.log('Login successful', response.data.user);
-          // } else {
-          //   this.error = 'Login failed';
-          // }
+          // Handle successful login
+          if (response.data.message === 'Login successful') {
+            console.log('Login successful', response);
+
+            this.loading = true
+            this.$router.push({ name: 'home_page', query: {} });
+            
+          } else {
+            console.log("Login failed", response)
+            this.incorrect_login = true
+          }
         })
         .catch(error => {
           // Handle errors
@@ -51,6 +59,12 @@ export default {
     closeModal() {
       this.updated_password = false;
     }
+  },
+  beforeRouteLeave(to, from, next) {
+    // Add a delay before the route change is allowed
+    setTimeout(() => {
+      next(); // Continue the route transition after a delay
+    }, 1000); // 1-second delay
   }
 };
 
@@ -159,6 +173,13 @@ export default {
                   </div>
                 </div>
               </form>
+
+              <!-- LOADING SPINNER -->
+              <div class="col-12 d-flex justify-content-center mt-4">
+                <div v-if="loading" class="spinner-border" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </div>
 
               <!-- INCORRECT PASSWORD ALERT -->
               <div v-if="incorrect_login" class="alert alert-danger c m-3" role="alert">

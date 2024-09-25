@@ -48,7 +48,7 @@ db.sequelize.sync({ force: true }).then(() => {
   ]
 
   const users_data = [
-    { id: 1, username: "zeze35h", name: "Jose Eduardo", surname: "Henriques", email: "zezeh35@hotmail.com", role: 1, active: true },
+    { id: 1, username: "zeze35h", name: "Jose Eduardo", surname: "Henriques", email: "zezeh35@hotmail.com", role: 1, password_token: "$2b$10$8NvUNHFay6THXQGLlHtMo.SAFIDiJ/./mMzISZmpqib/.kbdITjke", active: true },
     { id: 2, username: "pml2000", name: "Pedro Miguel", surname: "Lages", email: "pedromiguel@gmail.com", role: 2, active: true },
     { id: 3, username: "nis123", name: "Anais", surname: "Neto", email: "nisneto123@outlook.com", role: 2, active: true },
     { id: 4, username: "vida_g", name: "Maria Margarida", surname: "Garcia", email: "mariamarg@gmail.com", role: 2, active: true },

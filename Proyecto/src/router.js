@@ -1,4 +1,5 @@
 import { createWebHistory, createRouter } from "vue-router";
+import axios from "axios";
 
 const routes =  [
   {

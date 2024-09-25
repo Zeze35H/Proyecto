@@ -1,10 +1,7 @@
 const db = require("../models");
 const User = db.user;
 
-var express = require('express');
-var passport = require('passport');
-var LocalStrategy = require('passport-local');
-var crypto = require('crypto');
+const bcrypt = require('bcrypt');
 
 const correct_token = '3rhb23uydb238ry6g2429hrh'
 
@@ -12,8 +9,6 @@ const correct_token = '3rhb23uydb238ry6g2429hrh'
 exports.create = (req, res) => {
 
   console.log("inside user.controller.js create")
-
-  console.log(req.body)
 
   // Validate request
   if (req.body.role == 2 && req.body.token != correct_token) {
@@ -23,37 +18,48 @@ exports.create = (req, res) => {
     return;
   }
 
-  // Create a User
-  const user = {
-    username: req.body.username,
-    name: req.body.name,
-    surname: req.body.surname,
-    email: req.body.email,
-    role: req.body.role,
-    active: true,
-  };
 
-  // Save User in the database
-  User.create(user)
-    .then(data => {
-      res.send(data);
-    })
-    .catch(err => {
+  bcrypt.hash(req.body.password, 10, (err, hashedPassword) => {
+    if (err) {
       res.status(500).send({
         message:
           err.message || "Some error occurred while creating the User."
       });
-    });
+    };
+
+    // Create a User
+    const user = {
+      username: req.body.username,
+      name: req.body.name,
+      surname: req.body.surname,
+      email: req.body.email,
+      role: req.body.role,
+      password_token: hashedPassword,
+      active: true,
+    };
+
+    // Save User in the database
+    User.create(user)
+      .then(data => {
+        res.send(data);
+      })
+      .catch(err => {
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while creating the User."
+        });
+      });
+  });
+
 };
 
 // Retrieve all Users from the database.
 exports.findByUsername = (req, res) => {
 
   console.log("inside user.controller.js findByUsername")
-  console.log(req.params)
+
   const username = req.params.username;
   var condition = username ? { username: username } : null;
-  console.log(condition)
 
   User.findOne({ where: condition })
     .then(data => {
@@ -185,7 +191,7 @@ exports.findAllProfessors = (req, res) => {
 
 // find all professor users
 exports.uploadImage = (req, res) => {
-  console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA").then(data => {
+  console.log("inside upload Image").then(data => {
     res.send(data);
   })
     .catch(err => {

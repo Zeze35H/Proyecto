@@ -15,7 +15,6 @@ module.exports = (app, passport, db) => {
             db.user.findOne({ where: { username } })
                 .then(user => {
 
-                    console.log(user)
                     if (!user) {
                         return done(null, false, { message: 'Incorrect username.' });
                     }
@@ -51,25 +50,10 @@ module.exports = (app, passport, db) => {
     router.get('/failure', (req, res) => res.send({ message: 'Login failed' }));
 
     // Routes for login and logout
-    router.post('/login', (req, res, next) => {
-        console.log("inside auth.routes.js post(/login)");
-        next();
-    }, (req, res, next) => {
-        passport.authenticate('local', (err, user, info) => {
-            if (err) {
-                console.log("Error:", err);
-                return next(err);  // Handle any errors here
-            }
-            if (!user) {
-                console.log("Authentication failed:", info);
-                return res.redirect('/failure');
-            }
-            req.logIn(user, err => {
-                if (err) { return next(err); }
-                return res.redirect('/success');
-            });
-        })(req, res, next);
-    });
+    router.post('/login', passport.authenticate('local', {
+        successRedirect: '/api/auth/success',
+        failureRedirect: '/api/auth/failure'
+    }));
 
     router.get('/logout', (req, res) => {
         req.logout(err => {
@@ -78,9 +62,7 @@ module.exports = (app, passport, db) => {
         });
     });
 
-
-
-    app.get('/checkAuth', (req, res) => {
+    router.get('/checkAuth', (req, res) => {
         if (req.isAuthenticated()) {
             res.send({ authenticated: true, user: req.user });
         } else {
