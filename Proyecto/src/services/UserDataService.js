@@ -26,6 +26,7 @@ class UserDataService {
 
   login(data, withCredentials) {
     console.log("inside UserDataService.js login()")
+    console.log("data", data)
     return http.post(`/auth/login`, data, withCredentials);
   }
 

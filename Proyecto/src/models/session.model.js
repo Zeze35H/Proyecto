@@ -12,11 +12,11 @@ module.exports = (sequelize, Sequelize, User) => {
     },
     data: { // Session data stored as a serialized string
       type: Sequelize.TEXT,
-      allowNull: false,
+      allowNull: true,
     },
     id_user: {
       type: Sequelize.INTEGER,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: User,
         key: 'id',

@@ -8,9 +8,6 @@ module.exports = (app, passport, db) => {
     // Define the Local Strategy for Passport
     passport.use(new LocalStrategy(
         function (username, password, done) {
-
-            console.log("LocalStrategy is being executed with", username, password);
-
             // Find user by username in the database
             db.user.findOne({ where: { username } })
                 .then(user => {
@@ -46,14 +43,55 @@ module.exports = (app, passport, db) => {
             .catch(err => done(err));
     });
 
-    router.get('/success', (req, res) => res.send({ message: 'Login successful', user: req.user }));
+    router.get('/success', (req, res) => {
+        console.log(req)
+        req.session.id_user = req.user.id; // Assuming req.user contains the user after Passport authentication
+        req.session.signed_in = new Date(); // Store the signed-in time
+        res.send({ message: 'Login successful', user: req.user })
+    });
     router.get('/failure', (req, res) => res.send({ message: 'Login failed' }));
 
-    // Routes for login and logout
-    router.post('/login', passport.authenticate('local', {
-        successRedirect: '/api/auth/success',
-        failureRedirect: '/api/auth/failure'
-    }));
+    router.post('/login', (req, res, next) => {
+        passport.authenticate('local', (err, user, info) => {
+            if (err) {
+                return next(err);
+            }
+            if (!user) {
+                return res.redirect('/api/auth/failure');
+            }
+
+            // Manually log in the user
+            req.logIn(user, err => {
+                if (err) {
+                    console.log("inside err")
+                    return next(err);
+                }
+
+                // Ensure id_user and signed_in fields are properly set before saving session
+                if (!req.session.id_user) {
+                    req.session.id_user = user.id;
+                    console.log('Set session id_user:', req.session.id_user);
+                }
+
+                if (!req.session.signed_in) {
+                    req.session.signed_in = new Date();
+                    console.log('Set session signed_in:', req.session.signed_in);
+                }
+
+                req.session.save(err => {
+                    if (err) {
+                        console.error('Error saving session:', err);
+                        return res.status(500).send({ message: 'Error saving session' });
+                    }
+                    console.log('Session saved successfully:', req.session);
+                    return res.redirect('/api/auth/success');
+                });
+            });
+        })(req, res, next);
+    });
+
+
+
 
     router.post('/logout', (req, res) => {
         console.log("inside auth.routes logout")
@@ -64,7 +102,20 @@ module.exports = (app, passport, db) => {
                         err.message || "Some error occurred while logging out the User."
                 });
             }
-            res.send("Success");
+            req.session.destroy(err => {
+                if (err) {
+                    console.error('Error destroying session:', err);
+                    return res.status(500).send({
+                        message: "Error occurred while destroying the session."
+                    });
+                }
+
+                // Clear the cookie for the session (optional)
+                res.clearCookie('connect.sid', { path: '/' });
+
+                // Send success response or redirect the user to the login page
+                res.send({ message: "Logged out successfully" });
+            });
         });
     });
 

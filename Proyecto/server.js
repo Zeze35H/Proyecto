@@ -4,6 +4,8 @@ const cors = require("cors");
 const userController = require("./src/controllers/user.controller");
 
 const session = require('express-session');
+const SequelizeStore = require('connect-session-sequelize')(session.Store);
+
 const passport = require('passport');
 
 const app = express();
@@ -22,15 +24,34 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Middleware to parse JSON and handle session
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(session({
-  secret: 'your-secret-key', // Change this to a secure key
-  resave: false,
-  saveUninitialized: true
-}));
-app.use(passport.initialize());
-app.use(passport.session());
+// app.use(cookieParser());
+// app.use(express.static(path.join(__dirname, 'public')));
 
 const db = require("./src/models");
+
+// Assuming you have set up Sequelize and models (User, Session)
+const sequelizeStore = new SequelizeStore({
+  db: db.sequelize, // Your Sequelize instance
+  table: 'sessions', // Your custom session table
+  logging: console.log,
+  extendDefaultFields: (defaults, session) => {
+    // Custom field mapping for id_user and signed_in
+    return {
+      id_user: session.id_user, // Map id_user if available
+      signed_in: new Date(), // Map current timestamp for signed_in
+    };
+  },
+});
+
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  store: sequelizeStore,
+  cookie: {
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days session expiration
+  }
+}));
 
 db.sequelize.sync({ force: true }).then(() => {
   const subjects_data = [
@@ -105,10 +126,13 @@ db.sequelize.sync({ force: true }).then(() => {
   console.error('Unable to create table: ', error);
 });
 
-// simple route
-app.get("/", (req, res) => {
-  res.json({ message: "Welcome to bezkoder application." });
-});
+// // simple route
+// app.get("/", (req, res) => {
+//   res.json({ message: "Welcome to bezkoder application." });
+// });
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 require("./src/routes/user.routes.js")(app);
 require("./src/routes/reation.routes.js")(app);
