@@ -55,10 +55,16 @@ module.exports = (app, passport, db) => {
         failureRedirect: '/api/auth/failure'
     }));
 
-    router.get('/logout', (req, res) => {
+    router.post('/logout', (req, res) => {
+        console.log("inside auth.routes logout")
         req.logout(err => {
-            if (err) { return next(err); }
-            res.redirect('/');
+            if (err) {
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while logging out the User."
+                });
+            }
+            res.send("Success");
         });
     });
 

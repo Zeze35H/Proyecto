@@ -11,27 +11,27 @@ class UserDataService {
 
   create(data) {
     console.log("inside UserDataService.js create()")
-    console.log(data)
     return http.post("/users", data);
   }
 
   findByUsername(username) {
     console.log("inside UserDataService.js findByUsername()")
-    console.log(username)
     return http.get(`/users/${username}`);
   }
 
   findAllRelations(username) {
     console.log("inside UserDataService.js findAllRelations()")
-    console.log(username)
     return http.get(`/relations/${username}`);
   }
 
   login(data, withCredentials) {
     console.log("inside UserDataService.js login()")
-    console.log(data)
-    console.log(withCredentials)
     return http.post(`/auth/login`, data, withCredentials);
+  }
+
+  logout() {
+    console.log("inside UserDataService.js logout()")
+    return http.post(`/auth/logout`);
   }
 
   // update(id, data) {

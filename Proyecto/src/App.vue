@@ -1,5 +1,23 @@
 <script setup>
-import Login from './components/Login.vue'
+import UserDataService from "./services/UserDataService.js";
+import { useRouter } from "vue-router"; // Import useRouter
+
+const router = useRouter(); // Get the router instance
+
+const logout = () => {
+  // Call the service to save user
+  UserDataService.logout()
+    .then(response => {
+      // Handle successful registration
+      console.log("User logout:", response);
+      router.push({ name: 'login', query: {} });
+    })
+    .catch(error => {
+      // Handle errors
+      console.error("Error logging out user:", error);
+    });
+}
+
 </script>
 
 <template>
@@ -60,7 +78,7 @@ import Login from './components/Login.vue'
           <button class="btn btn-outline-primary" type="submit">Search</button>
         </form> -->
         <div class="d-flex">
-          <a type="button" class="btn btn-outline-secondary me-2" href="/login">
+          <a @click="logout" type="button" class="btn btn-outline-secondary me-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
               class="bi bi-box-arrow-left" viewBox="0 0 16 16">
               <path fill-rule="evenodd"
