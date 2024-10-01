@@ -5,6 +5,8 @@ const bcrypt = require('bcrypt');
 
 const correct_token = '3rhb23uydb238ry6g2429hrh'
 
+const EmailService = require("../services/EmailService.js")
+
 // Create and Save a new User
 exports.create = (req, res) => {
 
@@ -72,6 +74,54 @@ exports.findByUsername = (req, res) => {
       });
     });
 };
+
+// Retrieve all Users from the database.
+exports.findByEmail = (req, res) => {
+
+  console.log("inside user.controller.js findByEmail")
+
+  const email = req.params.email;
+  var condition = email ? { email: email } : null;
+
+  User.findOne({ where: condition })
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving user."
+      });
+    });
+};
+
+// Send reset password email
+exports.resetPassword = (req, res) => {
+
+  console.log("inside user.controller.js resetPassword")
+
+  // TODO: SEND EMAIL WITH RESET LINK
+
+  const link = "http://coreia.ddns.net/account-activation?token=" + req.access_token
+
+  EmailService.sendEmail(req.email, link)
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving user."
+      });
+    });
+
+  EmailService.sendEmail()
+
+};
+
+
+
+// OTHERS
 
 // Find a single User with an id
 exports.findOne = (req, res) => {

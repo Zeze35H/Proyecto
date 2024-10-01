@@ -16,20 +16,42 @@ export default {
     resetPassword() {
       this.no_account = false
       this.inactive_account = false
-      this.reset_sent = true
+      this.reset_sent = false
 
 
+      UserDataService.findByEmail(this.email)
+        .then(response => {
+          console.log(response.data)
+          if (response.data.length == 0) {
+            console.log("Email not found:", response);
+            this.no_account = true
+            return
+          }
+          else {
+            console.log("Email found:", response);
+            if (!response.data.active) {
+              console.log("User inactive:", response);
+              this.inactive_account = true
+              return
+            }
+            else {
+              console.log("Active user with email found!", response.data)
+              UserDataService.resetPassword(response.data)
+                .then(response => {
+                  console.log(response)
+                  this.reset_sent = false
+                })
+                .catch(e => {
+                  console.log(e);
+                });
+            }
+          }
+        })
+        .catch(e => {
+          console.log(e);
+        });
 
-      // // TODO: FIND ACCOUNT BY EMAIL AND THEN CHECK IF IS ACTIVE
-      // UserDataService.create(data)
-      //   .then(response => {
-      //     console.log(response)
-      //     this.incorrect_login = true
-      //   })
-      //   .catch(e => {
-      //     console.log(e);
-      //     this.incorrect_login = true
-      //   });
+
 
     },
 

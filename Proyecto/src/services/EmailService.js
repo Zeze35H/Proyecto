@@ -18,7 +18,7 @@ const oAuth2Client = new google.auth.OAuth2(
 oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 
 // Send email using Nodemailer
-async function sendMail() {
+async function sendMail(to_email, link) {
   try {
     // Generate a new access token
     const accessToken = await oAuth2Client.getAccessToken();
@@ -39,9 +39,9 @@ async function sendMail() {
     // Email options
     let mailOptions = {
       from: 'zezeh35@gmail.com',
-      to: 'zezeh35@hotmail.com',
+      to: to_email,
       subject: 'Nodemailer OAuth2 Test',
-      text: 'Hello, this email is sent using OAuth2 and Nodemailer!',
+      text: 'Hello, please click this link to reser your password! ' + link,
     };
 
     // Send the email
@@ -52,5 +52,4 @@ async function sendMail() {
   }
 }
 
-// Call the function to send an email
-sendMail();
+export default sendMail;
