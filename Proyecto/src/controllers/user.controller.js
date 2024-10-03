@@ -7,6 +7,7 @@ const correct_token = '3rhb23uydb238ry6g2429hrh'
 
 const EmailService = require("../services/EmailService.js")
 
+
 // Create and Save a new User
 exports.create = (req, res) => {
 
@@ -95,16 +96,15 @@ exports.findByEmail = (req, res) => {
     });
 };
 
-// Send reset password email
-exports.resetPassword = (req, res) => {
+// Retrieve all Users from the database.
+exports.findByToken = (req, res) => {
 
-  console.log("inside user.controller.js resetPassword")
+  console.log("inside user.controller.js findByEmail")
 
-  // TODO: SEND EMAIL WITH RESET LINK
+  const token = req.params.token;
+  var condition = token ? { access_token: token } : null;
 
-  const link = "http://coreia.ddns.net/account-activation?token=" + req.access_token
-
-  EmailService.sendEmail(req.email, link)
+  User.findOne({ where: condition })
     .then(data => {
       res.send(data);
     })
@@ -114,8 +114,90 @@ exports.resetPassword = (req, res) => {
           err.message || "Some error occurred while retrieving user."
       });
     });
+};
 
-  EmailService.sendEmail()
+
+// Send reset password email
+exports.resetPassword = (req, res) => {
+
+  console.log("inside user.controller.js resetPassword")
+
+  // TODO: SEND EMAIL WITH RESET LINK
+
+  console.log(req.body)
+
+  const link = "http://localhost:8081/password_change?token=" + req.body.access_token
+
+  const text =
+    `
+      Hello, ${req.body.name} ${req.body.surname}.\n
+      We've received a request to reset your password.
+      If this wasn't you, please ignore this email.
+      Otherwise, click the link below to reset your password!\n
+      ${link}\n
+      Do not share this link with anyone!\n
+      Best regards,
+      Website Thingy Team
+    `
+
+  EmailService.sendMail(req.body.email, "WebsiteThingy Password Reset", text)
+    .then(data => {
+      console.log(data)
+      res.status(200).send(data);
+    })
+    .catch(err => {
+      console.log(err)
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving user."
+      });
+    });
+};
+
+exports.changePassword = (req, res) => {
+
+  console.log("inside user.controller.js changePassword")
+
+  console.log(req.body)
+  console.log(req.params)
+
+  const id = req.params.id;
+
+  bcrypt.hash(req.body.new_password, 10, (err, hashedPassword) => {
+    if (err) {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while updating the User."
+      });
+    };
+
+    console.log(id, hashedPassword)
+
+    User.update({ password_token: hashedPassword }, {
+      where: { id: id }
+    })
+      .then(num => {
+        console.log("num", num)
+        if (num == 1) {
+          res.send({
+            message: "User was updated successfully.",
+            success: true,
+          });
+        } else {
+          res.send({
+            message: `Cannot update User with id=${id}. Maybe User was not found or req.body is empty!`,
+            success: false,
+          });
+        }
+      })
+      .catch(err => {
+        console.log("err", err)
+        res.status(500).send({
+          message: "Error updating User with id=" + id,
+          success: false,
+        });
+      });
+  })
 
 };
 

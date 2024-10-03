@@ -5,7 +5,7 @@ const { google } = require('googleapis');
 const CLIENT_ID = '358811769009-srq02fehhptag5q9l5sebapa7obt0saq.apps.googleusercontent.com';
 const CLIENT_SECRET = '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';
 const REDIRECT_URI = 'https://developers.google.com/oauthplayground';
-const REFRESH_TOKEN = '1//04KtRYrTtWf6NCgYIARAAGAQSNwF-L9IrX4RejXH8ih7rhLlJ4EegNhV7EmBtgspJWd0OFhlobO5_RUUyjg9DNjOsX8MHAP6Op94';
+const REFRESH_TOKEN = '1//04uuPIVlNH_y2CgYIARAAGAQSNwF-L9IrjZ2W2ULr-CbpRH_0acMsN8mE1djfv7OtXeLQLy78cinE18sI-_mfnqA7pZoGs1Nw1JU';
 
 // Create an OAuth2 client with your credentials
 const oAuth2Client = new google.auth.OAuth2(
@@ -18,8 +18,9 @@ const oAuth2Client = new google.auth.OAuth2(
 oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 
 // Send email using Nodemailer
-async function sendMail(to_email, link) {
+async function sendMail(to_email, subject, text) {
   try {
+
     // Generate a new access token
     const accessToken = await oAuth2Client.getAccessToken();
 
@@ -40,16 +41,18 @@ async function sendMail(to_email, link) {
     let mailOptions = {
       from: 'zezeh35@gmail.com',
       to: to_email,
-      subject: 'Nodemailer OAuth2 Test',
-      text: 'Hello, please click this link to reser your password! ' + link,
+      subject: subject,
+      text: text,
     };
 
     // Send the email
     let result = await transporter.sendMail(mailOptions);
     console.log('Email sent successfully:', result);
+    return result
   } catch (error) {
     console.log('Error sending email:', error);
+    return error
   }
 }
 
-export default sendMail;
+exports.sendMail = sendMail

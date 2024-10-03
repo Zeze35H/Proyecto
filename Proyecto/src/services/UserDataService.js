@@ -23,12 +23,21 @@ class UserDataService {
     console.log("inside UserDataService.js findByEmail()")
     return http.get(`/users/findByEmail/${email}`);
   }
+  
+  findByToken(access_token) {
+    console.log("inside UserDataService.js findByToken()")
+    return http.get(`/users/findByToken/${access_token}`);
+  }
 
   resetPassword(data) {
     console.log("inside UserDataService.js resetPassword()")
     return http.post(`/users/resetPassword`, data);
   }
 
+  changePassword(id, data) {
+    console.log("inside UserDataService.js changePassword()")
+    return http.post(`/users/changePassword/${id}`, data);
+  }
 
   // RELATIONS
 

@@ -10,31 +10,82 @@ export default {
       confirm_password: "",
       unmatched_passwords: false,
       loading: false,
+
+      valid_token: false,
+      user: null
     };
+  },
+  created() {
+    const access_token = this.$route.query.token
+    this.$router.replace({ name: 'password_change' });
+
+    if (access_token) {
+      // Call the service to find user by token
+      UserDataService.findByToken(access_token)
+        .then(response => {
+          console.log(response.data)
+          if (response.data.length != 0) {
+            console.log("Username found:", response);
+            this.user = response.data
+            return
+          }
+          else {
+            console.log("Username not found:", response);
+            this.$router.replace({ name: 'login' });
+            return
+          }
+        })
+        .catch(error => {
+          // Handle errors
+          console.error("An error occurred while retrieving user:", error);
+        });
+    }
+    else {
+      console.log("Access token not provided")
+      this.$router.replace({ name: 'login' });
+      return
+    }
+
+    // ; // Extract token from query parameters
+
+    // this.$axios.get(`http://localhost:8080/api/users/account-activation?token=${token}`)
+    //   .then(response => {
+    //     if (response.data.success) {
+    //       this.$router.push('/password_change'); // Redirect to password change page
+    //     } else {
+    //       this.$router.push('/'); // Redirect to homepage if invalid
+    //     }
+    //   })
+    //   .catch(error => {
+    //     console.error("There was an error:", error);
+    //     this.$router.push('/'); // Redirect to homepage on error
+    //   });
   },
   methods: {
     changePassword() {
-      this.loading = true
       this.unmatched_passwords = false
 
       if (this.password !== this.confirm_password) {
         this.unmatched_passwords = true
       }
+      else {
+        this.loading = true
+        console.log(this.user.id, { new_password: this.password })
+        UserDataService.changePassword(this.user.id, { new_password: this.password })
+          .then(response => {
+            if (response.data.success) {
+              console.log(response.message)
+              this.$router.push({ name: 'login', query: { updated_password: 1 } });
+            }
+            else {
+              console.log("An error occurred while changing the password:", response.message);
+            }
+          })
+          .catch(error => {
+            console.error("An error occurred while changing the password:", error);
+          });
 
-      this.$router.push({ name: 'login', query: { updated_password: 1 } });
-
-
-
-      // // TODO: CHANGE PASSWORD
-      // UserDataService.create(data)
-      //   .then(response => {
-      //     console.log(response)
-      //     this.incorrect_login = true
-      //   })
-      //   .catch(e => {
-      //     console.log(e);
-      //     this.incorrect_login = true
-      //   });
+      }
 
     },
 
@@ -50,7 +101,7 @@ export default {
 </script>
 
 <template>
-  <section class="bg-secondary p-3 py-md-5 py-xl-8 ">
+  <section v-if="user" class="bg-secondary p-3 py-md-5 py-xl-8 ">
     <div class="container ">
       <div class="row gy-4 align-items-center justify-content-center">
         <div class="col-12 col-md-6 col-xl-5">

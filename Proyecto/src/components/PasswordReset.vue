@@ -38,8 +38,9 @@ export default {
               console.log("Active user with email found!", response.data)
               UserDataService.resetPassword(response.data)
                 .then(response => {
-                  console.log(response)
-                  this.reset_sent = false
+                  if (response.status == 200) {
+                    this.reset_sent = true
+                  }
                 })
                 .catch(e => {
                   console.log(e);
