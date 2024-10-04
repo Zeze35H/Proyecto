@@ -65,7 +65,7 @@ export default {
                 // Handle successful registration
                 console.log("User registered:", response);
                 this.loading = true
-                this.$router.push({ name: 'home_page', query: {} });
+                this.$router.push({ name: 'confirm_email', query: {} });
               })
               .catch(error => {
                 // Handle errors

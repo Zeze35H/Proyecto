@@ -21,6 +21,9 @@ module.exports = app => {
   // Change password of the user
   router.post("/changePassword/:id", user.changePassword)
 
+  // Change password of the user
+  router.post("/activateAccount/:id", user.activateAccount)
+
   // // Retrieve all published Users
   // router.get("/published", user.findAllStudents);
 

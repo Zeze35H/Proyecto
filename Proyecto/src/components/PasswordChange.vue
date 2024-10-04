@@ -45,21 +45,6 @@ export default {
       this.$router.replace({ name: 'login' });
       return
     }
-
-    // ; // Extract token from query parameters
-
-    // this.$axios.get(`http://localhost:8080/api/users/account-activation?token=${token}`)
-    //   .then(response => {
-    //     if (response.data.success) {
-    //       this.$router.push('/password_change'); // Redirect to password change page
-    //     } else {
-    //       this.$router.push('/'); // Redirect to homepage if invalid
-    //     }
-    //   })
-    //   .catch(error => {
-    //     console.error("There was an error:", error);
-    //     this.$router.push('/'); // Redirect to homepage on error
-    //   });
   },
   methods: {
     changePassword() {

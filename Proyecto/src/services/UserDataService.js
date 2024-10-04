@@ -39,6 +39,11 @@ class UserDataService {
     return http.post(`/users/changePassword/${id}`, data);
   }
 
+  activateAccount(id) {
+    console.log("inside UserDataService.js activateAccount()")
+    return http.post(`/users/activateAccount/${id}`);
+  }
+
   // RELATIONS
 
   findAllRelations(username) {

@@ -38,13 +38,39 @@ exports.create = (req, res) => {
       email: req.body.email,
       role: req.body.role,
       password_token: hashedPassword,
-      active: true,
     };
 
     // Save User in the database
     User.create(user)
       .then(data => {
-        res.send(data);
+
+        console.log(data)
+        const link = "http://localhost:8081/login?token=" + data.access_token
+
+        const text =
+          `
+          Hello, ${req.body.name} ${req.body.surname}.\n
+          We've received a request to create an account using this email address.
+          If this wasn't you, please ignore this email.
+          Otherwise, click the link below to activate your account and complete your registration!\n
+          ${link}\n
+          Do not share this link with anyone!\n
+          Best regards,
+          Website Thingy Team
+          `
+
+        EmailService.sendMail(req.body.email, "WebsiteThingy Account Confirmation", text)
+          .then(data => {
+            console.log(data)
+            res.status(200).send(data);
+          })
+          .catch(err => {
+            console.log(err)
+            res.status(500).send({
+              message:
+                err.message || "Some error occurred while creating the user."
+            });
+          });
       })
       .catch(err => {
         res.status(500).send({
@@ -201,6 +227,37 @@ exports.changePassword = (req, res) => {
 
 };
 
+
+exports.activateAccount = (req, res) => {
+
+  console.log("inside user.controller.js activateAccount")
+
+  User.update({ active: true }, {
+    where: { id: req.params.id }
+  })
+    .then(num => {
+      console.log("num", num)
+      if (num == 1) {
+        res.send({
+          message: "User was updated successfully.",
+          success: true,
+        });
+      } else {
+        res.send({
+          message: `Cannot update User with id=${id}. Maybe User was not found!`,
+          success: false,
+        });
+      }
+    })
+    .catch(err => {
+      console.log("err", err)
+      res.status(500).send({
+        message: "Error updating User with id=" + id,
+        success: false,
+      });
+    });
+
+};
 
 
 // OTHERS

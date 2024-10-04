@@ -9,26 +9,63 @@ export default {
       username: "",
       password: "",
       incorrect_login: false,
+
       updated_password: 0,
+      activated_account: 0,
 
       loading: false
     };
   },
   created() {
-    console.log("ROUTE", this.$route);
-    console.log("UPDATED PASSWORD", this.$route.query);
+
     if (this.$route.query.updated_password) {
       this.updated_password = 1
-
       // Remove the query parameter from the URL
       this.$router.replace({ name: 'login' });
+    }
+    if (this.$route.query.token) {
+
+      
+      const access_token = this.$route.query.token
+      console.log(access_token)
+
+      // Call the service to find user by token
+      UserDataService.findByToken(access_token)
+        .then(response => {
+          console.log(response.data)
+          if (response.data.length != 0) {
+            console.log("Username found:", response);
+
+            UserDataService.activateAccount(response.data.id)
+              .then(response => {
+                console.log(success)
+                if (response.success) {
+                  this.activated_account = 1
+                  this.$router.replace({ name: 'login' });
+                }
+              })
+              .catch(error => {
+                // Handle errors
+                console.error("An error occurred while activating user:", error);
+              });
+          }
+          else {
+            console.log("Username not found:", response);
+            this.$router.replace({ name: 'login' });
+            return
+          }
+        })
+        .catch(error => {
+          // Handle errors
+          console.error("An error occurred while retrieving user:", error);
+        });
     }
   },
   methods: {
     login() {
-      
+
       this.incorrect_login = false
-      
+
       this.loading = false
 
       const userData = {
@@ -45,7 +82,7 @@ export default {
 
             this.loading = true
             this.$router.push({ name: 'home_page', query: {} });
-            
+
           } else {
             console.log("Login failed", response)
             this.incorrect_login = true
@@ -85,6 +122,28 @@ export default {
           </div>
           <div class="modal-body">
             Your password has been updated successfully!
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- Modal -->
+    <div>
+    <div v-if="activated_account" class="modal fade show d-block" id="exampleModal" tabindex="-1"
+      aria-labelledby="exampleModalLabel" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);"
+      @click.self="closeModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Account Activated</h5>
+            <button type="button" class="btn-close" aria-label="Close" @click="closeModal"></button>
+          </div>
+          <div class="modal-body">
+            Your account has been activated! You can now login!
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
