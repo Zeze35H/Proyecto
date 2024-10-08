@@ -13,12 +13,12 @@ module.exports = (app, passport, db) => {
                 .then(user => {
 
                     if (!user) {
-                        return done(null, false, { message: 'Incorrect username.' });
+                        return done(null, false, { message: 'Username or Password Incorrect.' });
                     }
 
                     // Check if the password exists in the database
-                    if (!user.password_token) {
-                        return done(null, false, { message: 'No password found for this user.' });
+                    if (!user.active) {
+                        return done(null, false, { message: 'User account is not active.' });
                     }
 
                     // Compare the hashed password with the provided password
@@ -27,7 +27,7 @@ module.exports = (app, passport, db) => {
                         if (isMatch) {
                             return done(null, user);
                         } else {
-                            return done(null, false, { message: 'Incorrect password.' });
+                            return done(null, false, { message: 'Username or Password Incorrect.' });
                         }
                     });
                 })
@@ -49,7 +49,11 @@ module.exports = (app, passport, db) => {
         req.session.signed_in = new Date(); // Store the signed-in time
         res.send({ message: 'Login successful', user: req.user })
     });
-    router.get('/failure', (req, res) => res.send({ message: 'Login failed' }));
+
+    router.get('/failure', (req, res) => {
+        const message = req.query.message || 'Login failed.'
+        res.send({ message: message })
+    });
 
     router.post('/login', (req, res, next) => {
         passport.authenticate('local', (err, user, info) => {
@@ -57,7 +61,7 @@ module.exports = (app, passport, db) => {
                 return next(err);
             }
             if (!user) {
-                return res.redirect('/api/auth/failure');
+                return res.redirect(`/api/auth/failure?message=${encodeURIComponent(info.message)}`);
             }
 
             // Manually log in the user

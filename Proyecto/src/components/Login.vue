@@ -8,7 +8,9 @@ export default {
     return {
       username: "",
       password: "",
+
       incorrect_login: false,
+      incorrect_login_message: "",
 
       updated_password: 0,
       activated_account: 0,
@@ -25,7 +27,7 @@ export default {
     }
     if (this.$route.query.token) {
 
-      
+
       const access_token = this.$route.query.token
       console.log(access_token)
 
@@ -38,8 +40,8 @@ export default {
 
             UserDataService.activateAccount(response.data.id)
               .then(response => {
-                console.log(success)
-                if (response.success) {
+                console.log(response)
+                if (response.data.success) {
                   this.activated_account = 1
                   this.$router.replace({ name: 'login' });
                 }
@@ -86,6 +88,7 @@ export default {
           } else {
             console.log("Login failed", response)
             this.incorrect_login = true
+            this.incorrect_login_message = response.data.message
           }
         })
         .catch(error => {
@@ -95,6 +98,7 @@ export default {
     },
     closeModal() {
       this.updated_password = false;
+      this.activated_account = false;
     }
   },
   beforeRouteLeave(to, from, next) {
@@ -131,8 +135,8 @@ export default {
     </div>
   </div>
 
-    <!-- Modal -->
-    <div>
+  <!-- Modal -->
+  <div>
     <div v-if="activated_account" class="modal fade show d-block" id="exampleModal" tabindex="-1"
       aria-labelledby="exampleModalLabel" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);"
       @click.self="closeModal">
@@ -242,7 +246,7 @@ export default {
 
               <!-- INCORRECT PASSWORD ALERT -->
               <div v-if="incorrect_login" class="alert alert-danger c m-3" role="alert">
-                Username or Password Incorrect.
+                {{ this.incorrect_login_message }}
               </div>
 
               <!-- FORGOT PASSWORD -->

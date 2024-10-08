@@ -69,13 +69,14 @@ db.sequelize.sync({ force: true }).then(() => {
   ]
 
   const users_data = [
-    { id: 1, username: "zeze35h", name: "Jose Eduardo", surname: "Henriques", email: "zezeh35@hotmail.com", role: 1, password_token: "$2b$10$8NvUNHFay6THXQGLlHtMo.SAFIDiJ/./mMzISZmpqib/.kbdITjke", active: true },
+    { id: 1, username: "zeze35h", name: "Jose Eduardo", surname: "Henriques", email: "zezeh35@hotmail.com", role: 1, password_token: "$2b$10$8NvUNHFay6THXQGLlHtMo.SAFIDiJ/./mMzISZmpqib/.kbdITjke", active: false },
     { id: 2, username: "pml2000", name: "Pedro Miguel", surname: "Lages", email: "pedromiguel@gmail.com", role: 2, active: true },
     { id: 3, username: "nis123", name: "Anais", surname: "Neto", email: "nisneto123@outlook.com", role: 2, active: true },
     { id: 4, username: "vida_g", name: "Maria Margarida", surname: "Garcia", email: "mariamarg@gmail.com", role: 2, active: true },
     { id: 5, username: "filippapsi", name: "Filippa", surname: "Psychomani", email: "filippaps@gmail.com", role: 2, active: true },
     { id: 6, username: "rp000", name: "Ricardo", surname: "Pereira", email: "rp000@hotmail.com", role: 1, active: true },
     { id: 7, username: "luistorresss", name: "Luis", surname: "Torres", email: "luistorresss@gmail.com", role: 1, active: true },
+    { id: 8, username: "postgres1", name: "p", surname: "g", email: "pg@gmail.com", role: 1, active: false },
   ]
 
   const stud_teach_rel_data = [

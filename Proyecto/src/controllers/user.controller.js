@@ -5,7 +5,8 @@ const bcrypt = require('bcrypt');
 
 const correct_token = '3rhb23uydb238ry6g2429hrh'
 
-const EmailService = require("../services/EmailService.js")
+const EmailService = require("../services/EmailService.js");
+const { v4: uuidv4 } = require('uuid');
 
 
 // Create and Save a new User
@@ -232,7 +233,10 @@ exports.activateAccount = (req, res) => {
 
   console.log("inside user.controller.js activateAccount")
 
-  User.update({ active: true }, {
+ const newvar = uuidv4();
+ console.log(newvar)
+
+  User.update({ access_token: newvar, active: true }, {
     where: { id: req.params.id }
   })
     .then(num => {
