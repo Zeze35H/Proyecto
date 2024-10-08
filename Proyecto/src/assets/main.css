@@ -34,3 +34,10 @@ tbody td {
   opacity: 0.2;
   pointer-events: none;
 }
+
+/* REGISTER */
+
+#role {
+  pointer-events: none; /* Prevents the user from clicking and typing in the field */
+  background-color: #e9ecef; /* Adds a disabled-like appearance */
+}

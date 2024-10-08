@@ -31,10 +31,11 @@ export default {
       this.used_username = false
       this.incorrect_token = false
 
-      this.loading = false
+      this.loading = true
 
       if (this.password !== this.confirm_password) {
         this.unmatched_passwords = true
+        this.loading = false
         return
       }
 
@@ -44,6 +45,7 @@ export default {
           if (response.data.length != 0) {
             console.log("Username found:", response);
             this.used_username = true
+            this.loading = false
             return
           }
           else {
@@ -64,12 +66,12 @@ export default {
               .then(response => {
                 // Handle successful registration
                 console.log("User registered:", response);
-                this.loading = true
                 this.$router.push({ name: 'confirm_email', query: {} });
               })
               .catch(error => {
                 // Handle errors
                 console.error("Error registering user:", error);
+                this.loading = false
                 this.incorrect_token = true
               });
           }
@@ -77,6 +79,7 @@ export default {
         .catch(error => {
           // Handle errors
           console.error("Error registering user:", error);
+          this.loading = false
           return
         });
     },
@@ -182,7 +185,7 @@ export default {
                       <div class="col">
                         <div class="form-floating mb-1">
                           <input v-model="role" type="text" class="form-control" name="role" id="role"
-                            placeholder="Role" required disabled>
+                            placeholder="Role" required>
                           <label for="role" class="form-label">Role</label>
                         </div>
                       </div>
