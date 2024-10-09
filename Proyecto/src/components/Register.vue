@@ -41,7 +41,6 @@ export default {
 
       UserDataService.findByUsername(this.username)
         .then(response => {
-          console.log(response.data)
           if (response.data.length != 0) {
             console.log("Username found:", response);
             this.used_username = true
@@ -96,7 +95,7 @@ export default {
 
 <template>
   <!-- Login 9 - Bootstrap Brain Component -->
-  <section class="bg-primary p-3 py-md-5 py-xl-8">
+  <section class="gradient-custom-1 p-3 py-md-5 py-xl-8">
     <div class="container">
       <div class="row gy-4 align-items-center">
         <div class="col-12 col-md-6 col-xl-5">
@@ -210,18 +209,35 @@ export default {
 
                   <div class="col-12">
                     <!-- USED USERNAME ALERT -->
-                    <div v-if="used_username" class="alert alert-danger c m-3" role="alert">
-                      The inserted username is already in use.
+
+                    <div v-if="used_username" class="alert alert-danger d-flex align-items-center c m-3" role="alert">
+                      <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
+                        <use xlink:href="#exclamation-triangle-fill" />
+                      </svg>
+                      <div>
+                        The inserted username is already in use.
+                      </div>
                     </div>
 
                     <!-- INCORRECT PASSWORD ALERT -->
-                    <div v-if="unmatched_passwords" class="alert alert-danger c m-3" role="alert">
-                      The inserted passwords do not match.
+                    <div v-if="unmatched_passwords" class="alert alert-danger d-flex align-items-center c m-3"
+                      role="alert">
+                      <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
+                        <use xlink:href="#exclamation-triangle-fill" />
+                      </svg>
+                      <div>
+                        The inserted passwords do not match.
+                      </div>
                     </div>
 
                     <!-- INCORRECT TOKEN ALERT -->
-                    <div v-if="incorrect_token" class="alert alert-danger c m-3" role="alert">
-                      The inserted token is incorrect.
+                    <div v-if="incorrect_token" class="alert alert-danger d-flex align-items-center c m-3" role="alert">
+                      <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
+                        <use xlink:href="#exclamation-triangle-fill" />
+                      </svg>
+                      <div>
+                        The inserted token is incorrect.
+                      </div>
                     </div>
                   </div>
 
@@ -239,7 +255,7 @@ export default {
           </div>
         </div>
         <div class="col-12 col-md-6 col-xl-7">
-          <div class="d-flex justify-content-center text-bg-primary">
+          <div class="d-flex justify-content-center text-white">
             <div class="col-12 col-xl-9">
               <img class="img-fluid rounded mb-4" loading="lazy" src="../assets/img/tajaver.png" width="100"
                 alt="Vue Logo">

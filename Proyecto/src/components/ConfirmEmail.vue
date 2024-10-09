@@ -10,9 +10,9 @@ export default {
 
 <template>
   <!-- Login 9 - Bootstrap Brain Component -->
-  <section class="bg-primary p-3 py-md-5 py-xl-8">
+  <section class="gradient-custom-1 p-3 py-md-5 py-xl-8">
     <div class="container">
-      <div class="d-flex justify-content-center text-bg-primary">
+      <div class="d-flex justify-content-center text-white">
         <div class="col-12 col-xl-9">
           <img class="img-fluid rounded mb-4" loading="lazy" src="../assets/img/tajaver.png" width="100" alt="Vue Logo">
           <hr class="border-primary-subtle mb-4">

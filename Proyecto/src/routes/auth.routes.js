@@ -44,15 +44,14 @@ module.exports = (app, passport, db) => {
     });
 
     router.get('/success', (req, res) => {
-        console.log(req)
         req.session.id_user = req.user.id; // Assuming req.user contains the user after Passport authentication
         req.session.signed_in = new Date(); // Store the signed-in time
-        res.send({ message: 'Login successful', user: req.user })
+        res.send({ message: 'Login successful', user: req.user, success: true})
     });
 
     router.get('/failure', (req, res) => {
         const message = req.query.message || 'Login failed.'
-        res.send({ message: message })
+        res.send({ message: message, success: false })
     });
 
     router.post('/login', (req, res, next) => {
@@ -67,7 +66,6 @@ module.exports = (app, passport, db) => {
             // Manually log in the user
             req.logIn(user, err => {
                 if (err) {
-                    console.log("inside err")
                     return next(err);
                 }
 
@@ -98,7 +96,6 @@ module.exports = (app, passport, db) => {
 
 
     router.post('/logout', (req, res) => {
-        console.log("inside auth.routes logout")
         req.logout(err => {
             if (err) {
                 res.status(500).send({

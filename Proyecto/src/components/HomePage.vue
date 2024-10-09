@@ -74,7 +74,7 @@ export default {
 
     },
     confirmDeleteRow() {
-      
+
       // TODO: SAME QUESTION OF THE EDIT BUT FOR THE DELETE !!!
 
       this.table_contents.splice(this.index, 1)
@@ -102,6 +102,9 @@ export default {
 
         <!-- MODAL HEADER -->
         <div class="modal-header">
+          <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
+            <use xlink:href="#exclamation-triangle-fill" />
+          </svg>
           <h5 class="modal-title" id="staticBackdropLabel">Delete Topic Entry?</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>

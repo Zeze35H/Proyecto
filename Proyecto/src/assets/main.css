@@ -17,6 +17,17 @@ nav + section  {
   background: linear-gradient(to bottom, rgba(13,110,253,1), rgb(146, 190, 255))
 }
 
+.gradient-custom-2 {
+  /* fallback for old browsers */
+  background: rgba(108,117,125,1);
+
+  /* Chrome 10-25, Safari 5.1-6 */
+  background: -webkit-linear-gradient(to bottom, rgba(108,117,125,1), rgb(182,186,190));
+
+  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  background: linear-gradient(to bottom, rgba(108,117,125,1), rgb(182,186,190))
+}
+
 /* HOMEPAGE TABLES */
 
 table td,

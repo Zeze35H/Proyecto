@@ -23,7 +23,6 @@ export default {
       // Call the service to find user by token
       UserDataService.findByToken(access_token)
         .then(response => {
-          console.log(response.data)
           if (response.data.length != 0) {
             console.log("Username found:", response);
             this.user = response.data
@@ -55,11 +54,9 @@ export default {
       }
       else {
         this.loading = true
-        console.log(this.user.id, { new_password: this.password })
         UserDataService.changePassword(this.user.id, { new_password: this.password })
           .then(response => {
             if (response.data.success) {
-              console.log(response.message)
               this.$router.push({ name: 'login', query: { updated_password: 1 } });
             }
             else {
@@ -142,8 +139,14 @@ export default {
 
               <div class="col-12">
                 <!-- INCORRECT PASSWORD ALERT -->
-                <div v-if="unmatched_passwords" class="alert alert-danger c m-3" role="alert">
-                  The inserted passwords do not match.
+
+                <div v-if="unmatched_passwords" class="alert alert-danger d-flex align-items-center c m-3" role="alert">
+                  <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
+                    <use xlink:href="#exclamation-triangle-fill" />
+                  </svg>
+                  <div>
+                    The inserted passwords do not match.
+                  </div>
                 </div>
               </div>
 

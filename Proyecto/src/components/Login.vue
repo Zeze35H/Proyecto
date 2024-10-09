@@ -29,18 +29,15 @@ export default {
 
 
       const access_token = this.$route.query.token
-      console.log(access_token)
 
       // Call the service to find user by token
       UserDataService.findByToken(access_token)
         .then(response => {
-          console.log(response.data)
           if (response.data.length != 0) {
             console.log("Username found:", response);
 
             UserDataService.activateAccount(response.data.id)
               .then(response => {
-                console.log(response)
                 if (response.data.success) {
                   this.activated_account = 1
                   this.$router.replace({ name: 'login' });
@@ -79,7 +76,7 @@ export default {
       UserDataService.login(userData, { withCredentials: true })
         .then(response => {
           // Handle successful login
-          if (response.data.message === 'Login successful') {
+          if (response.data.success) {
             console.log('Login successful', response);
 
             this.loading = true
@@ -121,6 +118,9 @@ export default {
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
+            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:">
+              <use xlink:href="#info-fill" />
+            </svg>
             <h5 class="modal-title" id="exampleModalLabel">Password Updated</h5>
             <button type="button" class="btn-close" aria-label="Close" @click="closeModal"></button>
           </div>
@@ -143,6 +143,9 @@ export default {
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
+            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:">
+              <use xlink:href="#info-fill" />
+            </svg>
             <h5 class="modal-title" id="exampleModalLabel">Account Activated</h5>
             <button type="button" class="btn-close" aria-label="Close" @click="closeModal"></button>
           </div>
@@ -157,13 +160,13 @@ export default {
     </div>
   </div>
 
-  <section class="bg-primary p-3 py-md-5 py-xl-8">
+  <section class="gradient-custom-1 p-3 py-md-5 py-xl-8">
     <div class="container">
       <div class="row gy-4 align-items-center">
 
         <!-- SIDE TEXT -->
         <div class="col-12 col-md-6 col-xl-7">
-          <div class="d-flex justify-content-center text-bg-primary">
+          <div class="d-flex justify-content-center text-white">
             <div class="col-12 col-xl-9">
               <img class="img-fluid rounded mb-4" loading="lazy" src="../assets/img/tajaver.png" width="100"
                 alt="Vue Logo">
@@ -245,8 +248,14 @@ export default {
               </div>
 
               <!-- INCORRECT PASSWORD ALERT -->
-              <div v-if="incorrect_login" class="alert alert-danger c m-3" role="alert">
-                {{ this.incorrect_login_message }}
+
+              <div v-if="incorrect_login" class="alert alert-danger d-flex align-items-center c m-3" role="alert">
+                <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
+                  <use xlink:href="#exclamation-triangle-fill" />
+                </svg>
+                <div>
+                  {{ this.incorrect_login_message }}
+                </div>
               </div>
 
               <!-- FORGOT PASSWORD -->

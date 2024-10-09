@@ -45,7 +45,6 @@ exports.create = (req, res) => {
     User.create(user)
       .then(data => {
 
-        console.log(data)
         const link = "http://localhost:8081/login?token=" + data.access_token
 
         const text =
@@ -62,11 +61,9 @@ exports.create = (req, res) => {
 
         EmailService.sendMail(req.body.email, "WebsiteThingy Account Confirmation", text)
           .then(data => {
-            console.log(data)
             res.status(200).send(data);
           })
           .catch(err => {
-            console.log(err)
             res.status(500).send({
               message:
                 err.message || "Some error occurred while creating the user."
@@ -151,8 +148,6 @@ exports.resetPassword = (req, res) => {
 
   // TODO: SEND EMAIL WITH RESET LINK
 
-  console.log(req.body)
-
   const link = "http://localhost:8081/password_change?token=" + req.body.access_token
 
   const text =
@@ -169,11 +164,9 @@ exports.resetPassword = (req, res) => {
 
   EmailService.sendMail(req.body.email, "WebsiteThingy Password Reset", text)
     .then(data => {
-      console.log(data)
-      res.status(200).send(data);
+      res.send(data);
     })
     .catch(err => {
-      console.log(err)
       res.status(500).send({
         message:
           err.message || "Some error occurred while retrieving user."
@@ -185,9 +178,6 @@ exports.changePassword = (req, res) => {
 
   console.log("inside user.controller.js changePassword")
 
-  console.log(req.body)
-  console.log(req.params)
-
   const id = req.params.id;
 
   bcrypt.hash(req.body.new_password, 10, (err, hashedPassword) => {
@@ -198,13 +188,10 @@ exports.changePassword = (req, res) => {
       });
     };
 
-    console.log(id, hashedPassword)
-
     User.update({ password_token: hashedPassword }, {
       where: { id: id }
     })
       .then(num => {
-        console.log("num", num)
         if (num == 1) {
           res.send({
             message: "User was updated successfully.",
@@ -218,7 +205,6 @@ exports.changePassword = (req, res) => {
         }
       })
       .catch(err => {
-        console.log("err", err)
         res.status(500).send({
           message: "Error updating User with id=" + id,
           success: false,
@@ -237,7 +223,6 @@ exports.activateAccount = (req, res) => {
     where: { id: req.params.id }
   })
     .then(num => {
-      console.log("num", num)
       if (num == 1) {
         res.send({
           message: "User was updated successfully.",
@@ -251,7 +236,6 @@ exports.activateAccount = (req, res) => {
       }
     })
     .catch(err => {
-      console.log("err", err)
       res.status(500).send({
         message: "Error updating User with id=" + id,
         success: false,
