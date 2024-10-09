@@ -185,7 +185,7 @@ export default {
                       <div class="col">
                         <div class="form-floating mb-1">
                           <input v-model="role" type="text" class="form-control" name="role" id="role"
-                            placeholder="Role" required>
+                            placeholder="Role" required tabindex="-1">
                           <label for="role" class="form-label">Role</label>
                         </div>
                       </div>

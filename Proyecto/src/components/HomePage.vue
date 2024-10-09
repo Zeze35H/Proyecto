@@ -12,7 +12,7 @@ export default {
       row_index: null,
       confirmationModal: false,
       edit: false,
-      edit_row: { first_name: '', last_name: '', email: '', subject: '' }
+      edit_row: { id: null, first_name: '', last_name: '', email: '', subject: '' }
     };
   },
   created() {
@@ -20,11 +20,12 @@ export default {
       .then(response => {
         // Handle successful registration
         for (let i = 0; i < response.data.length; i++) {
+          let id = response.data[i].id
           let prof_name = response.data[i].professor.name
           let prof_surname = response.data[i].professor.surname
           let prof_email = response.data[i].professor.email
           let subject_name = response.data[i].subject.name
-          this.table_contents.push({ first_name: prof_name, last_name: prof_surname, email: prof_email, subject: subject_name })
+          this.table_contents.push({ id: id, first_name: prof_name, last_name: prof_surname, email: prof_email, subject: subject_name })
         }
       })
       .catch(error => {
@@ -41,11 +42,28 @@ export default {
     },
     closeEdit() {
       this.edit = false
-      this.edit_row = { first_name: '', last_name: '', email: '', subject: '' }
+      this.edit_row = { id: null, first_name: '', last_name: '', email: '', subject: '' }
       this.row_index = null
     },
     confirmEdit(index) {
       this.table_contents[index] = this.edit_row
+      console.log(this.edit_row)
+
+      // TODO: HOW THE HELL IS THE USER SUPPOSED TO EDIT THE INFO OF A RELATION WHEN A RELATION CONISTS OF FOREIGN KEYS TO THE USER (STUDENT/PROFESSOR) AND THE SUBJECT TABLES??
+      //       IS IT SUPPOSED TO CHANGE THE NAME/SURNAME/EMAIL OF A PROFESSOR OR THE NAME OF A SUBJECT ???
+
+      // UserDataService.editRelation(this.edit_row)
+      //   .then(response => {
+      //     if (response.data.success) {
+
+      //     }
+      //     else {
+      //       console.log("An error occurred while changing the password:", response.message);
+      //     }
+      //   })
+      //   .catch(error => {
+      //     console.error("An error occurred while changing the password:", error);
+      //   });
       this.closeEdit()
     },
 
@@ -56,6 +74,9 @@ export default {
 
     },
     confirmDeleteRow() {
+      
+      // TODO: SAME QUESTION OF THE EDIT BUT FOR THE DELETE !!!
+
       this.table_contents.splice(this.index, 1)
       setTimeout(() => {
         this.confirmationModal = true

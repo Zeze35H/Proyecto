@@ -233,10 +233,7 @@ exports.activateAccount = (req, res) => {
 
   console.log("inside user.controller.js activateAccount")
 
- const newvar = uuidv4();
- console.log(newvar)
-
-  User.update({ access_token: newvar, active: true }, {
+  User.update({ access_token: uuidv4(), active: true }, {
     where: { id: req.params.id }
   })
     .then(num => {

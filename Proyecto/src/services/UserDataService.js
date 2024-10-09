@@ -51,6 +51,11 @@ class UserDataService {
     return http.get(`/relations/${username}`);
   }
 
+  editRelation(data) {
+    console.log("inside UserDataService.js editRelation()")
+    return http.get(`/relations/edit`, data);
+  }
+
   // AUTH
 
   login(data, withCredentials) {

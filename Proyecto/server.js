@@ -69,7 +69,7 @@ db.sequelize.sync({ force: true }).then(() => {
   ]
 
   const users_data = [
-    { id: 1, username: "zeze35h", name: "Jose Eduardo", surname: "Henriques", email: "zezeh35@hotmail.com", role: 1, password_token: "$2b$10$8NvUNHFay6THXQGLlHtMo.SAFIDiJ/./mMzISZmpqib/.kbdITjke", active: false },
+    { id: 1, username: "zeze35h", name: "Jose Eduardo", surname: "Henriques", email: "zezeh35@hotmail.com", role: 1, password_token: "$2b$10$8NvUNHFay6THXQGLlHtMo.SAFIDiJ/./mMzISZmpqib/.kbdITjke", active: true },
     { id: 2, username: "pml2000", name: "Pedro Miguel", surname: "Lages", email: "pedromiguel@gmail.com", role: 2, active: true },
     { id: 3, username: "nis123", name: "Anais", surname: "Neto", email: "nisneto123@outlook.com", role: 2, active: true },
     { id: 4, username: "vida_g", name: "Maria Margarida", surname: "Garcia", email: "mariamarg@gmail.com", role: 2, active: true },
@@ -80,12 +80,12 @@ db.sequelize.sync({ force: true }).then(() => {
   ]
 
   const stud_teach_rel_data = [
-    { id: 1, id_student: 1, id_teacher: 2, id_subject: 1 },
-    { id: 2, id_student: 1, id_teacher: 3, id_subject: 2 },
-    { id: 3, id_student: 1, id_teacher: 4, id_subject: 3 },
-    { id: 4, id_student: 1, id_teacher: 5, id_subject: 4 },
-    { id: 5, id_student: 6, id_teacher: 5, id_subject: 4 },
-    { id: 6, id_student: 7, id_teacher: 5, id_subject: 4 },
+    { id: 11, id_student: 1, id_teacher: 2, id_subject: 1 },
+    { id: 12, id_student: 1, id_teacher: 3, id_subject: 2 },
+    { id: 13, id_student: 1, id_teacher: 4, id_subject: 3 },
+    { id: 14, id_student: 1, id_teacher: 5, id_subject: 4 },
+    { id: 15, id_student: 6, id_teacher: 5, id_subject: 4 },
+    { id: 16, id_student: 7, id_teacher: 5, id_subject: 4 },
   ]
 
   // One-To-One association
