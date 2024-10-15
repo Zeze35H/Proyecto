@@ -2,6 +2,7 @@
 import UserDataService from "../services/UserDataService.js";
 
 export default {
+  name: 'profile_test',
   data() {
     return {
       profilePictureUrl: ''

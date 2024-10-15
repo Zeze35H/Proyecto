@@ -1,4 +1,4 @@
-module.exports = (app, passport, db) => {
+module.exports = (app, passport, db, store) => {
     // const user = require("../controllers/user.controller.js");
 
     var router = require("express").Router();
@@ -85,7 +85,7 @@ module.exports = (app, passport, db) => {
                         console.error('Error saving session:', err);
                         return res.status(500).send({ message: 'Error saving session' });
                     }
-                    console.log('Session saved successfully:', req.session);
+                    console.log('Session saved successfully:', req.session);                    
                     return res.redirect('/api/auth/success');
                 });
             });

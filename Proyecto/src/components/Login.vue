@@ -1,9 +1,8 @@
 <script>
-import { ref } from 'vue'
 import UserDataService from "../services/UserDataService.js";
 
 export default {
-  name: "create-user",
+  name: "login",
   data() {
     return {
       username: "",
@@ -19,7 +18,6 @@ export default {
     };
   },
   created() {
-
     if (this.$route.query.updated_password) {
       this.updated_password = 1
       // Remove the query parameter from the URL
@@ -78,6 +76,8 @@ export default {
           // Handle successful login
           if (response.data.success) {
             console.log('Login successful', response);
+            console.log("THIS STORE", this.$store)
+            this.$store.dispatch('login', response.data.user);
 
             this.loading = true
             this.$router.push({ name: 'home_page', query: {} });
@@ -98,12 +98,12 @@ export default {
       this.activated_account = false;
     }
   },
-  beforeRouteLeave(to, from, next) {
-    // Add a delay before the route change is allowed
-    setTimeout(() => {
-      next(); // Continue the route transition after a delay
-    }, 1000); // 1-second delay
-  }
+  // beforeRouteLeave(to, from, next) {
+  //   // Add a delay before the route change is allowed
+  //   setTimeout(() => {
+  //     next(); // Continue the route transition after a delay
+  //   }, 1000); // 1-second delay
+  // }
 };
 
 </script>

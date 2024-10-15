@@ -30,7 +30,7 @@ const routes =  [
     path: "/password_change",
     alias: "/password_change",
     name: "password_change",
-    component: () => import("./components/PasswordChange.vue")
+    component: () => import("./components/tutorial/TestingApp.vue")
   },
   {
     path: "/home_page",
@@ -44,7 +44,13 @@ const routes =  [
     alias: "/profile",
     name: "profile",
     meta: { requiresAuth: true },
-    component: () => import("./components/ProfileTest.vue")
+    component: () => import("./components/Profile.vue")
+  },
+  {
+    path: "/user_list",
+    alias: "/user_list",
+    name: "user_list",
+    component: () => import("./components/UserList.vue")
   },
 ];
 

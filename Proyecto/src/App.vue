@@ -1,10 +1,21 @@
 <script setup>
 import UserDataService from "./services/UserDataService.js";
+import { onMounted, computed } from 'vue';
 import { useRouter } from "vue-router"; // Import useRouter
+
+import { useStore } from 'vuex';
+const store = useStore();
 
 const router = useRouter(); // Get the router instance
 
+const isAuthenticated = computed(() => store.getters.isAuthenticated);
+
+onMounted(() => {
+  console.log('App.vue mounted');
+});
+
 const logout = () => {
+  store.dispatch('logout');
   // Call the service to save user
   UserDataService.logout()
     .then(response => {
@@ -67,8 +78,13 @@ const logout = () => {
             <a class="nav-link" href="/password_change">Password Change</a>
           </li>
 
+          <!-- USER LIST -->
+          <li class="nav-item">
+            <a class="nav-link" href="/user_list">User List</a>
+          </li>
+
           <!-- DROPDOWN -->
-          <li class="nav-item dropdown">
+          <!-- <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
               aria-expanded="false">
               Dropdown
@@ -81,12 +97,12 @@ const logout = () => {
               </li>
               <li><a class="dropdown-item" href="#">Something else here</a></li>
             </ul>
-          </li>
+          </li> -->
 
           <!-- DISABLED -->
-          <li class="nav-item">
+          <!-- <li class="nav-item">
             <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-          </li>
+          </li> -->
         </ul>
 
         <!-- SEARCH -->
@@ -95,7 +111,7 @@ const logout = () => {
           <button class="btn btn-outline-primary" type="submit">Search</button>
         </form> -->
         <div class="d-flex">
-          <a @click="logout" type="button" class="btn btn-outline-secondary me-2">
+          <a v-if="isAuthenticated" @click="logout" type="button" class="btn btn-outline-secondary me-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
               class="bi bi-box-arrow-left" viewBox="0 0 16 16">
               <path fill-rule="evenodd"
@@ -107,7 +123,7 @@ const logout = () => {
             </svg>
             Logout
           </a>
-          <a type="button" class="btn btn-primary rounded-circle" title="Profile" href="/profile">
+          <a v-if="isAuthenticated" type="button" class="btn btn-primary rounded-circle" title="Profile" href="/profile">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person"
               viewBox="0 0 16 16">
               <path

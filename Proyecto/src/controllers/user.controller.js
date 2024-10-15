@@ -80,6 +80,23 @@ exports.create = (req, res) => {
 
 };
 
+exports.findAllUsers = (req, res) => {
+
+  console.log("inside user.controller.js findAllUsers")
+
+  User.findAll()
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving users."
+      });
+    });
+
+}
+
 // Retrieve all Users from the database.
 exports.findByUsername = (req, res) => {
 
@@ -146,8 +163,6 @@ exports.resetPassword = (req, res) => {
 
   console.log("inside user.controller.js resetPassword")
 
-  // TODO: SEND EMAIL WITH RESET LINK
-
   const link = "http://localhost:8081/password_change?token=" + req.body.access_token
 
   const text =
@@ -188,7 +203,7 @@ exports.changePassword = (req, res) => {
       });
     };
 
-    User.update({ password_token: hashedPassword }, {
+    User.update({ access_token: uuidv4(), password_token: hashedPassword }, {
       where: { id: id }
     })
       .then(num => {

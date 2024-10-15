@@ -4,6 +4,7 @@ import UserDataService from "../services/UserDataService.js";
 
 
 export default {
+  name: 'password_change',
   data() {
     return {
       password: "",

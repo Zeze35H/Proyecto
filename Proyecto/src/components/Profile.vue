@@ -2,6 +2,7 @@
 import VueUploadComponent from 'vue-upload-component'
 
 export default {
+  name: 'profile',
   components: {
     FileUpload: VueUploadComponent
   },

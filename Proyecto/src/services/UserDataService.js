@@ -14,6 +14,11 @@ class UserDataService {
     return http.post("/users/create", data);
   }
 
+  findAllUsers() {
+    console.log("inside UserDataService.js findAllUsers()")
+    return http.get(`/users/findAllUsers`);
+  }
+
   findByUsername(username) {
     console.log("inside UserDataService.js findByUsername()")
     return http.get(`/users/findByUsername/${username}`);

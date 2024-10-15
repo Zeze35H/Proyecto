@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import UserDataService from "../services/UserDataService.js";
 
 export default {
+  name: 'home_page',
   data() {
     return {
       username: "zeze35h",

@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import UserDataService from "../services/UserDataService.js";
 
 export default {
+  name: 'confirm_email',
 
 };
 
