@@ -1,6 +1,20 @@
 module.exports = app => {
   const user = require("../controllers/user.controller.js");
 
+  const multer = require('multer');
+  const path = require('path');
+
+  const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'public'); // Directory to save the files
+    },
+    filename: function (req, file, cb) {
+      cb(null, Date.now() + path.extname(file.originalname)); // Append timestamp to avoid conflicts
+    }
+  });
+
+  const upload = multer({ storage: storage });
+
   var router = require("express").Router();
 
   // Create a new User
@@ -26,6 +40,9 @@ module.exports = app => {
 
   // Change password of the user
   router.post("/activateAccount/:id", user.activateAccount)
+
+  // Upload user picture
+  router.post("/uploadImage/:id", upload.single('file'), user.uploadImage)
 
   // // Retrieve all published Users
   // router.get("/published", user.findAllStudents);

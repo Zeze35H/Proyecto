@@ -73,12 +73,12 @@ const logout = () => {
 
           <!-- HOMEPAGE -->
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="/home_page">HomePage</a>
+            <a class="nav-link active" aria-current="page" href="/profile">Profile</a>
           </li>
 
           <!-- CONFIRM EMAIL -->
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="/confirm_email">Confirm Email</a>
+            <a class="nav-link active" aria-current="page" href="/profile_test">Profile Test</a>
           </li>
 
           <!-- PASSWORD CHANGE -->

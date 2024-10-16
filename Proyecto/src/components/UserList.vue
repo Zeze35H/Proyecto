@@ -32,7 +32,8 @@ export default {
             let email = response.data[i].email
             let role = response.data[i].role == 2 ? "Professor" : "Student"
             let active = response.data[i].active ? "Active" : "Inactive"
-            this.users.push({ id: id, username: username, name: name, surname: surname, email: email, role: role, active: active })
+            let picture = response.data[i].picture
+            this.users.push({ id: id, username: username, name: name, surname: surname, email: email, role: role, active: active, picture: picture })
           }
           console.log(this.users)
           this.search_users = this.users.filter(this.filterUsers)
@@ -141,10 +142,10 @@ export default {
     <div class="container w-75 px-5 pt-2">
       <ul class="list-group list-group-light">
         <li v-if="no_users" class="list-group-item text-center py-3">No users found matching the search filters.</li>
-        <li v-for="({ username, name, surname, email, role, active }, index) in paginatedUsers"
+        <li v-for="({ username, name, surname, email, role, active, picture }, index) in paginatedUsers"
           class="list-group-item row d-flex justify-content-between align-items-center">
           <div class="col-4 d-flex align-items-center">
-            <img src="https://mdbootstrap.com/img/new/avatars/8.jpg" alt="" style="width: 45px; height: 45px"
+            <img :src="picture" alt="" style="width: 45px; height: 45px"
               class="rounded-circle" />
             <div class="ms-3">
               <p class="fw-bold mb-1">{{ name }} {{ surname }}</p>

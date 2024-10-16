@@ -28,7 +28,7 @@ class UserDataService {
     console.log("inside UserDataService.js findByEmail()")
     return http.get(`/users/findByEmail/${email}`);
   }
-  
+
   findByToken(access_token) {
     console.log("inside UserDataService.js findByToken()")
     return http.get(`/users/findByToken/${access_token}`);
@@ -47,6 +47,11 @@ class UserDataService {
   activateAccount(id) {
     console.log("inside UserDataService.js activateAccount()")
     return http.post(`/users/activateAccount/${id}`);
+  }
+
+  uploadImage(id, data) {
+    console.log("inside UserDataService.js uploadImage()")
+    return http.post(`/users/uploadImage/${id}`, data, {headers: {"Content-type": "multipart/form-data"}});
   }
 
   // RELATIONS

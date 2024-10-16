@@ -157,7 +157,6 @@ exports.findByToken = (req, res) => {
     });
 };
 
-
 // Send reset password email
 exports.resetPassword = (req, res) => {
 
@@ -189,6 +188,7 @@ exports.resetPassword = (req, res) => {
     });
 };
 
+// Update users password
 exports.changePassword = (req, res) => {
 
   console.log("inside user.controller.js changePassword")
@@ -229,7 +229,7 @@ exports.changePassword = (req, res) => {
 
 };
 
-
+// Set user's acctountas active
 exports.activateAccount = (req, res) => {
 
   console.log("inside user.controller.js activateAccount")
@@ -256,6 +256,50 @@ exports.activateAccount = (req, res) => {
         success: false,
       });
     });
+
+};
+
+// Upload users profile image
+exports.uploadImage = (req, res) => {
+
+  console.log("inside user.controller.js uploadImage")
+
+  console.log('Raw request file:', req.file);
+  console.log('Raw request body:', req.params);
+
+  if (req.file) {
+    const imageUrl = `/${req.file.filename}`;
+
+    User.update({ picture: imageUrl }, {
+      where: { id: req.params.id }
+    })
+      .then(num => {
+        if (num == 1) {
+          res.send({
+            imageUrl: imageUrl,
+            message: "User picture was updated successfully.",
+            success: true,
+          });
+        } else {
+          res.send({
+            message: `Cannot update User picture with id=${id}. Maybe User was not found!`,
+            success: false,
+          });
+        }
+      })
+      .catch(err => {
+        res.status(500).send({
+          message: "Error updating User picture with id=" + id + "\n" + err,
+          success: false,
+        });
+      });
+
+  } else {
+    res.status(500).send({
+      success: false,
+      message: "Some error occurred while uploading the image.",
+    });
+  }
 
 };
 
@@ -370,19 +414,6 @@ exports.findAllProfessors = (req, res) => {
     .then(data => {
       res.send(data);
     })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving users."
-      });
-    });
-};
-
-// find all professor users
-exports.uploadImage = (req, res) => {
-  console.log("inside upload Image").then(data => {
-    res.send(data);
-  })
     .catch(err => {
       res.status(500).send({
         message:

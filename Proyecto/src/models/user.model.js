@@ -46,6 +46,11 @@ module.exports = (sequelize, Sequelize, Role) => {
       allowNull: false,
       defaultValue: false,
     },
+    picture: {
+      type: Sequelize.STRING,
+      allowNull: false,
+      defaultValue: "default_picture.png",
+    },
   });
 
   return User;

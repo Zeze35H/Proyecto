@@ -1,53 +1,80 @@
 <script>
-import VueUploadComponent from 'vue-upload-component'
+import UserDataService from "../services/UserDataService.js";
+
 
 export default {
   name: 'profile',
-  components: {
-    FileUpload: VueUploadComponent
-  },
   data() {
     return {
-      username: "zeze35h",
-      first_name: "José Eduardo",
-      last_name: "Henriques",
-      email: "zezeh35@hotmail.com",
-      role: "Professor",
-      active: true,
+      profile: "zeze35h",
+      user: null,
 
-      profilePictureUrl: "https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp",
-      files: [],
-      uploadUrl: "/api/upload", // This would be your actual backend API URL
-      isUploading: false,
+      profilePictureUrl: null,
+      file: null,
+      upload_success: false,
     };
   },
-  methods: {
-
-    inputFile(newFile, oldFile) {
-      if (newFile && oldFile && !newFile.active && oldFile.active) {
-        // Get response data
-        console.log('response', newFile.response)
-        if (newFile.xhr) {
-          //  Get the response status code
-          console.log('status', newFile.xhr.status)
+  created() {
+    UserDataService.findByUsername(this.profile)
+      .then(response => {
+        if (response.data.length != 0) {
+          console.log("Username found:", response);
+          this.user = response.data
+          console.log(this.user)
         }
+        else {
+          console.log("Username not found:", response);
+        }
+      })
+      .catch(err => {
+        // Handle errors
+        console.error("Error retrieving user:", err);
+      });
+
+  },
+  methods: {
+    onFileChanged($event) {
+      this.upload_success = false
+      const target = $event.target;
+      if (target && target.files) {
+        this.file = target.files[0];
+        console.log(this.file)
+        this.profilePictureUrl = URL.createObjectURL(this.file)
       }
     },
-    inputFilter(newFile, oldFile, prevent)  {
-      if (newFile && !oldFile) {
-        // Filter non-image file
-        if (!/\.(jpeg|jpe|jpg|gif|png|webp)$/i.test(newFile.name)) {
-          return prevent()
+
+    saveImage() {
+      if (this.file) {
+        try {
+
+          const formData = new FormData();
+          formData.append('file', this.file); // Append the file to the form data
+
+          // Send the formData to the server
+          UserDataService.uploadImage(this.user.id, formData)
+            .then(response => {
+              console.log(response)
+              if (response.data.success) {
+                this.user.picture = response.data.imageUrl;
+                this.profilePictureUrl = null
+                this.file = null
+                this.upload_success = true
+                console.log(response.data.message)
+              }
+              else {
+                console.log("An error occurred while uploading the image:", response.data.message);
+              }
+            })
+            .catch(err => {
+              console.error("An error occurred while uploading the image:", err);
+            });
+        } catch (err) {
+          console.error(err);
+          this.file = null;
         }
       }
-
-      // Create a blob field
-      newFile.blob = ''
-      let URL = window.URL || window.webkitURL
-      if (URL && URL.createObjectURL) {
-        newFile.blob = URL.createObjectURL(newFile.file)
-      }
     }
+
   },
 };
 
@@ -59,15 +86,15 @@ export default {
     <div class="container px-5">
       <div class="col-12 ">
 
-        <div class="row">
+        <div v-if="user" class="row">
 
+          <!-- PROFILE CARD -->
           <div class="col-lg-4">
             <div class="card mb-4">
               <div class="card-body position-relative">
                 <!-- Profile Picture Upload Icon -->
-                <svg v-if="!isUploading" @click="triggerFileUpload" xmlns="http://www.w3.org/2000/svg" width="16"
-                  height="16" fill="currentColor" class="bi bi-pencil-square position-absolute top-0 end-0"
-                  viewBox="0 0 16 16" style="cursor: pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                  class="bi bi-pencil-square position-absolute top-0 end-0" viewBox="0 0 16 16" style="cursor: pointer">
                   <path
                     d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
                   <path fill-rule="evenodd"
@@ -75,50 +102,45 @@ export default {
                 </svg>
 
                 <!-- Profile Picture Display -->
-                <img :src="profilePictureUrl" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;" />
+                <img :src="user.picture" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;" />
 
-                <h5 class="my-3">{{ first_name }} {{ last_name }}</h5>
-                <p class="text-muted mb-1">{{ role }}</p>
-                <p v-if="active" class="text-muted mb-4">Active user</p>
+                <h5 class="my-3">{{ user.name }} {{ user.surname }}</h5>
+                <p v-if="user.role == 2" class="text-muted mb-1">Professor</p>
+                <p v-else class="text-muted mb-1">Student</p>
+                <p v-if="user.active" class="text-muted mb-4">Active user</p>
                 <p v-else class="text-muted mb-4">Inactive user</p>
 
 
-                <ul>
-                  <li v-for="file in files">{{ file.name }} - Error: {{ file.error }}, Success: {{ file.success }}</li>
-                </ul>
-                <!-- File Upload Component (hidden) -->
-                <file-upload ref="upload" v-model="files" post-action="/post.method" put-action="/put.method"
-                  @input-file="inputFile" @input-filter="inputFilter">
-                  Upload file
-                </file-upload>
-                <button v-show="!$refs.upload || !$refs.upload.active" @click.prevent="$refs.upload.active = true"
-                  type="button">Start upload</button>
-                <button v-show="$refs.upload && $refs.upload.active" @click.prevent="$refs.upload.active = false"
-                  type="button">Stop upload</button>
+                <h3>Change Profile Picture</h3>
+                <div>
+                  <input type="file" @change="onFileChanged($event)" accept="image/*" capture />
+                </div>
+                <img :src="profilePictureUrl" alt="Profile Picture" v-if="profilePictureUrl" width="200px" />
+                <button v-if="file" @click="saveImage">Upload Image</button>
               </div>
             </div>
           </div>
 
-
+          <!-- INFO CARD -->
           <div class="col-lg-8">
             <div class="card mb-4">
               <div class="card-body">
                 <div class="row">
                   <div class="col-sm-3">
-                    <p class="mb-0">First Name</p>
+                    <p class="mb-0">Name</p>
                   </div>
                   <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ first_name }}
+                    <p class="text-muted mb-0">{{ user.name }}
                     </p>
                   </div>
                 </div>
                 <hr>
                 <div class="row">
                   <div class="col-sm-3">
-                    <p class="mb-0">Last Name</p>
+                    <p class="mb-0">Surname</p>
                   </div>
                   <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ last_name }}</p>
+                    <p class="text-muted mb-0">{{ user.surname }}</p>
                   </div>
                 </div>
                 <hr>
@@ -127,7 +149,7 @@ export default {
                     <p class="mb-0">Email</p>
                   </div>
                   <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ email }}</p>
+                    <p class="text-muted mb-0">{{ user.email }}</p>
                   </div>
                 </div>
                 <hr>
@@ -136,7 +158,8 @@ export default {
                     <p class="mb-0">Role</p>
                   </div>
                   <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ role }}</p>
+                    <p v-if="user.role == 2" class="text-muted mb-0">Professor</p>
+                    <p v-else class="text-muted mb-0">Student</p>
                   </div>
                 </div>
                 <!-- <hr>
@@ -159,7 +182,9 @@ export default {
                 </div> -->
               </div>
             </div>
-            <div class="row">
+
+            <!-- PROJECT STATUS -->
+            <!-- <div class="row">
               <div class="col-md-6">
                 <div class="card mb-4 mb-md-0">
                   <div class="card-body">
@@ -226,6 +251,16 @@ export default {
                   </div>
                 </div>
               </div>
+            </div> -->
+          </div>
+
+          <!-- SUCCESS RESET SENT -->
+          <div v-if="upload_success" class="alert alert-success d-flex align-items-center c m-3" role="alert">
+            <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Success:">
+              <use xlink:href="#check-circle-fill" />
+            </svg>
+            <div>
+              Your profile picture has been successfuly updated!
             </div>
           </div>
         </div>

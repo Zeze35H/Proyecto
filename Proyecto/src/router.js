@@ -45,8 +45,15 @@ const routes = [
     path: "/profile",
     alias: "/profile",
     name: "profile",
-    meta: { requiresAuth: true },
+    // meta: { requiresAuth: true },
     component: () => import("./components/Profile.vue")
+  },
+  {
+    path: "/profile_test",
+    alias: "/profile_test",
+    name: "profile_test",
+    // meta: { requiresAuth: true },
+    component: () => import("./components/ProfileTest.vue")
   },
   {
     path: "/user_list",
