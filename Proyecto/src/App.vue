@@ -1,26 +1,35 @@
 <script setup>
 import UserDataService from "./services/UserDataService.js";
-import { onMounted, computed } from 'vue';
+import { onMounted, computed, ref } from 'vue';
 import { useRouter } from "vue-router"; // Import useRouter
-
-import { useStore } from 'vuex';
-const store = useStore();
+import axios from 'axios';
 
 const router = useRouter(); // Get the router instance
 
-const isAuthenticated = computed(() => store.getters.isAuthenticated);
+let isAuthenticated = ref(false)
+
+const checkAuthStatus = async () => {
+  try {
+    const response = await axios.get('http://localhost:8080/api/auth/checkAuth',  { withCredentials: true })
+    console.log(response)
+    console.log("isAuthenticated:", response.data.authenticated)
+    isAuthenticated.value = response.data.authenticated;
+  } catch (error) {
+    console.error('Error checking authentication:', error);
+  }
+};
 
 onMounted(() => {
-  console.log('App.vue mounted');
+  checkAuthStatus();
 });
 
 const logout = () => {
-  store.dispatch('logout');
   // Call the service to save user
   UserDataService.logout()
     .then(response => {
       // Handle successful registration
       console.log("User logout:", response);
+      checkAuthStatus();
       router.push({ name: 'login', query: {} });
     })
     .catch(error => {
@@ -28,7 +37,6 @@ const logout = () => {
       console.error("Error logging out user:", error);
     });
 }
-
 </script>
 
 <template>
@@ -123,7 +131,8 @@ const logout = () => {
             </svg>
             Logout
           </a>
-          <a v-if="isAuthenticated" type="button" class="btn btn-primary rounded-circle" title="Profile" href="/profile">
+          <a v-if="isAuthenticated" type="button" class="btn btn-primary rounded-circle" title="Profile"
+            href="/profile">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person"
               viewBox="0 0 16 16">
               <path
@@ -135,7 +144,7 @@ const logout = () => {
       </div>
     </div>
   </nav>
-  <router-view />
+  <router-view :checkAuthStatus="checkAuthStatus"/>
 </template>
 
 <style scoped>

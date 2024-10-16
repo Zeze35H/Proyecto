@@ -27,8 +27,7 @@
     "uuid": "^10.0.0",
     "vue": "^3.4.29",
     "vue-router": "^4.4.3",
-    "vue-upload-component": "^3.1.17",
-    "vuex": "^4.0.2"
+    "vue-upload-component": "^3.1.17"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.5",

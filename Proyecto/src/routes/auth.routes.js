@@ -1,4 +1,4 @@
-module.exports = (app, passport, db, store) => {
+module.exports = (app, passport, db) => {
     // const user = require("../controllers/user.controller.js");
 
     var router = require("express").Router();

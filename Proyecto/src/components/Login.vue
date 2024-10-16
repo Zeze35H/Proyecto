@@ -3,6 +3,9 @@ import UserDataService from "../services/UserDataService.js";
 
 export default {
   name: "login",
+  props: {
+    checkAuthStatus: Function, // Declare the prop
+  },
   data() {
     return {
       username: "",
@@ -72,16 +75,16 @@ export default {
 
       // Call the service to save user
       UserDataService.login(userData, { withCredentials: true })
-        .then(response => {
+        .then(async response => {
           // Handle successful login
           if (response.data.success) {
             console.log('Login successful', response);
-            console.log("THIS STORE", this.$store)
-            this.$store.dispatch('login', response.data.user);
 
             this.loading = true
-            this.$router.push({ name: 'home_page', query: {} });
 
+            this.$router.push({ name: 'home_page', query: {} });
+            
+            this.checkAuthStatus();
           } else {
             console.log("Login failed", response)
             this.incorrect_login = true

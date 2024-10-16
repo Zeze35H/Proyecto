@@ -1,17 +1,19 @@
 import { createWebHistory, createRouter } from "vue-router";
 import axios from "axios";
 
-const routes =  [
+const routes = [
   {
     path: "/",
     alias: "/login",
     name: "login",
+    meta: { requiresNotAuth: true },
     component: () => import("./components/Login.vue")
   },
   {
     path: "/register",
     alias: "/register",
     name: "register",
+    meta: { requiresNotAuth: true },
     component: () => import("./components/Register.vue")
   },
   {
@@ -61,20 +63,33 @@ const router = createRouter({
 
 // Navigation guard to protect routes
 router.beforeEach(async (to, from, next) => {
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    try {
-      const response = await axios.get('http://localhost:8080/api/auth/checkAuth', { withCredentials: true });
-      if (response.data.authenticated) {
+  try {
+    const response = await axios.get('http://localhost:8080/api/auth/checkAuth', { withCredentials: true });
+
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+      if (response.data.authenticated)
         next();
-      } else {
-        next('/');
+      else {
+        next('/')
       }
-    } catch (err) {
-      next('/');
+    } 
+    
+    else if (to.matched.some(record => record.meta.requiresNotAuth)) {
+      if (!response.data.authenticated)
+        next();
+      else {
+        next('/home_page')
+      }
+    } 
+    
+    else {
+      next()
     }
-  } else {
-    next();
+
+  } catch (err) {
+    next('/');
   }
+
 });
 
 export default router;
