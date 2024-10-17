@@ -33,6 +33,7 @@ export default {
             let role = response.data[i].role == 2 ? "Professor" : "Student"
             let active = response.data[i].active ? "Active" : "Inactive"
             let picture = response.data[i].picture
+            console.log(picture)
             this.users.push({ id: id, username: username, name: name, surname: surname, email: email, role: role, active: active, picture: picture })
           }
           console.log(this.users)
@@ -75,6 +76,12 @@ export default {
         this.no_users = true
 
     },
+
+
+    visitUser(username) {
+      this.$router.push({ name: 'profile', params: { username: username } });
+    },
+
     nextPage() {
       if (this.current_page < this.totalPages) {
         this.current_page++;
@@ -143,10 +150,10 @@ export default {
       <ul class="list-group list-group-light">
         <li v-if="no_users" class="list-group-item text-center py-3">No users found matching the search filters.</li>
         <li v-for="({ username, name, surname, email, role, active, picture }, index) in paginatedUsers"
-          class="list-group-item row d-flex justify-content-between align-items-center">
+          @click="visitUser(username)" class="list-group-item row d-flex justify-content-between align-items-center"
+          style="cursor: pointer">
           <div class="col-4 d-flex align-items-center">
-            <img :src="picture" alt="" style="width: 45px; height: 45px"
-              class="rounded-circle" />
+            <img :src="picture" alt="" style="width: 45px; height: 45px" class="rounded-circle" />
             <div class="ms-3">
               <p class="fw-bold mb-1">{{ name }} {{ surname }}</p>
               <p class="text-muted mb-0">{{ username }}</p>
@@ -163,7 +170,7 @@ export default {
     <div class="d-flex justify-content-center align-items-center pt-4">
       <ul class="pagination">
         <li @click="prevPage" :class="{ 'disabled': current_page === 1 }" class="page-item">
-          <a class="page-link" href="#">Previous</a>
+          <a class="page-link px-3" href="#">«</a>
         </li>
 
         <li v-for="pageNum in totalPages" :key="pageNum" @click="selectPage(pageNum)"
@@ -172,7 +179,7 @@ export default {
         </li>
 
         <li @click="nextPage" :class="{ 'disabled': current_page === totalPages }" class="page-item">
-          <a class="page-link" href="#">Next</a>
+          <a class="page-link px-3" href="#">»</a>
         </li>
 
         <!-- <li class="page-item"><a class="page-link" href="#">1</a></li>

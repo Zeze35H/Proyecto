@@ -1,6 +1,8 @@
 <script>
 import UserDataService from "../services/UserDataService.js";
 
+import Cropper from "cropperjs";
+import "cropperjs/dist/cropper.css"; // Import cropper styles
 
 export default {
   name: 'profile',
@@ -9,9 +11,11 @@ export default {
       profile: "",
       user: null,
 
-      profilePictureUrl: null,
-      file: null,
-      upload_success: false,
+      invalid_file_message: "",
+
+      imageSource: null, // To hold the image source
+      croppedImage: null, // To hold the cropped image data
+      cropper: null, // Cropper instance
 
       pictureConfirmationModal: false,
       infoConfirmationModal: false,
@@ -30,6 +34,8 @@ export default {
     checkAuthStatus: Function, // Declare the prop
   },
   async created() {
+
+    console.log("created")
 
     const result = await this.checkAuthStatus()
     if (result) {
@@ -59,40 +65,112 @@ export default {
 
     closeModal() {
       console.log("closeModal")
-      this.profilePictureUrl = null
-      this.file = null
+
+      this.imageSource = null
+      this.croppedImage = null
+      this.cropper = null
+
       this.pictureConfirmationModal = false
       this.infoConfirmationModal = false
     },
 
+    resetCropper() {
+      this.imageSource = null
+      this.croppedImage = null
+      this.cropper = null
+    },
+
     onFileChanged($event) {
-      this.upload_success = false
+
+      this.imageSource = null
+      this.croppedImage = null
+      this.cropper = null
+
+      this.invalid_file_message = ""
+
       const target = $event.target;
       if (target && target.files) {
-        this.file = target.files[0];
-        console.log(this.file)
-        this.profilePictureUrl = URL.createObjectURL(this.file)
+        const uploadedFile = target.files[0];
+        console.log(uploadedFile)
+
+        // Validate file type
+        const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!validTypes.includes(uploadedFile.type)) {
+          this.invalid_file_message = "Invalid file type. Please upload an image (JPEG, PNG, or GIF)."
+          return;
+        }
+
+        // Validate file size (optional, e.g., limit to 5MB)
+        const maxSizeInMB = 15;
+        if (uploadedFile.size > maxSizeInMB * 1024 * 1024) {
+          this.invalid_file_message = `File size exceeds ${maxSizeInMB}MB. Please upload a smaller image.`
+          return;
+        }
+
+        this.imageSource = URL.createObjectURL(uploadedFile);
+
+        // Initialize Cropper.js once the image is loaded
+        this.$nextTick(() => {
+          const imageElement = this.$refs.image;
+          this.cropper = new Cropper(imageElement, {
+            aspectRatio: 1, // 1:1 for a square crop
+            viewMode: 1, // Restrict the crop box to the size of the canvas
+            autoCropArea: 1,
+          });
+        });
       }
     },
 
+    cropImage() {
+      // Get the cropped image data URL
+      if (this.cropper) {
+        this.croppedImage = this.cropper.getCroppedCanvas({
+          width: 300,
+          height: 300, // Resize the image to 300x300
+        }).toDataURL("image/jpeg"); // Convert the canvas to a data URL for preview
+      }
+    },
+
+    dataURLtoBlob(dataURL) {
+      // Split the base64 string into parts
+      const arr = dataURL.split(',');
+      const mime = arr[0].match(/:(.*?);/)[1]; // Get the mime type
+      const bstr = atob(arr[1]); // Decode base64
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+
+      // Convert to binary data
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+
+      // Create a Blob object from the binary data and mime type
+      return new Blob([u8arr], { type: mime });
+    },
+
     saveImage() {
-      if (this.file) {
+
+      if (this.croppedImage) {
         try {
 
+          const blob = this.dataURLtoBlob(this.croppedImage);
+
+          // Prepare the formData for upload
           const formData = new FormData();
-          formData.append('file', this.file); // Append the file to the form data
+          formData.append('file', blob, 'profile_picture.jpg'); // Append the blob as a file
 
           // Send the formData to the server
           UserDataService.uploadImage(this.user.id, formData)
             .then(response => {
               console.log(response)
               if (response.data.success) {
+                console.log(response.data)
+
                 this.user.picture = response.data.imageUrl;
-                this.profilePictureUrl = null
-                this.file = null
-                this.upload_success = true
+                
                 this.pictureConfirmationModal = true
-                console.log(response.data.message)
+                
+                this.resetCropper()
               }
               else {
                 console.log("An error occurred while uploading the image:", response.data.message);
@@ -103,7 +181,6 @@ export default {
             });
         } catch (err) {
           console.error(err);
-          this.file = null;
         }
       }
     },
@@ -115,16 +192,19 @@ export default {
     },
 
     cancelEdit() {
+      this.incorrect_token = false
       this.edit = false
       this.edit_info = { name: "", surname: "", email: "", role: null, token: "" }
     },
 
     areDifferent(d1, d2) {
+      console.log(this.user.picture)
       for (var key in d1) {
         if (key != "token" && d1[key] != d2[key])
           return true;
       }
       return false;
+
     },
 
     checkChanges() {
@@ -134,7 +214,6 @@ export default {
         if (this.before_edit.role != 2 && this.edit_info.role == 2 && this.edit_info.token == "") {
           return false
         }
-        this.incorrect_token = false
         return true;
       }
       return false;
@@ -157,12 +236,12 @@ export default {
             this.infoConfirmationModal = true
           }
           else {
-            console.log("An error occurred while uploading the image:", response.data.message);
+            console.log("An error occurred while updating the user:", response.data.message);
             this.incorrect_token = true
           }
         })
         .catch(err => {
-          console.error("An error occurred while uploading the image:", err);
+          console.error("An error occurred while updating the user:", err);
         });
     }
 
@@ -190,11 +269,34 @@ export default {
         <div class="modal-body">
           <p>Click below to upload a new profile picture.</p>
           <div class="mb-3">
-            <input type="file" @change="onFileChanged($event)" accept="image/*" capture />
+            <input type="file" @click="resetCropper()" @change="onFileChanged($event)" accept="image/*" capture />
           </div>
-          <div class="d-flex justify-content-center">
-            <img :src="profilePictureUrl" alt="New Profile Picture" v-if="profilePictureUrl" width="200px"
-              class="text-center" />
+
+          <div v-if="invalid_file_message" class="alert alert-danger d-flex align-items-center c m-3" role="alert">
+            <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
+              <use xlink:href="#exclamation-triangle-fill" />
+            </svg>
+            <div>
+              {{ invalid_file_message }}
+            </div>
+          </div>
+
+          <!-- Cropper container -->
+          <div class="container d-flex justify-content-center mb-5 pb-5">
+            <div v-if="imageSource" style="width: 400px; height: 400px;">
+              <h5>Crop the Image:</h5>
+              <img ref="image" :src="imageSource" alt="Image to Crop" />
+              <button @click="cropImage" class="mt-2">Crop Image</button>
+            </div>
+          </div>
+
+
+          <!-- Preview the cropped image -->
+          <div class="container d-flex justify-content-center">
+            <div v-if="croppedImage">
+              <h5>Cropped Image Preview:</h5>
+              <img :src="croppedImage" alt="Cropped Image" />
+            </div>
           </div>
         </div>
 
@@ -202,7 +304,7 @@ export default {
         <div class="modal-footer">
           <button @click="closeModal()" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
           <button @click="saveImage()" type="button" class="btn btn-success" data-bs-dismiss="modal"
-            :disabled="!file">Upload Image</button>
+            :disabled="!croppedImage">Upload Image</button>
         </div>
       </div>
     </div>
@@ -342,7 +444,8 @@ export default {
                 <div class="d-flex justify-content-center">
                   <!-- Profile Picture Upload Icon -->
 
-                  <img :src="user.picture" alt="Profile Picture" class="rounded-circle img-fluid" style="width: 150px;" />
+                  <img :src="user.picture" alt="Profile Picture" class="rounded-circle img-fluid"
+                    style="width: 150px;" />
                   <svg v-if="!edit && authenticated && user.id === auth_user.id" data-bs-toggle="modal"
                     data-bs-target="#pictureModal" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                     fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16" style="cursor: pointer">

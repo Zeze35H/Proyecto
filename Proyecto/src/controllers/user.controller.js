@@ -303,9 +303,6 @@ exports.uploadImage = (req, res) => {
 
   console.log("inside user.controller.js uploadImage")
 
-  console.log('Raw request file:', req.file);
-  console.log('Raw request body:', req.params);
-
   if (req.file) {
     const imageUrl = `/${req.file.filename}`;
 
@@ -336,7 +333,7 @@ exports.uploadImage = (req, res) => {
   } else {
     res.status(500).send({
       success: false,
-      message: "Some error occurred while uploading the image.",
+      message: "No image file present in the request for upload.",
     });
   }
 

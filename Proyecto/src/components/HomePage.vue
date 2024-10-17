@@ -189,7 +189,7 @@ export default {
   </div>
 
   <!-- SECTION -->
-  <section class="gradient-custom-1 h-100 p-3 py-md-5 py-xl-8">
+  <section class="gradient-custom-1 vh-100 p-3 py-md-5 py-xl-8">
     <div class="container px-5">
       <div class="col-12 ">
 

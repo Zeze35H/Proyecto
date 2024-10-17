@@ -49,7 +49,7 @@ module.exports = (sequelize, Sequelize, Role) => {
     picture: {
       type: Sequelize.STRING,
       allowNull: false,
-      defaultValue: "default_picture.png",
+      defaultValue: "/default_picture.png",
     },
   });
 
