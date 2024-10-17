@@ -6,15 +6,38 @@ export default {
   name: 'profile',
   data() {
     return {
-      profile: "zeze35h",
+      profile: "",
       user: null,
 
       profilePictureUrl: null,
       file: null,
       upload_success: false,
+
+      pictureConfirmationModal: false,
+      infoConfirmationModal: false,
+
+      edit: false,
+      before_edit: { name: "", surname: "", email: "", role: null, token: "" },
+      edit_info: { name: "", surname: "", email: "", role: null, token: "" },
+      incorrect_token: false,
+
+      authenticated: false,
+      auth_user: null,
+
     };
   },
-  created() {
+  props: {
+    checkAuthStatus: Function, // Declare the prop
+  },
+  async created() {
+
+    const result = await this.checkAuthStatus()
+    if (result) {
+      this.authenticated = result.authenticated
+      this.auth_user = result.user
+    }
+
+    this.profile = this.$route.params.username
     UserDataService.findByUsername(this.profile)
       .then(response => {
         if (response.data.length != 0) {
@@ -33,6 +56,15 @@ export default {
 
   },
   methods: {
+
+    closeModal() {
+      console.log("closeModal")
+      this.profilePictureUrl = null
+      this.file = null
+      this.pictureConfirmationModal = false
+      this.infoConfirmationModal = false
+    },
+
     onFileChanged($event) {
       this.upload_success = false
       const target = $event.target;
@@ -59,6 +91,7 @@ export default {
                 this.profilePictureUrl = null
                 this.file = null
                 this.upload_success = true
+                this.pictureConfirmationModal = true
                 console.log(response.data.message)
               }
               else {
@@ -73,6 +106,64 @@ export default {
           this.file = null;
         }
       }
+    },
+
+    editInfo() {
+      this.edit = true
+      this.edit_info = { name: this.user.name, surname: this.user.surname, email: this.user.email, role: this.user.role, token: "" }
+      this.before_edit = { ...this.edit_info }
+    },
+
+    cancelEdit() {
+      this.edit = false
+      this.edit_info = { name: "", surname: "", email: "", role: null, token: "" }
+    },
+
+    areDifferent(d1, d2) {
+      for (var key in d1) {
+        if (key != "token" && d1[key] != d2[key])
+          return true;
+      }
+      return false;
+    },
+
+    checkChanges() {
+      console.log("checkChanges")
+
+      if (this.areDifferent(this.before_edit, this.edit_info)) {
+        if (this.before_edit.role != 2 && this.edit_info.role == 2 && this.edit_info.token == "") {
+          return false
+        }
+        this.incorrect_token = false
+        return true;
+      }
+      return false;
+    },
+
+    saveChanges() {
+
+      UserDataService.update(this.user.id, this.edit_info)
+        .then(response => {
+          console.log(response)
+          if (response.data.success) {
+            console.log(response.data.message)
+
+            this.user.name = this.edit_info.name
+            this.user.surname = this.edit_info.surname
+            this.user.email = this.edit_info.email
+            this.user.role = this.edit_info.role
+
+            this.cancelEdit()
+            this.infoConfirmationModal = true
+          }
+          else {
+            console.log("An error occurred while uploading the image:", response.data.message);
+            this.incorrect_token = true
+          }
+        })
+        .catch(err => {
+          console.error("An error occurred while uploading the image:", err);
+        });
     }
 
   },
@@ -81,8 +172,162 @@ export default {
 </script>
 
 <template class="gradient-custom-1 h-100 p-3 py-md-5 py-xl-8">
+
+  <!-- CHANGE PICTURE MODAL -->
+  <div class="modal fade" id="pictureModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-5"
+    aria-labelledby="pictureModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <!-- MODAL HEADER -->
+        <div class="modal-header">
+          <h5 class="modal-title" id="pictureModalLabel">Change Profile Picture</h5>
+          <button @click="closeModal()" type="button" class="btn-close" data-bs-dismiss="modal"
+            aria-label="Close"></button>
+        </div>
+
+        <!-- MODAL BODY -->
+        <div class="modal-body">
+          <p>Click below to upload a new profile picture.</p>
+          <div class="mb-3">
+            <input type="file" @change="onFileChanged($event)" accept="image/*" capture />
+          </div>
+          <div class="d-flex justify-content-center">
+            <img :src="profilePictureUrl" alt="New Profile Picture" v-if="profilePictureUrl" width="200px"
+              class="text-center" />
+          </div>
+        </div>
+
+        <!-- MODAL FOOTER -->
+        <div class="modal-footer">
+          <button @click="closeModal()" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button @click="saveImage()" type="button" class="btn btn-success" data-bs-dismiss="modal"
+            :disabled="!file">Upload Image</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHANGE INFO MODAL -->
+  <div class="modal fade" id="infoModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-5"
+    aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <!-- MODAL HEADER -->
+        <div class="modal-header">
+          <h5 class="modal-title" id="infoModalLabel">Update User Info</h5>
+          <button @click="closeModal()" type="button" class="btn-close" data-bs-dismiss="modal"
+            aria-label="Close"></button>
+        </div>
+
+        <!-- MODAL BODY -->
+        <div class="modal-body">
+          <strong>Are you sure you want to make the following changes?</strong>
+          <div class="table-responsive bg-white my-3">
+            <table class="table mb-0">
+              <thead>
+                <tr>
+                  <th scope="col"></th>
+                  <th scope="col">BEFORE</th>
+                  <th scope="col">AFTER</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Name</strong></td>
+                  <td>{{ before_edit.name }}</td>
+                  <td>{{ edit_info.name }}</td>
+                </tr>
+                <tr>
+                  <td><strong>Surname</strong></td>
+                  <td>{{ before_edit.surname }}</td>
+                  <td>{{ edit_info.surname }}</td>
+                </tr>
+                <tr>
+                  <td><strong>Email</strong></td>
+                  <td>{{ before_edit.email }}</td>
+                  <td>{{ edit_info.email }}</td>
+                </tr>
+                <tr>
+                  <td><strong>Role</strong></td>
+                  <td v-if="before_edit.role == 2">Professor</td>
+                  <td v-else>Student</td>
+
+                  <td v-if="edit_info.role == 2">Professor</td>
+                  <td v-else>Student</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- MODAL FOOTER -->
+        <div class="modal-footer">
+          <button @click="cancelEdit()" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button @click="saveChanges()" type="button" class="btn btn-success" data-bs-dismiss="modal">Confirm
+            Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- PICTURE CONFIRMATION MODAL -->
+  <div>
+    <div v-if="pictureConfirmationModal" class="modal fade show d-block" id="pictureConfirmationModal" tabindex="-1"
+      aria-labelledby="pictureModalLabel" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);"
+      @click.self="closeModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Success:">
+              <use xlink:href="#check-circle-fill" />
+            </svg>
+            <h5 class="modal-title" id="pictureModalLabel">Porfile Picture Updated</h5>
+            <button type="button" class="btn-close" aria-label="Close" @click="closeModal"></button>
+          </div>
+          <div class="modal-body">
+            <p>Your profile picture has been changed successfully!</p>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PICTURE CONFIRMATION MODAL -->
+  <div>
+    <div v-if="infoConfirmationModal" class="modal fade show d-block" id="infoConfirmationModal" tabindex="-1"
+      aria-labelledby="infoModalLabel" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);"
+      @click.self="closeModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Success:">
+              <use xlink:href="#check-circle-fill" />
+            </svg>
+            <h5 class="modal-title" id="infoModalLabel">User Info Updated</h5>
+            <button type="button" class="btn-close" aria-label="Close" @click="closeModal"></button>
+          </div>
+          <div class="modal-body">
+            <p>Your info has been updated successfully!</p>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- SECTION -->
-  <section class="gradient-custom-1 h-100 p-3 py-md-5 py-xl-8">
+  <section class="gradient-custom-1 vh-100 p-3 py-md-5 py-xl-8">
     <div class="container px-5">
       <div class="col-12 ">
 
@@ -91,32 +336,26 @@ export default {
           <!-- PROFILE CARD -->
           <div class="col-lg-4">
             <div class="card mb-4">
-              <div class="card-body position-relative">
-                <!-- Profile Picture Upload Icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                  class="bi bi-pencil-square position-absolute top-0 end-0" viewBox="0 0 16 16" style="cursor: pointer">
-                  <path
-                    d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                  <path fill-rule="evenodd"
-                    d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
-                </svg>
+              <div class="card-body">
 
                 <!-- Profile Picture Display -->
-                <img :src="user.picture" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;" />
+                <div class="d-flex justify-content-center">
+                  <!-- Profile Picture Upload Icon -->
 
-                <h5 class="my-3">{{ user.name }} {{ user.surname }}</h5>
-                <p v-if="user.role == 2" class="text-muted mb-1">Professor</p>
-                <p v-else class="text-muted mb-1">Student</p>
-                <p v-if="user.active" class="text-muted mb-4">Active user</p>
-                <p v-else class="text-muted mb-4">Inactive user</p>
-
-
-                <h3>Change Profile Picture</h3>
-                <div>
-                  <input type="file" @change="onFileChanged($event)" accept="image/*" capture />
+                  <img :src="user.picture" alt="Profile Picture" class="rounded-circle img-fluid" style="width: 150px;" />
+                  <svg v-if="!edit && authenticated && user.id === auth_user.id" data-bs-toggle="modal"
+                    data-bs-target="#pictureModal" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                    fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16" style="cursor: pointer">
+                    <path
+                      d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                    <path fill-rule="evenodd"
+                      d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+                  </svg>
                 </div>
-                <img :src="profilePictureUrl" alt="Profile Picture" v-if="profilePictureUrl" width="200px" />
-                <button v-if="file" @click="saveImage">Upload Image</button>
+
+                <h5 class="mt-3">{{ user.name }} {{ user.surname }}</h5>
+                <p v-if="user.active" class="text-muted mb-2">Active user</p>
+                <p v-else class="text-muted mb-2">Inactive user</p>
               </div>
             </div>
           </div>
@@ -124,44 +363,92 @@ export default {
           <!-- INFO CARD -->
           <div class="col-lg-8">
             <div class="card mb-4">
-              <div class="card-body">
-                <div class="row">
+              <div class="card-body position-relative" :class="{ 'pb-0': edit }">
+
+                <!-- EDIT BUTTON -->
+                <svg v-if="!edit && authenticated && user.id === auth_user.id" @click="editInfo()"
+                  xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                  class="bi bi-pencil-square position-absolute top-0 end-0 m-2" viewBox="0 0 16 16"
+                  style="cursor: pointer">
+                  <path
+                    d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                  <path fill-rule="evenodd"
+                    d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+                </svg>
+
+                <!-- NAME FIELD -->
+                <div class="row d-flex align-items-center">
                   <div class="col-sm-3">
                     <p class="mb-0">Name</p>
                   </div>
                   <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ user.name }}
-                    </p>
+                    <input v-model="edit_info.name" v-if="edit" type="text" class="form-control"
+                      :placeholder="user.name" required>
+                    <p v-else class="text-muted mb-0">{{ user.name }}</p>
                   </div>
                 </div>
                 <hr>
-                <div class="row">
+
+                <!-- SURNAME FIELD -->
+                <div class="row d-flex align-items-center">
                   <div class="col-sm-3">
                     <p class="mb-0">Surname</p>
                   </div>
                   <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ user.surname }}</p>
+                    <input v-model="edit_info.surname" v-if="edit" type="text" class="form-control"
+                      :placeholder="user.surname" required>
+                    <p v-else class="text-muted mb-0">{{ user.surname }}</p>
                   </div>
                 </div>
                 <hr>
-                <div class="row">
+
+                <!-- EMAIL FIELD -->
+                <div class="row d-flex align-items-center">
                   <div class="col-sm-3">
                     <p class="mb-0">Email</p>
                   </div>
                   <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{ user.email }}</p>
+                    <input v-model="edit_info.email" v-if="edit" type="text" class="form-control"
+                      :placeholder="user.email" required>
+                    <p v-else class="text-muted mb-0">{{ user.email }}</p>
                   </div>
                 </div>
                 <hr>
-                <div class="row">
+
+                <!-- ROLE FIELD -->
+                <div class="row d-flex align-items-center">
                   <div class="col-sm-3">
                     <p class="mb-0">Role</p>
                   </div>
                   <div class="col-sm-9">
-                    <p v-if="user.role == 2" class="text-muted mb-0">Professor</p>
-                    <p v-else class="text-muted mb-0">Student</p>
+                    <div v-if="edit" class="d-flex align-items-center">
+
+                      <!-- STUDENT OPTION -->
+                      <div class="form-check form-check-inline">
+                        <input v-model="edit_info.role" class="form-check-input" type="radio" name="inlineRadioOptions"
+                          id="student_option" value="1" style="cursor: pointer" :checked="user.role != 2">
+                        <label class="form-check-label" for="student_option">Student</label>
+                      </div>
+
+                      <!-- PROFESSOR OPTION -->
+                      <div class="form-check form-check-inline">
+                        <input v-model="edit_info.role" class="form-check-input" type="radio" name="inlineRadioOptions"
+                          id="professor_option" value="2" style="cursor: pointer" :checked="user.role == 2">
+                        <label class="form-check-label" for="professor_option">Professor</label>
+                      </div>
+                      <input v-model="edit_info.token" v-if="edit && edit_info.role == 2" type="text"
+                        class="form-control" placeholder="Token" required>
+                    </div>
+
+                    <div v-else>
+                      <p v-if="user.role == 2" class="text-muted mb-0">Professor</p>
+                      <p v-else class="text-muted mb-0">Student</p>
+                    </div>
+
+
                   </div>
                 </div>
+                <hr v-if="edit">
                 <!-- <hr>
                 <div class="row">
                   <div class="col-sm-3">
@@ -181,7 +468,23 @@ export default {
                   </div>
                 </div> -->
               </div>
+              <div v-if="incorrect_token" class="alert alert-danger d-flex align-items-center c m-3" role="alert">
+                <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
+                  <use xlink:href="#exclamation-triangle-fill" />
+                </svg>
+                <div>
+                  The inserted token is incorrect.
+                </div>
+              </div>
+              <div v-if="edit" class="d-flex justify-content-end mb-3 me-3">
+                <button @click="cancelEdit()" type="button" class="btn btn-secondary me-2"
+                  data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#infoModal"
+                  :disabled="!checkChanges()">Save Changes</button>
+              </div>
             </div>
+
+
 
             <!-- PROJECT STATUS -->
             <!-- <div class="row">
@@ -254,15 +557,6 @@ export default {
             </div> -->
           </div>
 
-          <!-- SUCCESS RESET SENT -->
-          <div v-if="upload_success" class="alert alert-success d-flex align-items-center c m-3" role="alert">
-            <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Success:">
-              <use xlink:href="#check-circle-fill" />
-            </svg>
-            <div>
-              Your profile picture has been successfuly updated!
-            </div>
-          </div>
         </div>
 
       </div>

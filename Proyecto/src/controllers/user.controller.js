@@ -188,6 +188,45 @@ exports.resetPassword = (req, res) => {
     });
 };
 
+// Update user info
+exports.update = (req, res) => {
+  const id = req.params.id;
+
+  // Validate request
+  if (req.body.role == 2 && req.body.token != correct_token) {
+    res.send({
+      success: false,
+      message: "Incorrect token."
+    });
+    return;
+  }
+
+  delete req.body["token"]
+
+  User.update(req.body, {
+    where: { id: id }
+  })
+    .then(num => {
+      if (num == 1) {
+        res.send({
+          success: true,
+          message: "User was updated successfully."
+        });
+      } else {
+        res.send({
+          success: false,
+          message: `Cannot update User with id=${id}. Maybe User was not found or req.body is empty!`
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({
+        success: false,
+        message: "Error updating User with id=" + id
+      });
+    });
+};
+
 // Update users password
 exports.changePassword = (req, res) => {
 
@@ -323,31 +362,6 @@ exports.findOne = (req, res) => {
     .catch(err => {
       res.status(500).send({
         message: "Error retrieving User with id=" + id
-      });
-    });
-};
-
-// Update a User by the id in the request
-exports.update = (req, res) => {
-  const id = req.params.id;
-
-  User.update(req.body, {
-    where: { id: id }
-  })
-    .then(num => {
-      if (num == 1) {
-        res.send({
-          message: "User was updated successfully."
-        });
-      } else {
-        res.send({
-          message: `Cannot update User with id=${id}. Maybe User was not found or req.body is empty!`
-        });
-      }
-    })
-    .catch(err => {
-      res.status(500).send({
-        message: "Error updating User with id=" + id
       });
     });
 };

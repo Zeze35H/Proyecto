@@ -39,6 +39,11 @@ class UserDataService {
     return http.post(`/users/resetPassword`, data);
   }
 
+  update(id, data) {
+    console.log("inside UserDataService.js update()")
+    return http.post(`/users/update/${id}`, data);
+  }
+
   changePassword(id, data) {
     console.log("inside UserDataService.js changePassword()")
     return http.post(`/users/changePassword/${id}`, data);
@@ -51,7 +56,7 @@ class UserDataService {
 
   uploadImage(id, data) {
     console.log("inside UserDataService.js uploadImage()")
-    return http.post(`/users/uploadImage/${id}`, data, {headers: {"Content-type": "multipart/form-data"}});
+    return http.post(`/users/uploadImage/${id}`, data, { headers: { "Content-type": "multipart/form-data" } });
   }
 
   // RELATIONS
@@ -77,11 +82,6 @@ class UserDataService {
     console.log("inside UserDataService.js logout()")
     return http.post(`/auth/logout`);
   }
-
-
-  // update(id, data) {
-  //   return http.put(`/users/${id}`, data);
-  // }
 
   // delete(id) {
   //   return http.delete(`/users/${id}`);

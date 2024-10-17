@@ -7,15 +7,20 @@ import axios from 'axios';
 const router = useRouter(); // Get the router instance
 
 let isAuthenticated = ref(false)
+let user = ref(null)
 
 const checkAuthStatus = async () => {
   try {
-    const response = await axios.get('http://localhost:8080/api/auth/checkAuth',  { withCredentials: true })
+    const response = await axios.get('http://localhost:8080/api/auth/checkAuth', { withCredentials: true })
     console.log(response)
     console.log("isAuthenticated:", response.data.authenticated)
     isAuthenticated.value = response.data.authenticated;
+    if (response.data.user)
+      user.value = response.data.user
+    return response.data
   } catch (error) {
     console.error('Error checking authentication:', error);
+    return null
   }
 };
 
@@ -118,6 +123,8 @@ const logout = () => {
           <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
           <button class="btn btn-outline-primary" type="submit">Search</button>
         </form> -->
+
+        <!-- LOGOUT -->
         <div class="d-flex">
           <a v-if="isAuthenticated" @click="logout" type="button" class="btn btn-outline-secondary me-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -131,8 +138,10 @@ const logout = () => {
             </svg>
             Logout
           </a>
+
+          <!-- PROFILE -->
           <a v-if="isAuthenticated" type="button" class="btn btn-primary rounded-circle" title="Profile"
-            href="/profile">
+            :href="`/profile/${user.username}`">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person"
               viewBox="0 0 16 16">
               <path
@@ -144,7 +153,7 @@ const logout = () => {
       </div>
     </div>
   </nav>
-  <router-view :checkAuthStatus="checkAuthStatus"/>
+  <router-view :checkAuthStatus="checkAuthStatus" />
 </template>
 
 <style scoped>

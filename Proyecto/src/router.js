@@ -42,10 +42,23 @@ const routes = [
     component: () => import("./components/HomePage.vue")
   },
   {
-    path: "/profile",
+    path: "/profile/:username",
     alias: "/profile",
     name: "profile",
-    // meta: { requiresAuth: true },
+    beforeEnter: async (to, from, next) => {
+      if (!to.params.username) {
+        const response = await axios.get('http://localhost:8080/api/auth/checkAuth', { withCredentials: true });
+        if (response.data.authenticated) {
+          next(`/profile/${response.data.user.username}`);
+        }
+        else {
+          next('/')
+        }
+      }
+      else {
+        next();
+      }
+    },
     component: () => import("./components/Profile.vue")
   },
   {
@@ -79,16 +92,16 @@ router.beforeEach(async (to, from, next) => {
       else {
         next('/')
       }
-    } 
-    
+    }
+
     else if (to.matched.some(record => record.meta.requiresNotAuth)) {
       if (!response.data.authenticated)
         next();
       else {
         next('/home_page')
       }
-    } 
-    
+    }
+
     else {
       next()
     }

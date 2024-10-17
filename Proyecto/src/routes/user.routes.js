@@ -36,6 +36,9 @@ module.exports = app => {
   router.post("/resetPassword", user.resetPassword);
 
   // Change password of the user
+  router.post("/update/:id", user.update)
+
+  // Change password of the user
   router.post("/changePassword/:id", user.changePassword)
 
   // Change password of the user
