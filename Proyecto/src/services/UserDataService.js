@@ -61,9 +61,9 @@ class UserDataService {
 
   // RELATIONS
 
-  findAllRelations(username) {
+  findAllRelations(id, role) {
     console.log("inside UserDataService.js findAllRelations()")
-    return http.get(`/relations/${username}`);
+    return http.get(`/relations/findAll/${id}/${role}`);
   }
 
   editRelation(data) {
@@ -74,6 +74,11 @@ class UserDataService {
   findAllProfessorRelations(id) {
     console.log("inside UserDataService.js findAllProfessorRelations()")
     return http.get(`/relations/professor/${id}`);
+  }
+
+  delete(id) {
+    console.log("inside UserDataService.js delete()")
+    return http.delete(`/relations/delete/${id}`);
   }
 
   // AUTH

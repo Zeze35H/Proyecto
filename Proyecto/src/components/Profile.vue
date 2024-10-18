@@ -53,8 +53,9 @@ export default {
           this.user = response.data
           console.log(this.user)
 
+          console.log(this.user.role)
           if (this.user.role == 2) {
-
+            console.log("inside")
             this.lectured_subjects = []
 
             UserDataService.findAllProfessorRelations(this.user.id)
@@ -230,12 +231,9 @@ export default {
           return true;
       }
       return false;
-
     },
 
     checkChanges() {
-      console.log("checkChanges")
-
       if (this.areDifferent(this.before_edit, this.edit_info)) {
         if (this.before_edit.role != 2 && this.edit_info.role == 2 && this.edit_info.token == "") {
           return false
@@ -246,6 +244,9 @@ export default {
     },
 
     saveChanges() {
+
+      if (this.before_edit.role == 2)
+        delete this.edit_info["token"]
 
       UserDataService.update(this.user.id, this.edit_info)
         .then(response => {
@@ -404,7 +405,7 @@ export default {
 
   <!-- PICTURE CONFIRMATION MODAL -->
   <div>
-    <div v-if="pictureConfirmationModal" class="modal fade show d-block" id="pictureConfirmationModal" tabindex="-1"
+    <div v-if="pictureConfirmationModal || infoConfirmationModal" class="modal fade show d-block" id="pictureConfirmationModal" tabindex="-1"
       aria-labelledby="pictureModalLabel" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);"
       @click.self="closeModal">
       <div class="modal-dialog">
@@ -413,37 +414,13 @@ export default {
             <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Success:">
               <use xlink:href="#check-circle-fill" />
             </svg>
-            <h5 class="modal-title" id="pictureModalLabel">Porfile Picture Updated</h5>
+            <h5 v-if="pictureConfirmationModal" class="modal-title" id="pictureModalLabel">Porfile Picture Updated</h5>
+            <h5 v-else-if="infoConfirmationModal" class="modal-title" id="pictureModalLabel">User Info Updated</h5>
             <button type="button" class="btn-close" aria-label="Close" @click="closeModal"></button>
           </div>
           <div class="modal-body">
-            <p>Your profile picture has been changed successfully!</p>
-
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PICTURE CONFIRMATION MODAL -->
-  <div>
-    <div v-if="infoConfirmationModal" class="modal fade show d-block" id="infoConfirmationModal" tabindex="-1"
-      aria-labelledby="infoModalLabel" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);"
-      @click.self="closeModal">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Success:">
-              <use xlink:href="#check-circle-fill" />
-            </svg>
-            <h5 class="modal-title" id="infoModalLabel">User Info Updated</h5>
-            <button type="button" class="btn-close" aria-label="Close" @click="closeModal"></button>
-          </div>
-          <div class="modal-body">
-            <p>Your info has been updated successfully!</p>
+            <p v-if="pictureConfirmationModal">Your profile picture has been changed successfully!</p>
+            <p v-else-if="infoConfirmationModal">Your info has been updated successfully!</p>
 
           </div>
           <div class="modal-footer">
@@ -628,8 +605,9 @@ export default {
                       <p class="mb-1" style="font-size: .90rem;">{{ num_students }}</p>
                     </div>
                     <div class="progress rounded" style="height: 5px;">
-                      <div class="progress-bar" role="progressbar" :style="{ width: `${num_students / max_students * 100}%` }"
-                        :aria-valuenow="num_students" aria-valuemin="0" :aria-valuemax="max_students"></div>
+                      <div class="progress-bar" role="progressbar"
+                        :style="{ width: `${num_students / max_students * 100}%` }" :aria-valuenow="num_students"
+                        aria-valuemin="0" :aria-valuemax="max_students"></div>
                     </div>
                   </div>
 

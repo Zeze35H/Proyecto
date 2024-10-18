@@ -7,18 +7,33 @@ const Subject = db.subject
 exports.findAllRelations = (req, res) => {
   console.log("inside student_teacher_relation.controller.js findAllRelations")
 
+  console.log(req.params)
+  console.log(req.query)
+  const id = req.params.id
+  console.log(id)
+
+  let student_conditon = {}
+  let professor_conditon = {}
+
+
+  if (req.params.role != 2) {
+    student_conditon = { id: id, }
+  }
+  else {
+    professor_conditon = { id: id, }
+  }
+
   StudentTeacherRelation.findAll({
     include: [
       {
         model: User,
         as: 'student', // Use the alias 'student'
-        where: {
-          username: req.params.username,
-        },
+        where: student_conditon,
       },
       {
         model: User,
-        as: 'professor' // Use the alias 'professor'
+        as: 'professor', // Use the alias 'professor'
+        where: professor_conditon,
       },
       {
         model: Subject, // No alias needed as it's direct relation
@@ -38,6 +53,7 @@ exports.findAllRelations = (req, res) => {
 
 // Retrieve all Users from the database.
 exports.findAllProfessorRelations = (req, res) => {
+
   console.log("inside student_teacher_relation.controller.js findAllProfessorRelations")
 
   StudentTeacherRelation.findAll({
@@ -57,8 +73,8 @@ exports.findAllProfessorRelations = (req, res) => {
     group: ['id_subject', 'subject.name']  // Use 'subject.name' in GROUP BY
   })
     .then(data => {
-    res.send(data);
-  })
+      res.send(data);
+    })
     .catch(err => {
       res.status(500).send({
         message:
@@ -107,29 +123,30 @@ exports.editRelation = (req, res) => {
 };
 
 // Delete a User with the specified id in the request
-exports.delete = (req, res) => {
+exports.deleteRelation = (req, res) => {
   const id = req.params.id;
 
-  // TODO: SAME QUESTION OF THE EDIT BUT FOR THE DELETE !!!
-
-  // User.destroy({
-  //   where: { id: id }
-  // })
-  //   .then(num => {
-  //     if (num == 1) {
-  //       res.send({
-  //         message: "User was deleted successfully!"
-  //       });
-  //     } else {
-  //       res.send({
-  //         message: `Cannot delete User with id=${id}. Maybe User was not found!`
-  //       });
-  //     }
-  //   })
-  //   .catch(err => {
-  //     res.status(500).send({
-  //       message: "Could not delete User with id=" + id
-  //     });
-  //   });
+  StudentTeacherRelation.destroy({
+    where: { id: id }
+  })
+    .then(num => {
+      if (num == 1) {
+        res.send({
+          success: true,
+          message: "Relation was deleted successfully!"
+        });
+      } else {
+        res.send({
+          success: false,
+          message: `Cannot delete Relation with id=${id}. Maybe User was not found!`
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({
+        success: false,
+        message: "Could not delete Relation with id=" + id
+      });
+    });
 };
 

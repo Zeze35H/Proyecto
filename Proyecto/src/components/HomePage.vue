@@ -6,88 +6,177 @@ export default {
   name: 'home_page',
   data() {
     return {
-      username: "zeze35h",
-      master_student: true,
+      professor: false,
+      user: null,
+
       table_contents: [],
-      row_delete: { first_name: '', last_name: '', email: '', subject: '' },
+
+      edit_row: { id: null, name: '', surname: '', email: '', subject: '' },
+      row_delete: { name: '', surname: '', email: '', subject: '' },
+
+      edit: false,
+      delete: false,
+
       row_index: null,
       confirmationModal: false,
-      edit: false,
-      edit_row: { id: null, first_name: '', last_name: '', email: '', subject: '' }
+
     };
   },
-  created() {
-    UserDataService.findAllRelations(this.username)
-      .then(response => {
-        // Handle successful registration
-        for (let i = 0; i < response.data.length; i++) {
-          let id = response.data[i].id
-          let prof_name = response.data[i].professor.name
-          let prof_surname = response.data[i].professor.surname
-          let prof_email = response.data[i].professor.email
-          let subject_name = response.data[i].subject.name
-          this.table_contents.push({ id: id, first_name: prof_name, last_name: prof_surname, email: prof_email, subject: subject_name })
-        }
-      })
-      .catch(error => {
-        // Handle errors
-        console.error("Error retrieving relations:", error);
-      });
+  props: {
+    checkAuthStatus: Function, // Declare the prop
+  },
+  async created() {
+
+    const result = await this.checkAuthStatus()
+    if (result.authenticated) {
+      this.user = result.user
+
+      console.log(this.user)
+      console.log(this.user.role)
+
+      if (this.user.role == 2)
+        this.professor = true
+
+      UserDataService.findByUsername(this.user.username)
+        .then(response => {
+          if (response.data.length != 0) {
+            this.updateRelations()
+          }
+        })
+        .catch(error => {
+          // Handle errors
+          console.error("Error retrieving relations:", error);
+        });
+    }
   },
   methods: {
+
+    updateRelations() {
+      this.table_contents = []
+      UserDataService.findAllRelations(this.user.id, this.user.role)
+        .then(response => {
+          // Handle successful registration
+          for (let i = 0; i < response.data.length; i++) {
+            if (!this.professor) {
+              let id = response.data[i].id
+              let name = response.data[i].professor.name
+              let surname = response.data[i].professor.surname
+              let email = response.data[i].professor.email
+              let subject = response.data[i].subject.name
+              this.table_contents.push({ id: id, name: name, surname: surname, email: email, subject: subject })
+            }
+            else {
+              let id = response.data[i].id
+              let id_student = response.data[i].student.id
+              let name = response.data[i].student.name
+              let surname = response.data[i].student.surname
+              let email = response.data[i].student.email
+              let subject = response.data[i].subject.name
+              this.table_contents.push({ id: id, id_student: id_student, name: name, surname: surname, email: email, subject: subject })
+            }
+
+          }
+        })
+        .catch(error => {
+          // Handle errors
+          console.error("Error retrieving relations:", error);
+        });
+    },
+
+    areDifferent(d1, d2) {
+      for (var key in d1) {
+        if (key != "token" && d1[key] != d2[key])
+          return true;
+      }
+      return false;
+
+    },
+
+    checkChanges(index) {
+      if (this.areDifferent(this.edit_row, this.table_contents[index])) {
+        return true;
+      }
+      return false;
+    },
+
     // EDIT
     editRow(index) {
       this.edit = true
-      this.edit_row = this.table_contents[index]
+      this.edit_row = { ...this.table_contents[index] }
       this.row_index = index
     },
     closeEdit() {
       this.edit = false
-      this.edit_row = { id: null, first_name: '', last_name: '', email: '', subject: '' }
+      this.edit_row = { id: null, id_student: null, name: '', surname: '', email: '', subject: '' }
       this.row_index = null
     },
-    confirmEdit(index) {
-      this.table_contents[index] = this.edit_row
+    confirmEdit() {
       console.log(this.edit_row)
 
-      // TODO: HOW THE HELL IS THE USER SUPPOSED TO EDIT THE INFO OF A RELATION WHEN A RELATION CONISTS OF FOREIGN KEYS TO THE USER (STUDENT/PROFESSOR) AND THE SUBJECT TABLES??
-      //       IS IT SUPPOSED TO CHANGE THE NAME/SURNAME/EMAIL OF A PROFESSOR OR THE NAME OF A SUBJECT ???
+      const edit_data = { name: this.edit_row.name, surname: this.edit_row.surname, email: this.edit_row.email }
 
-      // UserDataService.editRelation(this.edit_row)
-      //   .then(response => {
-      //     if (response.data.success) {
+      UserDataService.update(this.edit_row.id_student, edit_data)
+        .then(response => {
+          console.log(response)
+          if (response.data.success) {
+            console.log(response.data.message)
 
-      //     }
-      //     else {
-      //       console.log("An error occurred while changing the password:", response.message);
-      //     }
-      //   })
-      //   .catch(error => {
-      //     console.error("An error occurred while changing the password:", error);
-      //   });
-      this.closeEdit()
+            this.updateRelations()
+
+            setTimeout(() => {
+              this.confirmationModal = true
+            }, 500); // 1-second delay
+          }
+          else {
+            console.log("An error occurred while updating the user:", response.data.message);
+          }
+        })
+        .catch(err => {
+          console.error("An error occurred while updating the user:", err);
+        });
+
     },
 
     // DELETE
     deleteRowModal(index) {
+      this.delete = true
       this.row_delete = this.table_contents[index]
       this.row_index = index
 
     },
     confirmDeleteRow() {
 
-      // TODO: SAME QUESTION OF THE EDIT BUT FOR THE DELETE !!!
+      console.log(this.row_delete)
+      UserDataService.delete(this.row_delete.id)
+        .then(response => {
+          if (response.data.success) {
+            console.log(response.data.message)
+            this.table_contents.splice(this.index, 1)
+            setTimeout(() => {
+              this.confirmationModal = true
+            }, 500); // 1-second delay
+          }
+          else {
+            console.log("An error occurred while deleting the relation:", response.message);
+          }
+        })
+        .catch(error => {
+          console.error("An error occurred while deleting the relation:", error);
+        });
 
-      this.table_contents.splice(this.index, 1)
-      setTimeout(() => {
-        this.confirmationModal = true
-      }, 500); // 1-second delay
+
 
     },
     closeModal() {
-      this.row_delete = { first_name: '', last_name: '', email: '', subject: '' }
-      this.row_index = null
+      this.edit = false
+      this.delete = false
+
+      this.edit_row = { id: null, id_student: null, name: '', surname: '', email: '', subject: '' }
+      this.row_delete = { name: '', surname: '', email: '', subject: '' }
+
       this.confirmationModal = false
+
+      this.row_index = null
     }
   }
 };
@@ -106,29 +195,61 @@ export default {
           <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
             <use xlink:href="#exclamation-triangle-fill" />
           </svg>
-          <h5 class="modal-title" id="staticBackdropLabel">Delete Topic Entry?</h5>
+          <h5 v-if="this.delete" class="modal-title" id="staticBackdropLabel">Delete Student Entry?</h5>
+          <h5 v-else-if="this.edit" class="modal-title" id="staticBackdropLabel">Update Student Info?</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
         <!-- MODAL BODY -->
         <div class="modal-body">
-          <strong>Are you sure you want to delete the following topic entry?</strong>
-          <div class="table-responsive bg-white my-3">
+          <strong v-if="this.delete">Are you sure you want to delete the following student entry?</strong>
+          <strong v-else-if="this.edit">Are you sure you want to make the following changes to the student?</strong>
+
+          <div v-if="this.delete" class="table-responsive bg-white my-3">
             <table class="table mb-0">
               <thead>
                 <tr>
                   <th scope="col">NAME</th>
                   <th scope="col">SURNAME</th>
                   <th scope="col">E-MAIL</th>
-                  <th scope="col">TOPIC</th>
+                  <th scope="col">SUBJECT</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>{{ row_delete.first_name }}</td>
-                  <td>{{ row_delete.last_name }}</td>
+                  <td>{{ row_delete.name }}</td>
+                  <td>{{ row_delete.surname }}</td>
                   <td>{{ row_delete.email }}</td>
                   <td>{{ row_delete.subject }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div v-else-if="this.edit" class="table-responsive bg-white my-3">
+            <table class="table mb-0">
+              <thead>
+                <tr>
+                  <th scope="col"></th>
+                  <th scope="col">BEFORE</th>
+                  <th scope="col">AFTER</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Name</strong></td>
+                  <td>{{ table_contents[row_index].name }}</td>
+                  <td>{{ edit_row.name }}</td>
+                </tr>
+                <tr>
+                  <td><strong>Surname</strong></td>
+                  <td>{{ table_contents[row_index].surname }}</td>
+                  <td>{{ edit_row.surname }}</td>
+                </tr>
+                <tr>
+                  <td><strong>Email</strong></td>
+                  <td>{{ table_contents[row_index].email }}</td>
+                  <td>{{ edit_row.email }}</td>
                 </tr>
               </tbody>
             </table>
@@ -138,8 +259,10 @@ export default {
         <!-- MODAL FOOTER -->
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button @click="confirmDeleteRow()" type="button" class="btn btn-danger"
-            data-bs-dismiss="modal">Delete</button>
+          <button v-if="this.delete" @click="confirmDeleteRow()" type="button" class="btn btn-danger"
+            data-bs-dismiss="modal">Confirm Delete</button>
+          <button v-else-if="this.edit" @click="confirmEdit()" type="button" class="btn btn-success"
+            data-bs-dismiss="modal">Confirm Changes</button>
         </div>
       </div>
     </div>
@@ -153,33 +276,61 @@ export default {
       @click.self="closeModal">
       <div class="modal-dialog">
         <div class="modal-content">
+
+          <!-- MODAL HEADER -->
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Topic Entry Deleted</h5>
+            <h5 v-if="this.delete" class="modal-title" id="exampleModalLabel">Student Entry Deleted</h5>
+            <h5 v-else-if="this.edit" class="modal-title" id="exampleModalLabel">Student Updated successfully</h5>
             <button type="button" class="btn-close" aria-label="Close" @click="closeModal"></button>
           </div>
+
+          <!-- MODAL BODY -->
           <div class="modal-body">
-            <p>Your topic entry has been deleted successfully!</p>
-            <div class="table-responsive bg-white my-3">
+            <p v-if="this.delete">The following student entry has been deleted successfully!</p>
+            <p v-else-if="this.edit">The following student has been updated successfully!</p>
+
+            <div v-if="this.delete" class="table-responsive bg-white my-3">
               <table class="table mb-0">
                 <thead>
                   <tr>
                     <th scope="col">NAME</th>
                     <th scope="col">SURNAME</th>
                     <th scope="col">E-MAIL</th>
-                    <th scope="col">TOPIC</th>
+                    <th scope="col">SUBJECT</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td>{{ row_delete.first_name }}</td>
-                    <td>{{ row_delete.last_name }}</td>
+                    <td>{{ row_delete.name }}</td>
+                    <td>{{ row_delete.surname }}</td>
                     <td>{{ row_delete.email }}</td>
                     <td>{{ row_delete.subject }}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
+
+            <div v-else-if="this.edit" class="table-responsive bg-white my-3">
+              <table class="table mb-0">
+                <thead>
+                  <tr>
+                    <th scope="col">NAME</th>
+                    <th scope="col">SURNAME</th>
+                    <th scope="col">E-MAIL</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{{ edit_row.name }}</td>
+                    <td>{{ edit_row.surname }}</td>
+                    <td>{{ edit_row.email }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
+
+          <!-- MODAL FOOTER -->
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
           </div>
@@ -189,14 +340,14 @@ export default {
   </div>
 
   <!-- SECTION -->
-  <section class="gradient-custom-1 vh-100 p-3 py-md-5 py-xl-8">
+  <section v-if="user" class="gradient-custom-1 vh-100 p-3 py-md-5 py-xl-8">
     <div class="container px-5">
       <div class="col-12 ">
 
         <!-- GREETING -->
         <div class="d-flex justify-content-center text-white text-center">
           <div class="col-12 col-xl-9 mb-5">
-            <h1>Greetings, {{ username }}!</h1>
+            <h1>Greetings, {{ user.name }}!</h1>
           </div>
         </div>
 
@@ -205,13 +356,16 @@ export default {
           <div class="card-body p-3 p-md-4 p-xl-5">
 
             <!-- TABLE MESSAGE -->
-            <div class="pb-3">
+            <div v-if="professor" class="pb-3">
+              <h6>List of your students for this semester:</h6>
+            </div>
+            <div v-else class="pb-3">
               <h6>List of your professors for this semester:</h6>
             </div>
 
             <!-- EDIT VIEW -->
             <div v-if="edit" class="table-responsive bg-white">
-              <form class="login-form" @submit.prevent="confirmEdit(index)">
+              <form class="login-form" @submit.prevent="">
                 <table class="table mb-0">
 
                   <!-- TABLE HEAD -->
@@ -220,36 +374,34 @@ export default {
                       <th scope="col">NAME</th>
                       <th scope="col">SURNAME</th>
                       <th scope="col">E-MAIL</th>
-                      <th v-if="!master_student" scope="col">SUBJECT</th>
-                      <th v-if="master_student" scope="col">TOPIC</th>
-                      <th v-if="master_student" scope="col" class="d-flex justify-content-end">ACTIONS</th>
+                      <th scope="col">SUBJECT</th>
+                      <th v-if="professor" scope="col" class="d-flex justify-content-end">ACTIONS</th>
                     </tr>
                   </thead>
 
                   <!-- TABLE BODY -->
                   <tbody>
-                    <template v-for="({ first_name, last_name, email, subject }, index) in table_contents">
+                    <template v-for="({ name, surname, email, subject }, index) in table_contents">
 
                       <!-- ROW EDIT -->
                       <tr v-if="index === this.row_index">
                         <td>
-                          <input v-model="edit_row.first_name" type="text" class="form-control" name="first_name"
-                            id="first_name" :placeholder="first_name" required>
+                          <input v-model="edit_row.name" type="text" class="form-control" name="name" id="name"
+                            :placeholder="name" required>
                         </td>
                         <td>
-                          <input v-model="edit_row.last_name" type="text" class="form-control" name="last_name"
-                            id="last_name" :placeholder="last_name" required>
+                          <input v-model="edit_row.surname" type="text" class="form-control" name="surname" id="surname"
+                            :placeholder="surname" required>
                         </td>
                         <td>
                           <input v-model="edit_row.email" type="text" class="form-control" name="email" id="email"
                             :placeholder="email" required>
                         </td>
-                        <td>
-                          <input v-model="edit_row.subject" type="text" class="form-control" name="subject" id="subject"
-                            :placeholder="subject" required>
+                        <td class="disabled-row">
+                          {{ subject }}
                         </td>
                         <!-- MASTER STUDENT ACTION BUTTONS -->
-                        <td v-if="master_student">
+                        <td v-if="professor">
                           <div class="d-flex justify-content-end">
 
                             <!-- CANCEL BUTTON -->
@@ -263,7 +415,9 @@ export default {
                             </button>
 
                             <!-- CONFIRM BUTTON -->
-                            <button type="submit" class="btn btn-outline-success" title="Confirm Edit">
+                            <button type="submit" class="btn btn-outline-success" data-bs-toggle="modal"
+                              data-bs-target="#staticBackdrop" title="Confirm Edit" :disabled="!checkChanges(index)"
+                              :style="{ opacity: !checkChanges(index) ? 0.2 : 1.0 }">
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 class="bi bi-check-lg" viewBox="0 0 16 16">
                                 <path
@@ -276,13 +430,13 @@ export default {
 
                       <!-- DISABLED ROWS -->
                       <tr v-else :class="{ 'disabled-row': true }">
-                        <td>{{ first_name }}</td>
-                        <td>{{ last_name }}</td>
+                        <td>{{ name }}</td>
+                        <td>{{ surname }}</td>
                         <td>{{ email }}</td>
                         <td>{{ subject }}</td>
 
                         <!-- MASTER STUDENT ACTION BUTTONS -->
-                        <td v-if="master_student">
+                        <td v-if="professor">
                           <div class="d-flex justify-content-end">
 
                             <!-- EDIT BUTTON -->
@@ -296,8 +450,7 @@ export default {
                             </button>
 
                             <!-- DELETE BUTTON -->
-                            <button @click="deleteRowModal(index)" type="button" class="btn btn-outline-danger"
-                              data-bs-toggle="modal" data-bs-target="#staticBackdrop" title="Delete" disabled>
+                            <button type="button" class="btn btn-outline-danger" title="Delete" disabled>
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 class="bi bi-trash" viewBox="0 0 16 16">
                                 <path
@@ -328,22 +481,21 @@ export default {
                     <th scope="col">NAME</th>
                     <th scope="col">SURNAME</th>
                     <th scope="col">E-MAIL</th>
-                    <th v-if="!master_student" scope="col">SUBJECT</th>
-                    <th v-if="master_student" scope="col">TOPIC</th>
-                    <th v-if="master_student" scope="col" class="d-flex justify-content-end">ACTIONS</th>
+                    <th scope="col">SUBJECT</th>
+                    <th v-if="professor" scope="col" class="d-flex justify-content-end">ACTIONS</th>
                   </tr>
                 </thead>
 
                 <!-- TABLE BODY -->
                 <tbody>
-                  <tr v-for="({ first_name, last_name, email, subject }, index) in table_contents">
-                    <td>{{ first_name }}</td>
-                    <td>{{ last_name }}</td>
+                  <tr v-for="({ name, surname, email, subject }, index) in table_contents">
+                    <td>{{ name }}</td>
+                    <td>{{ surname }}</td>
                     <td>{{ email }}</td>
                     <td>{{ subject }}</td>
 
                     <!-- MASTER STUDENT ACTION BUTTONS -->
-                    <td v-if="master_student">
+                    <td v-if="professor">
                       <div class="d-flex justify-content-end">
 
                         <!-- EDIT BUTTON -->

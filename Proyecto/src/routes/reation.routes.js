@@ -4,13 +4,15 @@ module.exports = app => {
     var router = require("express").Router();
   
     // Retrieve all Associations
-    router.get("/:username", student_teacher_relation.findAllRelations);
+    router.get("/findAll/:id/:role", student_teacher_relation.findAllRelations);
     
     // Edit 
     router.get("/edit", student_teacher_relation.editRelation);
 
     // Edit 
     router.get("/professor/:id", student_teacher_relation.findAllProfessorRelations);
+    
+    router.delete("/delete/:id", student_teacher_relation.deleteRelation);
 
     app.use('/api/relations', router);
   };

@@ -193,15 +193,16 @@ exports.update = (req, res) => {
   const id = req.params.id;
 
   // Validate request
-  if (req.body.role == 2 && req.body.token != correct_token) {
-    res.send({
-      success: false,
-      message: "Incorrect token."
-    });
-    return;
+  if (req.body.token) {
+    if (req.body.role == 2 && req.body.token != correct_token) {
+      res.send({
+        success: false,
+        message: "Incorrect token."
+      });
+      return;
+    }
+    delete req.body["token"]
   }
-
-  delete req.body["token"]
 
   User.update(req.body, {
     where: { id: id }
