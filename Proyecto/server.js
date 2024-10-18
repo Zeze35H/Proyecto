@@ -69,7 +69,7 @@ db.sequelize.sync({ force: true }).then(() => {
   ]
 
   const users_data = [
-    { id: 1, username: "zeze35h", name: "Jose Eduardo", surname: "Henriques", email: "zezeh35@hotmail.com", role: 1, password_token: "$2b$10$8NvUNHFay6THXQGLlHtMo.SAFIDiJ/./mMzISZmpqib/.kbdITjke", active: true },
+    { id: 1, username: "zeze35h", name: "Jose Eduardo", surname: "Henriques", email: "zezeh35@hotmail.com", role: 2, password_token: "$2b$10$8NvUNHFay6THXQGLlHtMo.SAFIDiJ/./mMzISZmpqib/.kbdITjke", active: true },
     { id: 2, username: "pml2000", name: "Pedro Miguel", surname: "Lages", email: "pedromiguel@gmail.com", role: 2, active: true },
     { id: 3, username: "nis123", name: "Anais", surname: "Neto", email: "nisneto123@outlook.com", role: 2, active: true },
     { id: 4, username: "vida_g", name: "Maria Margarida", surname: "Garcia", email: "mariamarg@gmail.com", role: 2, active: true },
@@ -77,15 +77,27 @@ db.sequelize.sync({ force: true }).then(() => {
     { id: 6, username: "rp000", name: "Ricardo", surname: "Pereira", email: "rp000@hotmail.com", role: 1, active: true },
     { id: 7, username: "luistorresss", name: "Luis", surname: "Torres", email: "luistorresss@gmail.com", role: 1, active: true },
     { id: 8, username: "postgres1", name: "p", surname: "g", email: "pg@gmail.com", role: 1, active: false },
+    { id: 9, username: "goodstudent", name: "Good", surname: "Student", email: "gsgsgs@gmail.com", role: 1, active: true },
   ]
 
   const stud_teach_rel_data = [
-    { id: 11, id_student: 1, id_teacher: 2, id_subject: 1 },
-    { id: 12, id_student: 1, id_teacher: 3, id_subject: 2 },
-    { id: 13, id_student: 1, id_teacher: 4, id_subject: 3 },
-    { id: 14, id_student: 1, id_teacher: 5, id_subject: 4 },
-    { id: 15, id_student: 6, id_teacher: 5, id_subject: 4 },
-    { id: 16, id_student: 7, id_teacher: 5, id_subject: 4 },
+    { id: 1, id_student: 6, id_teacher: 1, id_subject: 1 },
+    { id: 2, id_student: 6, id_teacher: 1, id_subject: 2 },
+    { id: 3, id_student: 6, id_teacher: 1, id_subject: 3 },
+    { id: 4, id_student: 6, id_teacher: 1, id_subject: 4 },
+    { id: 5, id_student: 6, id_teacher: 1, id_subject: 6 },
+    { id: 6, id_student: 7, id_teacher: 1, id_subject: 2 },
+    { id: 7, id_student: 7, id_teacher: 1, id_subject: 3 },
+    { id: 8, id_student: 7, id_teacher: 1, id_subject: 4 },
+    { id: 9, id_student: 7, id_teacher: 1, id_subject: 5 },
+    { id: 10, id_student: 8, id_teacher: 1, id_subject: 1 },
+    { id: 11, id_student: 8, id_teacher: 1, id_subject: 2 },
+    { id: 12, id_student: 8, id_teacher: 1, id_subject: 3 },
+    { id: 13, id_student: 8, id_teacher: 1, id_subject: 4 },
+    { id: 14, id_student: 9, id_teacher: 1, id_subject: 1 },
+    { id: 15, id_student: 9, id_teacher: 1, id_subject: 2 },
+    { id: 16, id_student: 9, id_teacher: 1, id_subject: 3 },
+    { id: 17, id_student: 9, id_teacher: 1, id_subject: 4 },
   ]
 
   // One-To-One association

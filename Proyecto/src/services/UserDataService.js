@@ -71,6 +71,11 @@ class UserDataService {
     return http.get(`/relations/edit`, data);
   }
 
+  findAllProfessorRelations(id) {
+    console.log("inside UserDataService.js findAllProfessorRelations()")
+    return http.get(`/relations/professor/${id}`);
+  }
+
   // AUTH
 
   login(data, withCredentials) {

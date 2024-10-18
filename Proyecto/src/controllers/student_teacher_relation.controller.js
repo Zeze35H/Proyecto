@@ -37,6 +37,37 @@ exports.findAllRelations = (req, res) => {
 };
 
 // Retrieve all Users from the database.
+exports.findAllProfessorRelations = (req, res) => {
+  console.log("inside student_teacher_relation.controller.js findAllProfessorRelations")
+
+  StudentTeacherRelation.findAll({
+    attributes: [
+      [db.Sequelize.col('subject.name'), 'subject_name'],  // Use the alias 'subject' for the joined table
+      [db.Sequelize.fn('COUNT', db.Sequelize.col('id_student')), 'num_students']  // Count of students
+    ],
+    where: {
+      id_teacher: req.params.id,
+    },
+    include: [
+      {
+        model: Subject,  // Include the Subject model
+        attributes: []   // Do not return the Subject attributes separately (handled above)
+      }
+    ],
+    group: ['id_subject', 'subject.name']  // Use 'subject.name' in GROUP BY
+  })
+    .then(data => {
+    res.send(data);
+  })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving users."
+      });
+    });
+};
+
+// Retrieve all Users from the database.
 exports.editRelation = (req, res) => {
   console.log("inside student_teacher_relation.controller.js editRelation")
 

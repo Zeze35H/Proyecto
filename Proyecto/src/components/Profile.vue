@@ -28,6 +28,8 @@ export default {
       authenticated: false,
       auth_user: null,
 
+      lectured_subjects: null,
+      max_students: 5,
     };
   },
   props: {
@@ -50,6 +52,30 @@ export default {
           console.log("Username found:", response);
           this.user = response.data
           console.log(this.user)
+
+          if (this.user.role == 2) {
+
+            this.lectured_subjects = []
+
+            UserDataService.findAllProfessorRelations(this.user.id)
+              .then(response => {
+                console.log(response)
+                if (response.data.length != 0) {
+                  for (let i = 0; i < response.data.length; i++) {
+                    let subject = response.data[i].subject_name
+                    let num_students = response.data[i].num_students
+                    this.lectured_subjects.push({ subject: subject, num_students: num_students })
+                  }
+                }
+                else {
+                  console.log("NO SUBJECTS!!!!!!!!!!!!!!!!")
+                }
+              })
+              .catch(error => {
+                // Handle errors
+                console.error("Error retrieving relations:", error);
+              });
+          }
         }
         else {
           console.log("Username not found:", response);
@@ -167,9 +193,9 @@ export default {
                 console.log(response.data)
 
                 this.user.picture = response.data.imageUrl;
-                
+
                 this.pictureConfirmationModal = true
-                
+
                 this.resetCropper()
               }
               else {
@@ -587,43 +613,34 @@ export default {
               </div>
             </div>
 
+            <!-- LECTURED SUBJECTS -->
+            <div v-if="user.role == 2" class="col-md-12">
+              <div class="card mb-4 mb-md-0">
+                <div class="card-body">
+                  <div class="d-flex d-flex justify-content-between">
+                    <h5 class="text-primary font-italic mb-3">Lectured Subjects</h5>
+                    <p class="text-muted" style="font-size: .75rem;">Num. of Students</p>
+                  </div>
 
+                  <div v-for="({ subject, num_students }, index) in lectured_subjects">
+                    <div class="d-flex d-flex justify-content-between">
+                      <p class="mb-1">{{ subject }}</p>
+                      <p class="mb-1" style="font-size: .90rem;">{{ num_students }}</p>
+                    </div>
+                    <div class="progress rounded" style="height: 5px;">
+                      <div class="progress-bar" role="progressbar" :style="{ width: `${num_students / max_students * 100}%` }"
+                        :aria-valuenow="num_students" aria-valuemin="0" :aria-valuemax="max_students"></div>
+                    </div>
+                  </div>
+
+
+                </div>
+              </div>
+            </div>
 
             <!-- PROJECT STATUS -->
             <!-- <div class="row">
-              <div class="col-md-6">
-                <div class="card mb-4 mb-md-0">
-                  <div class="card-body">
-                    <p class="mb-4"><span class="text-primary font-italic me-1">assigment</span> Project Status
-                    </p>
-                    <p class="mb-1" style="font-size: .77rem;">Web Design</p>
-                    <div class="progress rounded" style="height: 5px;">
-                      <div class="progress-bar" role="progressbar" style="width: 80%" aria-valuenow="80"
-                        aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <p class="mt-4 mb-1" style="font-size: .77rem;">Website Markup</p>
-                    <div class="progress rounded" style="height: 5px;">
-                      <div class="progress-bar" role="progressbar" style="width: 72%" aria-valuenow="72"
-                        aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <p class="mt-4 mb-1" style="font-size: .77rem;">One Page</p>
-                    <div class="progress rounded" style="height: 5px;">
-                      <div class="progress-bar" role="progressbar" style="width: 89%" aria-valuenow="89"
-                        aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <p class="mt-4 mb-1" style="font-size: .77rem;">Mobile Template</p>
-                    <div class="progress rounded" style="height: 5px;">
-                      <div class="progress-bar" role="progressbar" style="width: 55%" aria-valuenow="55"
-                        aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <p class="mt-4 mb-1" style="font-size: .77rem;">Backend API</p>
-                    <div class="progress rounded mb-2" style="height: 5px;">
-                      <div class="progress-bar" role="progressbar" style="width: 66%" aria-valuenow="66"
-                        aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+
               <div class="col-md-6">
                 <div class="card mb-4 mb-md-0">
                   <div class="card-body">
