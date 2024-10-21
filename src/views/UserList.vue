@@ -1,5 +1,4 @@
 <script>
-import { ref, onMounted, computed } from 'vue'
 import UserDataService from "../services/UserDataService.js";
 
 export default {
@@ -146,47 +145,60 @@ export default {
       </div>
     </div>
 
+    <!-- USER LIST -->
     <div class="container w-75 px-5 pt-2">
       <ul class="list-group list-group-light">
+
+
         <li v-if="no_users" class="list-group-item text-center py-3">No users found matching the search filters.</li>
         <li v-for="({ username, name, surname, email, role, active, picture }, index) in paginatedUsers"
           @click="visitUser(username)" class="list-group-item row d-flex justify-content-between align-items-center"
           style="cursor: pointer">
+
+          <!-- PROFILE HEADER -->
           <div class="col-4 d-flex align-items-center">
+
+            <!-- PROFILE PICTURE  -->
             <img :src="picture" alt="" style="width: 45px; height: 45px" class="rounded-circle" />
+
+            <!-- NAME AND USERNAME -->
             <div class="ms-3">
               <p class="fw-bold mb-1">{{ name }} {{ surname }}</p>
               <p class="text-muted mb-0">{{ username }}</p>
             </div>
           </div>
+
+          <!-- EMAIL -->
           <p class="col-2 fw-bold mb-1">{{ email }}</p>
+
+          <!-- ROLE -->
           <p class="col-1 fw-bold mb-1 text-center">{{ role }}</p>
+
+          <!-- ACTIVE -->
           <p class="col-1 mb-1 text-center">{{ active }}</p>
         </li>
       </ul>
     </div>
 
-    <!-- Pagination Controls -->
+    <!-- PAGINATION CONTROLS -->
     <div class="d-flex justify-content-center align-items-center pt-4">
       <ul class="pagination">
+
+        <!-- PREVIOUS PAGE -->
         <li @click="prevPage" :class="{ 'disabled': current_page === 1 }" class="page-item">
           <a class="page-link px-3" href="#">«</a>
         </li>
 
+        <!-- PAGE NUMBER -->
         <li v-for="pageNum in totalPages" :key="pageNum" @click="selectPage(pageNum)"
           :class="{ 'active': pageNum == current_page }" class="page-item">
           <a class="page-link" href="#">{{ pageNum }}</a>
         </li>
 
+        <!-- NEXT PAGE -->
         <li @click="nextPage" :class="{ 'disabled': current_page === totalPages }" class="page-item">
           <a class="page-link px-3" href="#">»</a>
         </li>
-
-        <!-- <li class="page-item"><a class="page-link" href="#">1</a></li>
-        <li class="page-item active" aria-current="page">
-          <a class="page-link" href="#">2 <span class="visually-hidden">(current)</span></a>
-        </li>
-        <li class="page-item"><a class="page-link" href="#">3</a></li> -->
       </ul>
     </div>
   </section>

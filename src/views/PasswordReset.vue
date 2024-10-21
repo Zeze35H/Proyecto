@@ -90,8 +90,8 @@ export default {
                   <!-- Email -->
                   <div class="col-12">
                     <div class="form-floating mb-1">
-                      <input v-model="email" type="email" class="form-control" name="email" id="email"
-                        placeholder="E-mail" required>
+                      <input v-model="email" type="email" class="form-control" name="email" placeholder="E-mail"
+                        required>
                       <label for="email" class="form-label">Email</label>
                     </div>
                   </div>

@@ -2,7 +2,7 @@
 import UserDataService from "./services/UserDataService.js";
 import { onMounted, computed, ref } from 'vue';
 import { useRouter } from "vue-router"; // Import useRouter
-import axios from 'axios';
+import http from "./http-common.js";
 
 const router = useRouter(); // Get the router instance
 
@@ -11,7 +11,7 @@ let user = ref(null)
 
 const checkAuthStatus = async () => {
   try {
-    const response = await axios.get('http://localhost:8080/api/auth/checkAuth', { withCredentials: true })
+    const response = await http.get('/auth/checkAuth', { withCredentials: true })
     console.log(response)
     console.log("isAuthenticated:", response.data.authenticated)
     isAuthenticated.value = response.data.authenticated;
@@ -78,51 +78,16 @@ const logout = () => {
 
           <!-- HOMEPAGE -->
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="/profile">Profile</a>
+            <a class="nav-link active" aria-current="page" href="/home_page">Homepage</a>
           </li>
 
-          <!-- CONFIRM EMAIL -->
+          <!-- User List -->
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="/profile_test">Profile Test</a>
+            <a class="nav-link active" aria-current="page" href="/user_list">User List</a>
           </li>
 
-          <!-- PASSWORD CHANGE -->
-          <li class="nav-item">
-            <a class="nav-link" href="/password_change">Password Change</a>
-          </li>
 
-          <!-- USER LIST -->
-          <li class="nav-item">
-            <a class="nav-link" href="/user_list">User List</a>
-          </li>
-
-          <!-- DROPDOWN -->
-          <!-- <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
-              aria-expanded="false">
-              Dropdown
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="#">Action</a></li>
-              <li><a class="dropdown-item" href="#">Another action</a></li>
-              <li>
-                <hr class="dropdown-divider">
-              </li>
-              <li><a class="dropdown-item" href="#">Something else here</a></li>
-            </ul>
-          </li> -->
-
-          <!-- DISABLED -->
-          <!-- <li class="nav-item">
-            <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-          </li> -->
         </ul>
-
-        <!-- SEARCH -->
-        <!-- <form class="d-flex">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-primary" type="submit">Search</button>
-        </form> -->
 
         <!-- LOGOUT -->
         <div class="d-flex">
@@ -149,6 +114,10 @@ const logout = () => {
               </path>
             </svg>
           </a>
+
+          <a v-if="!isAuthenticated" class="nav-link active me-3" aria-current="page" href="/login">Login</a>
+
+          <a v-if="!isAuthenticated" class="nav-link active" aria-current="page" href="/register">Register</a>
         </div>
       </div>
     </div>

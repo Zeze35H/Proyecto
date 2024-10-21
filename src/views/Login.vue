@@ -21,17 +21,17 @@ export default {
     };
   },
   created() {
+
+    // CLEAR USER TOKEN FROM URL AFER UPDATED PASSWORD
     if (this.$route.query.updated_password) {
       this.updated_password = 1
-      // Remove the query parameter from the URL
       this.$router.replace({ name: 'login' });
     }
+
+    // ACTIVATE USER'S ACCOUNT AFTER CONFIRMING EMAIL
     if (this.$route.query.token) {
-
-
       const access_token = this.$route.query.token
 
-      // Call the service to find user by token
       UserDataService.findByToken(access_token)
         .then(response => {
           if (response.data.length != 0) {
@@ -41,6 +41,7 @@ export default {
               .then(response => {
                 if (response.data.success) {
                   this.activated_account = 1
+                  // CLEAR USER TOKEN FROM URL AFER UPDATED PASSWORD
                   this.$router.replace({ name: 'login' });
                 }
               })
@@ -65,7 +66,6 @@ export default {
     login() {
 
       this.incorrect_login = false
-
       this.loading = false
 
       const userData = {
@@ -113,10 +113,10 @@ export default {
 
 <template>
 
-  <!-- Modal -->
+  <!-- UPDATED PASSWORD AND ACTIVATED ACCOUNT MODAL -->
   <div>
-    <div v-if="updated_password" class="modal fade show d-block" id="exampleModal" tabindex="-1"
-      aria-labelledby="exampleModalLabel" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);"
+    <div v-if="updated_password || activated_account" class="modal fade show d-block" id="loginModal" tabindex="-1"
+      aria-labelledby="loginModalLabel" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);"
       @click.self="closeModal">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -124,37 +124,26 @@ export default {
             <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:">
               <use xlink:href="#info-fill" />
             </svg>
-            <h5 class="modal-title" id="exampleModalLabel">Password Updated</h5>
+
+            <!-- UPDATED PASSWORD HEADER -->
+            <h5 v-if="updated_password" class="modal-title" id="loginModalLabel">Password Updated</h5>
+
+            <!-- ACTIVETED ACCOUNT HEADER -->
+            <h5 v-else-if="activated_account" class="modal-title" id="loginModalLabel">Account Activated</h5>
+
             <button type="button" class="btn-close" aria-label="Close" @click="closeModal"></button>
           </div>
-          <div class="modal-body">
+
+          <!-- UPDATED PASSWORD MESSAGE -->
+          <div v-if="updated_password" class="modal-body">
             Your password has been updated successfully!
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Modal -->
-  <div>
-    <div v-if="activated_account" class="modal fade show d-block" id="exampleModal" tabindex="-1"
-      aria-labelledby="exampleModalLabel" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);"
-      @click.self="closeModal">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:">
-              <use xlink:href="#info-fill" />
-            </svg>
-            <h5 class="modal-title" id="exampleModalLabel">Account Activated</h5>
-            <button type="button" class="btn-close" aria-label="Close" @click="closeModal"></button>
-          </div>
-          <div class="modal-body">
+          <!-- ACTIVATED ACCOUNT MESSAGE -->
+          <div v-else-if="activated_account" class="modal-body">
             Your account has been activated! You can now login!
           </div>
+
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
           </div>
@@ -171,8 +160,8 @@ export default {
         <div class="col-12 col-md-6 col-xl-7">
           <div class="d-flex justify-content-center text-white">
             <div class="col-12 col-xl-9">
-              <img class="img-fluid rounded mb-4" loading="lazy" src="../assets/img/tajaver.png" width="100"
-                alt="Vue Logo">
+              <img class="img-fluid rounded" loading="lazy" src="../assets/img/logo.png" width="150"
+                alt="School Website Thingy Logo">
               <hr class="border-primary-subtle mb-4">
               <h2 class="h1 mb-4">School Website Thingy</h2>
               <p class="lead mb-5">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor

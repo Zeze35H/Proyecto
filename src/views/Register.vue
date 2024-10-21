@@ -12,7 +12,7 @@ export default {
       email: "",
       password: "",
       confirm_password: "",
-      role: "",
+      role: "Student",
       token: "",
 
       unmatched_passwords: false,
@@ -111,8 +111,7 @@ export default {
                   <!-- Name -->
                   <div class="col-12">
                     <div class="form-floating mb-1">
-                      <input v-model="name" type="text" class="form-control" name="name" id="name" placeholder="Name"
-                        required>
+                      <input v-model="name" type="text" class="form-control" name="name" placeholder="Name" required>
                       <label for="name" class="form-label">Name</label>
                     </div>
                   </div>
@@ -120,8 +119,8 @@ export default {
                   <!-- Surname -->
                   <div class="col-12">
                     <div class="form-floating mb-1">
-                      <input v-model="surname" type="text" class="form-control" name="surname" id="surname"
-                        placeholder="Surname" required>
+                      <input v-model="surname" type="text" class="form-control" name="surname" placeholder="Surname"
+                        required>
                       <label for="surname" class="form-label">Surname</label>
                     </div>
                   </div>
@@ -129,8 +128,8 @@ export default {
                   <!-- Username -->
                   <div class="col-12">
                     <div class="form-floating mb-1">
-                      <input v-model="username" type="text" class="form-control" name="username" id="username"
-                        placeholder="Username" required>
+                      <input v-model="username" type="text" class="form-control" name="username" placeholder="Username"
+                        required>
                       <label for="username" class="form-label">Username</label>
                     </div>
                   </div>
@@ -138,8 +137,8 @@ export default {
                   <!-- Email -->
                   <div class="col-12">
                     <div class="form-floating mb-1">
-                      <input v-model="email" type="email" class="form-control" name="email" id="email"
-                        placeholder="E-mail" required>
+                      <input v-model="email" type="email" class="form-control" name="email" placeholder="E-mail"
+                        required>
                       <label for="email" class="form-label">Email</label>
                     </div>
                   </div>
@@ -147,7 +146,7 @@ export default {
                   <!-- Password -->
                   <div class="col-12">
                     <div class="form-floating mb-1">
-                      <input v-model="password" type="password" class="form-control" name="password" id="password"
+                      <input v-model="password" type="password" class="form-control" name="password"
                         placeholder="Password" required>
                       <label for="password" class="form-label">Password</label>
                     </div>
@@ -157,7 +156,7 @@ export default {
                   <div class="col-12">
                     <div class="form-floating mb-1">
                       <input v-model="confirm_password" type="password" class="form-control" name="confirm_password"
-                        id="confirm_password" placeholder="Confirm Password" required>
+                        placeholder="Confirm Password" required>
                       <label for="confirm_password" class="form-label">Confirm Password</label>
                     </div>
                   </div>
@@ -184,8 +183,8 @@ export default {
                     <div class="row">
                       <div class="col">
                         <div class="form-floating mb-1">
-                          <input v-model="role" type="text" class="form-control" name="role" id="role"
-                            placeholder="Role" required tabindex="-1">
+                          <input v-model="role" type="text" class="form-control" name="role" placeholder="Role" required
+                            tabindex="-1" disabled>
                           <label for="role" class="form-label">Role</label>
                         </div>
                       </div>
@@ -193,8 +192,8 @@ export default {
                       <!-- Token for Professors -->
                       <div v-if="role === 'Professor'" class="col">
                         <div class="form-floating mb-1">
-                          <input v-model="token" type="text" class="form-control" name="token" id="token"
-                            placeholder="Token" required>
+                          <input v-model="token" type="text" class="form-control" name="token" placeholder="Token"
+                            required>
                           <label for="token" class="form-label">Token</label>
                         </div>
                       </div>
@@ -255,11 +254,13 @@ export default {
             </div>
           </div>
         </div>
+
+        <!-- SIDE TEXT -->
         <div class="col-12 col-md-6 col-xl-7">
           <div class="d-flex justify-content-center text-white">
             <div class="col-12 col-xl-9">
-              <img class="img-fluid rounded mb-4" loading="lazy" src="../assets/img/tajaver.png" width="100"
-                alt="Vue Logo">
+              <img class="img-fluid rounded " loading="lazy" src="../assets/img/logo.png" width="150"
+                alt="School Website Thingy Logo">
               <hr class="border-primary-subtle mb-4">
               <h2 class="h1 mb-4">School Website Thingy</h2>
               <p class="lead mb-5">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor

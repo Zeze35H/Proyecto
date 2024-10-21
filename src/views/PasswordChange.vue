@@ -105,7 +105,7 @@ export default {
                   <!-- Password -->
                   <div class="col-12">
                     <div class="form-floating mb-1">
-                      <input v-model="password" type="password" class="form-control" name="password" id="password"
+                      <input v-model="password" type="password" class="form-control" name="password"
                         placeholder="Password" required>
                       <label for="password" class="form-label">Password</label>
                     </div>
@@ -115,7 +115,7 @@ export default {
                   <div class="col-12">
                     <div class="form-floating mb-1">
                       <input v-model="confirm_password" type="password" class="form-control" name="confirm_password"
-                        id="confirm_password" placeholder="Confirm Password" required>
+                        placeholder="Confirm Password" required>
                       <label for="confirm_password" class="form-label">Confirm Password</label>
                     </div>
                   </div>

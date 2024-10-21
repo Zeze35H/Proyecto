@@ -273,6 +273,10 @@ export default {
     }
 
   },
+
+  asd(){
+    console.log("asd")
+  }
 };
 
 </script>
@@ -294,7 +298,7 @@ export default {
 
         <!-- MODAL BODY -->
         <div class="modal-body">
-          <p>Click below to upload a new profile picture.</p>
+          <p>Click below to upload a new profile picture</p>
           <div class="mb-3">
             <input type="file" @click="resetCropper()" @change="onFileChanged($event)" accept="image/*" capture />
           </div>
@@ -311,9 +315,9 @@ export default {
           <!-- Cropper container -->
           <div class="container d-flex justify-content-center mb-5 pb-5">
             <div v-if="imageSource" style="width: 400px; height: 400px;">
-              <h5>Crop the Image:</h5>
+              <h5>Please crop your image before uploading it!</h5>
               <img ref="image" :src="imageSource" alt="Image to Crop" />
-              <button @click="cropImage" class="mt-2">Crop Image</button>
+              <button @click="cropImage" @change="asd()" class="btn btn-primary mt-2">Crop Image</button>
             </div>
           </div>
 
@@ -473,7 +477,7 @@ export default {
 
                 <!-- EDIT BUTTON -->
                 <svg v-if="!edit && authenticated && user.id === auth_user.id" @click="editInfo()"
-                  xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                  xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
                   class="bi bi-pencil-square position-absolute top-0 end-0 m-2" viewBox="0 0 16 16"
                   style="cursor: pointer">
                   <path
@@ -555,24 +559,7 @@ export default {
                   </div>
                 </div>
                 <hr v-if="edit">
-                <!-- <hr>
-                <div class="row">
-                  <div class="col-sm-3">
-                    <p class="mb-0">Mobile</p>
-                  </div>
-                  <div class="col-sm-9">
-                    <p class="text-muted mb-0">(098) 765-4321</p>
-                  </div>
-                </div>
-                <hr>
-                <div class="row">
-                  <div class="col-sm-3">
-                    <p class="mb-0">Address</p>
-                  </div>
-                  <div class="col-sm-9">
-                    <p class="text-muted mb-0">Bay Area, San Francisco, CA</p>
-                  </div>
-                </div> -->
+
               </div>
               <div v-if="incorrect_token" class="alert alert-danger d-flex align-items-center c m-3" role="alert">
                 <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
@@ -615,44 +602,6 @@ export default {
                 </div>
               </div>
             </div>
-
-            <!-- PROJECT STATUS -->
-            <!-- <div class="row">
-
-              <div class="col-md-6">
-                <div class="card mb-4 mb-md-0">
-                  <div class="card-body">
-                    <p class="mb-4"><span class="text-primary font-italic me-1">assigment</span> Project Status
-                    </p>
-                    <p class="mb-1" style="font-size: .77rem;">Web Design</p>
-                    <div class="progress rounded" style="height: 5px;">
-                      <div class="progress-bar" role="progressbar" style="width: 80%" aria-valuenow="80"
-                        aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <p class="mt-4 mb-1" style="font-size: .77rem;">Website Markup</p>
-                    <div class="progress rounded" style="height: 5px;">
-                      <div class="progress-bar" role="progressbar" style="width: 72%" aria-valuenow="72"
-                        aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <p class="mt-4 mb-1" style="font-size: .77rem;">One Page</p>
-                    <div class="progress rounded" style="height: 5px;">
-                      <div class="progress-bar" role="progressbar" style="width: 89%" aria-valuenow="89"
-                        aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <p class="mt-4 mb-1" style="font-size: .77rem;">Mobile Template</p>
-                    <div class="progress rounded" style="height: 5px;">
-                      <div class="progress-bar" role="progressbar" style="width: 55%" aria-valuenow="55"
-                        aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <p class="mt-4 mb-1" style="font-size: .77rem;">Backend API</p>
-                    <div class="progress rounded mb-2" style="height: 5px;">
-                      <div class="progress-bar" role="progressbar" style="width: 66%" aria-valuenow="66"
-                        aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div> -->
           </div>
 
         </div>

@@ -27,18 +27,20 @@ export default {
   },
   async created() {
 
+    // CHECK IF USER US AUTHENTICATED
     const result = await this.checkAuthStatus()
     if (result.authenticated) {
       this.user = result.user
 
-      console.log(this.user)
-      console.log(this.user.role)
-
+      // UPDATE PROFESSOR VARIABLE
       if (this.user.role == 2)
         this.professor = true
 
+      // FIND AUTHENTICATED USER
       UserDataService.findByUsername(this.user.username)
         .then(response => {
+
+          // UPDATE USERS RELATIONS
           if (response.data.length != 0) {
             this.updateRelations()
           }
@@ -53,9 +55,12 @@ export default {
 
     updateRelations() {
       this.table_contents = []
+
+      // FIND ALL USER'S RELATIONS
       UserDataService.findAllRelations(this.user.id, this.user.role)
         .then(response => {
-          // Handle successful registration
+
+          // UPDATE RELATIONS ACCORDING TO THE USER'S ROLE
           for (let i = 0; i < response.data.length; i++) {
             if (!this.professor) {
               let id = response.data[i].id
@@ -76,43 +81,44 @@ export default {
             }
 
           }
+
+          console.log(this.table_contents)
         })
         .catch(error => {
           // Handle errors
           console.error("Error retrieving relations:", error);
         });
+
+        
     },
 
-    areDifferent(d1, d2) {
+    // CHECK IF ANY CHANGES HAVE BEEN MADE TO THE INPUT FIELDS FOR EDIT
+    checkChanges(index) {
       for (var key in d1) {
         if (key != "token" && d1[key] != d2[key])
           return true;
       }
       return false;
-
     },
 
-    checkChanges(index) {
-      if (this.areDifferent(this.edit_row, this.table_contents[index])) {
-        return true;
-      }
-      return false;
-    },
-
-    // EDIT
+    // EDIT SELECTED ROW
     editRow(index) {
       this.edit = true
       this.edit_row = { ...this.table_contents[index] }
       this.row_index = index
     },
+
+    // CANCEL ROW EDIT
     closeEdit() {
       this.edit = false
       this.edit_row = { id: null, id_student: null, name: '', surname: '', email: '', subject: '' }
       this.row_index = null
     },
-    confirmEdit() {
-      console.log(this.edit_row)
 
+    // UPDATE USER INFO AFTER EDIT
+    confirmEdit() {
+
+      // PREPARE DATA FOR BACKEND
       const edit_data = { name: this.edit_row.name, surname: this.edit_row.surname, email: this.edit_row.email }
 
       UserDataService.update(this.edit_row.id_student, edit_data)
@@ -121,6 +127,7 @@ export default {
           if (response.data.success) {
             console.log(response.data.message)
 
+            // UPDATE THE USER LIST AFTER THE UPDATE
             this.updateRelations()
 
             setTimeout(() => {
@@ -137,20 +144,23 @@ export default {
 
     },
 
-    // DELETE
+    // TRIGGER DELETION MODE
     deleteRowModal(index) {
       this.delete = true
       this.row_delete = this.table_contents[index]
       this.row_index = index
 
     },
+
+    // DELETE USER RELATION
     confirmDeleteRow() {
 
-      console.log(this.row_delete)
       UserDataService.delete(this.row_delete.id)
         .then(response => {
           if (response.data.success) {
             console.log(response.data.message)
+
+            // REMOVE USER FROM TBLE
             this.table_contents.splice(this.index, 1)
             setTimeout(() => {
               this.confirmationModal = true
@@ -167,6 +177,8 @@ export default {
 
 
     },
+
+    // RESET VARIABLES AFTER MODAL CLOSING
     closeModal() {
       this.edit = false
       this.delete = false
@@ -183,10 +195,10 @@ export default {
 
 </script>
 
-<template class="gradient-custom-1 h-100 p-3 py-md-5 py-xl-8">
-  <!-- DELETE CONFIRMATION MODAL -->
-  <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-5"
-    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<template class="p-3 py-md-5 py-xl-8">
+  <!-- EDIT AND DELETE CONFIRMATION MODAL -->
+  <div class="modal fade" id="editAndDeleteStaticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false"
+    tabindex="-5" aria-labelledby="editAndDeleteStaticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
 
@@ -195,8 +207,11 @@ export default {
           <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
             <use xlink:href="#exclamation-triangle-fill" />
           </svg>
-          <h5 v-if="this.delete" class="modal-title" id="staticBackdropLabel">Delete Student Entry?</h5>
-          <h5 v-else-if="this.edit" class="modal-title" id="staticBackdropLabel">Update Student Info?</h5>
+
+          <!-- DELETE MODAL HEADER -->
+          <h5 v-if="this.delete" class="modal-title" id="editAndDeleteStaticBackdropLabel">Delete Student Entry?</h5>
+          <!-- EDIT MODAL HEADER -->
+          <h5 v-else-if="this.edit" class="modal-title" id="editAndDeleteStaticBackdropLabel">Update Student Info?</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
@@ -205,6 +220,7 @@ export default {
           <strong v-if="this.delete">Are you sure you want to delete the following student entry?</strong>
           <strong v-else-if="this.edit">Are you sure you want to make the following changes to the student?</strong>
 
+          <!-- DELETE MODAL BODY -->
           <div v-if="this.delete" class="table-responsive bg-white my-3">
             <table class="table mb-0">
               <thead>
@@ -225,7 +241,7 @@ export default {
               </tbody>
             </table>
           </div>
-
+          <!-- EDIT MODAL BODY -->
           <div v-else-if="this.edit" class="table-responsive bg-white my-3">
             <table class="table mb-0">
               <thead>
@@ -259,8 +275,11 @@ export default {
         <!-- MODAL FOOTER -->
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+
+          <!-- DELETE MODAL FOOTER -->
           <button v-if="this.delete" @click="confirmDeleteRow()" type="button" class="btn btn-danger"
-            data-bs-dismiss="modal">Confirm Delete</button>
+          data-bs-dismiss="modal">Confirm Delete</button>
+          <!-- EDIT MODAL FOOTER -->
           <button v-else-if="this.edit" @click="confirmEdit()" type="button" class="btn btn-success"
             data-bs-dismiss="modal">Confirm Changes</button>
         </div>
@@ -269,26 +288,32 @@ export default {
   </div>
 
 
-  <!-- CONFIRMATION MODAL -->
+  <!-- SUCCESS CONFIRMATION MODAL -->
   <div>
-    <div v-if="confirmationModal" class="modal fade show d-block" id="exampleModal" tabindex="-1"
-      aria-labelledby="exampleModalLabel" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);"
+    <div v-if="confirmationModal" class="modal fade show d-block" id="homepageConfirmationModal" tabindex="-1"
+      aria-labelledby="homepageConfirmationModalLabel" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);"
       @click.self="closeModal">
       <div class="modal-dialog">
         <div class="modal-content">
 
           <!-- MODAL HEADER -->
           <div class="modal-header">
-            <h5 v-if="this.delete" class="modal-title" id="exampleModalLabel">Student Entry Deleted</h5>
-            <h5 v-else-if="this.edit" class="modal-title" id="exampleModalLabel">Student Updated successfully</h5>
+            <!-- DELETE MODAL HEADER -->
+            <h5 v-if="this.delete" class="modal-title" id="homepageConfirmationModalLabel">Student Entry Deleted</h5>
+            <!-- EDIT MODAL HEADER -->
+            <h5 v-else-if="this.edit" class="modal-title" id="homepageConfirmationModalLabel">Student Updated
+              successfully</h5>
             <button type="button" class="btn-close" aria-label="Close" @click="closeModal"></button>
           </div>
 
           <!-- MODAL BODY -->
           <div class="modal-body">
+            <!-- DELETE CONFIRMATION MESSAGE -->
             <p v-if="this.delete">The following student entry has been deleted successfully!</p>
+            <!-- EDIT CONFIRMATION MESSAGE -->
             <p v-else-if="this.edit">The following student has been updated successfully!</p>
 
+            <!-- DELETE MODAL BODY -->
             <div v-if="this.delete" class="table-responsive bg-white my-3">
               <table class="table mb-0">
                 <thead>
@@ -309,7 +334,7 @@ export default {
                 </tbody>
               </table>
             </div>
-
+            <!-- EDIT MODAL BODY -->
             <div v-else-if="this.edit" class="table-responsive bg-white my-3">
               <table class="table mb-0">
                 <thead>
@@ -344,7 +369,7 @@ export default {
     <div class="container px-5">
       <div class="col-12 ">
 
-        <!-- GREETING -->
+        <!-- USER GREETING -->
         <div class="d-flex justify-content-center text-white text-center">
           <div class="col-12 col-xl-9 mb-5">
             <h1>Greetings, {{ user.name }}!</h1>
@@ -353,7 +378,7 @@ export default {
 
         <!-- TABLE DIV -->
         <div class="card border-0 rounded-4">
-          <div class="card-body p-3 p-md-4 p-xl-5">
+          <div v-if="table_contents.length" class="card-body p-3 p-md-4 p-xl-5">
 
             <!-- TABLE MESSAGE -->
             <div v-if="professor" class="pb-3">
@@ -386,21 +411,21 @@ export default {
                       <!-- ROW EDIT -->
                       <tr v-if="index === this.row_index">
                         <td>
-                          <input v-model="edit_row.name" type="text" class="form-control" name="name" id="name"
+                          <input v-model="edit_row.name" type="text" class="form-control" name="name"
                             :placeholder="name" required>
                         </td>
                         <td>
-                          <input v-model="edit_row.surname" type="text" class="form-control" name="surname" id="surname"
+                          <input v-model="edit_row.surname" type="text" class="form-control" name="surname"
                             :placeholder="surname" required>
                         </td>
                         <td>
-                          <input v-model="edit_row.email" type="text" class="form-control" name="email" id="email"
+                          <input v-model="edit_row.email" type="text" class="form-control" name="email"
                             :placeholder="email" required>
                         </td>
                         <td class="disabled-row">
                           {{ subject }}
                         </td>
-                        <!-- MASTER STUDENT ACTION BUTTONS -->
+                        <!-- PROFESSOR ACTION BUTTONS -->
                         <td v-if="professor">
                           <div class="d-flex justify-content-end">
 
@@ -416,8 +441,8 @@ export default {
 
                             <!-- CONFIRM BUTTON -->
                             <button type="submit" class="btn btn-outline-success" data-bs-toggle="modal"
-                              data-bs-target="#staticBackdrop" title="Confirm Edit" :disabled="!checkChanges(index)"
-                              :style="{ opacity: !checkChanges(index) ? 0.2 : 1.0 }">
+                              data-bs-target="#editAndDeleteStaticBackdrop" title="Confirm Edit"
+                              :disabled="!checkChanges(index)" :style="{ opacity: !checkChanges(index) ? 0.2 : 1.0 }">
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 class="bi bi-check-lg" viewBox="0 0 16 16">
                                 <path
@@ -435,7 +460,7 @@ export default {
                         <td>{{ email }}</td>
                         <td>{{ subject }}</td>
 
-                        <!-- MASTER STUDENT ACTION BUTTONS -->
+                        <!-- PROFESSOR ACTION BUTTONS -->
                         <td v-if="professor">
                           <div class="d-flex justify-content-end">
 
@@ -494,7 +519,7 @@ export default {
                     <td>{{ email }}</td>
                     <td>{{ subject }}</td>
 
-                    <!-- MASTER STUDENT ACTION BUTTONS -->
+                    <!-- PROFESSOR ACTION BUTTONS -->
                     <td v-if="professor">
                       <div class="d-flex justify-content-end">
 
@@ -510,7 +535,7 @@ export default {
 
                         <!-- DELETE BUTTON -->
                         <button @click="deleteRowModal(index)" type="button" class="btn btn-outline-danger"
-                          data-bs-toggle="modal" data-bs-target="#staticBackdrop" title="Delete">
+                          data-bs-toggle="modal" data-bs-target="#editAndDeleteStaticBackdrop" title="Delete">
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-trash" viewBox="0 0 16 16">
                             <path
@@ -528,6 +553,11 @@ export default {
               </table>
             </div>
 
+          </div>
+
+          <div v-else class="card-body p-3 p-md-4 p-xl-5" >
+            <h5 v-if="professor" class="text-center">You're not enrolled in any classes yet!</h5>
+            <h5 v-else class="text-center">You do not have any student enrolled in a class you lecture yet!</h5>
           </div>
         </div>
       </div>
