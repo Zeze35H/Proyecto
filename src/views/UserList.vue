@@ -14,7 +14,7 @@ export default {
       active_only: true,
 
       current_page: 1,
-      users_per_page: 3,
+      users_per_page: 5,
 
       no_users: false,
     }

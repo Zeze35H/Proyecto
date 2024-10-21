@@ -152,7 +152,7 @@ export default {
     </div>
   </div>
 
-  <section class="gradient-custom-1 p-3 py-md-5 py-xl-8">
+  <section class="gradient-custom-1 vh-100 p-3 py-md-5 py-xl-8">
     <div class="container">
       <div class="row gy-4 align-items-center">
 

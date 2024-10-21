@@ -1,7 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const userController = require("./src/controllers/user.controller");
 
 const session = require('express-session');
 const SequelizeStore = require('connect-session-sequelize')(session.Store);

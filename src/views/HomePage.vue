@@ -1,5 +1,4 @@
 <script>
-import { ref } from 'vue'
 import UserDataService from "../services/UserDataService.js";
 
 export default {
@@ -94,8 +93,8 @@ export default {
 
     // CHECK IF ANY CHANGES HAVE BEEN MADE TO THE INPUT FIELDS FOR EDIT
     checkChanges(index) {
-      for (var key in d1) {
-        if (key != "token" && d1[key] != d2[key])
+      for (var key in this.edit_row) {
+        if (key != "token" && this.edit_row[key] != this.table_contents[index][key])
           return true;
       }
       return false;
