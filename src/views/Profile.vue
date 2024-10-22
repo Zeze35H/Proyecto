@@ -274,9 +274,6 @@ export default {
 
   },
 
-  asd(){
-    console.log("asd")
-  }
 };
 
 </script>
@@ -317,7 +314,7 @@ export default {
             <div v-if="imageSource" style="width: 400px; height: 400px;">
               <h5>Please crop your image before uploading it!</h5>
               <img ref="image" :src="imageSource" alt="Image to Crop" />
-              <button @click="cropImage" @change="asd()" class="btn btn-primary mt-2">Crop Image</button>
+              <button @click="cropImage" class="btn btn-primary mt-2">Crop Image</button>
             </div>
           </div>
 

@@ -17,6 +17,7 @@ export default {
 
       unmatched_passwords: false,
       used_username: false,
+      used_email: false,
       incorrect_token: false,
 
       loading: false
@@ -30,6 +31,7 @@ export default {
 
       this.unmatched_passwords = false
       this.used_username = false
+      this.used_email = false
       this.incorrect_token = false
 
       this.loading = true
@@ -49,31 +51,43 @@ export default {
             return
           }
           else {
-            console.log("Username not found:", response);
 
-            const userData = {
-              name: this.name,
-              surname: this.surname,
-              username: this.username,
-              email: this.email,
-              password: this.password,
-              role: this.role === "Professor" ? 2 : 1,
-              token: this.role === "Professor" ? this.token : null,
-            };
-
-            // Call the service to save user
-            UserDataService.create(userData)
+            UserDataService.findByEmail(this.email)
               .then(response => {
-                // Handle successful registration
-                console.log("User registered:", response);
-                this.$router.push({ name: 'confirm_email', query: {} });
+                if (response.data.length != 0) {
+                  console.log("Username found:", response);
+                  this.used_email = true
+                  this.loading = false
+                  return
+                }
+                else {
+                  console.log("Username not found:", response);
+
+                  const userData = {
+                    name: this.name,
+                    surname: this.surname,
+                    username: this.username,
+                    email: this.email,
+                    password: this.password,
+                    role: this.role === "Professor" ? 2 : 1,
+                    token: this.role === "Professor" ? this.token : null,
+                  };
+
+                  // Call the service to save user
+                  UserDataService.create(userData)
+                    .then(response => {
+                      // Handle successful registration
+                      console.log("User registered:", response);
+                      this.$router.push({ name: 'confirm_email', query: {} });
+                    })
+                    .catch(error => {
+                      // Handle errors
+                      console.error("Error registering user:", error);
+                      this.loading = false
+                      this.incorrect_token = true
+                    });
+                }
               })
-              .catch(error => {
-                // Handle errors
-                console.error("Error registering user:", error);
-                this.loading = false
-                this.incorrect_token = true
-              });
           }
         })
         .catch(error => {
@@ -180,7 +194,7 @@ export default {
 
                   <div class="col-12">
                     <!-- Role Display -->
-                    <div class="row">
+                    <div id="role" class="row">
                       <div class="col">
                         <div class="form-floating mb-1">
                           <input v-model="role" type="text" class="form-control" name="role" placeholder="Role" required
@@ -216,6 +230,15 @@ export default {
                       </svg>
                       <div>
                         The inserted username is already in use.
+                      </div>
+                    </div>
+
+                    <div v-if="used_email" class="alert alert-danger d-flex align-items-center c m-3" role="alert">
+                      <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
+                        <use xlink:href="#exclamation-triangle-fill" />
+                      </svg>
+                      <div>
+                        The inserted email is already in use.
                       </div>
                     </div>
 

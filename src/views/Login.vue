@@ -22,6 +22,8 @@ export default {
   },
   created() {
 
+    console.log(this.$route.query)
+
     // CLEAR USER TOKEN FROM URL AFER UPDATED PASSWORD
     if (this.$route.query.updated_password) {
       this.updated_password = 1
@@ -29,10 +31,15 @@ export default {
     }
 
     // ACTIVATE USER'S ACCOUNT AFTER CONFIRMING EMAIL
-    if (this.$route.query.token) {
-      const access_token = this.$route.query.token
+    if (this.$route.query.jwt && this.$route.query.access_token) {
 
-      UserDataService.findByToken(access_token)
+      const jwt = this.$route.query.jwt
+      const access_token = this.$route.query.access_token
+
+      // CLEAR USER TOKEN FROM URL AFER UPDATED PASSWORD
+      this.$router.replace({ name: 'login' });
+
+      UserDataService.findByToken(jwt, access_token)
         .then(response => {
           if (response.data.length != 0) {
             console.log("Username found:", response);
@@ -41,8 +48,6 @@ export default {
               .then(response => {
                 if (response.data.success) {
                   this.activated_account = 1
-                  // CLEAR USER TOKEN FROM URL AFER UPDATED PASSWORD
-                  this.$router.replace({ name: 'login' });
                 }
               })
               .catch(error => {
@@ -83,7 +88,7 @@ export default {
             this.loading = true
 
             this.$router.push({ name: 'home_page', query: {} });
-            
+
             this.checkAuthStatus();
           } else {
             console.log("Login failed", response)

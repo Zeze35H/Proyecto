@@ -29,9 +29,9 @@ class UserDataService {
     return http.get(`/users/findByEmail/${email}`);
   }
 
-  findByToken(access_token) {
+  findByToken(jwt, access_token) {
     console.log("inside UserDataService.js findByToken()")
-    return http.get(`/users/findByToken/${access_token}`);
+    return http.get(`/users/findByToken/${jwt}/${access_token}`);
   }
 
   resetPassword(data) {
@@ -64,11 +64,6 @@ class UserDataService {
   findAllRelations(id, role) {
     console.log("inside UserDataService.js findAllRelations()")
     return http.get(`/relations/findAll/${id}/${role}`);
-  }
-
-  editRelation(data) {
-    console.log("inside UserDataService.js editRelation()")
-    return http.get(`/relations/edit`, data);
   }
 
   findAllProfessorRelations(id) {

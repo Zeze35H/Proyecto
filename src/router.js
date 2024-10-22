@@ -74,6 +74,13 @@ const routes = [
     meta: { title: 'SWT - User List' },
     component: () => import("./views/UserList.vue")
   },
+  {
+    path: "/404",
+    alias: "/404",
+    name: "404",
+    meta: { title: 'SWT - Page Not Found!' },
+    component: () => import("./views/404.vue"),
+  },
 ];
 
 const router = createRouter({
@@ -83,6 +90,11 @@ const router = createRouter({
 
 // Navigation guard to protect routes
 router.beforeEach(async (to, from, next) => {
+
+  if (!to.matched.some(record => record.path)) {
+    next('/404')
+    return
+  }
 
   document.title = to.meta.title || "SWT"
 
@@ -112,6 +124,7 @@ router.beforeEach(async (to, from, next) => {
   } catch (err) {
     next('/');
   }
+
 
 });
 

@@ -17,12 +17,13 @@ export default {
     };
   },
   created() {
-    const access_token = this.$route.query.token
+    const jwt = this.$route.query.jwt
+    const access_token = this.$route.query.access_token
     this.$router.replace({ name: 'password_change' });
 
-    if (access_token) {
+    if (jwt && access_token) {
       // Call the service to find user by token
-      UserDataService.findByToken(access_token)
+      UserDataService.findByToken(jwt, access_token)
         .then(response => {
           if (response.data.length != 0) {
             console.log("Username found:", response);

@@ -30,7 +30,7 @@ module.exports = app => {
   router.get("/findByEmail/:email", user.findByEmail);
 
   // Retrieve user by email
-  router.get("/findByToken/:token", user.findByToken);
+  router.get("/findByToken/:jwt/:access_token", user.findByToken);
 
   // Send reset password email link
   router.post("/resetPassword", user.resetPassword);

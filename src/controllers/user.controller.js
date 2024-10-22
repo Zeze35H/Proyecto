@@ -8,6 +8,8 @@ const correct_token = '3rhb23uydb238ry6g2429hrh'
 const EmailService = require("../services/EmailService.js");
 const { v4: uuidv4 } = require('uuid');
 
+const jwt = require('jsonwebtoken');
+
 
 // Create and Save a new User
 exports.create = (req, res) => {
@@ -45,7 +47,8 @@ exports.create = (req, res) => {
     User.create(user)
       .then(data => {
 
-        const link = "http://localhost:8081/login?token=" + data.access_token
+        const token = jwt.sign({ id: data.id }, 'your-secret-key', { expiresIn: '7d' });
+        const link = "http://localhost:8081/login?jwt=" + token + '&access_token=' + data.access_token
 
         const text =
           `
@@ -59,7 +62,7 @@ exports.create = (req, res) => {
           Website Thingy Team
           `
 
-        EmailService.sendMail(req.body.email, "WebsiteThingy Account Confirmation", text)
+        EmailService.sendMail(req.body.email, "SchoolWebsiteThingy Account Confirmation", text)
           .then(data => {
             res.status(200).send(data);
           })
@@ -80,6 +83,7 @@ exports.create = (req, res) => {
 
 };
 
+// Retrieve all Users from the database.
 exports.findAllUsers = (req, res) => {
 
   console.log("inside user.controller.js findAllUsers")
@@ -97,7 +101,7 @@ exports.findAllUsers = (req, res) => {
 
 }
 
-// Retrieve all Users from the database.
+// Find user by Username
 exports.findByUsername = (req, res) => {
 
   console.log("inside user.controller.js findByUsername")
@@ -117,7 +121,7 @@ exports.findByUsername = (req, res) => {
     });
 };
 
-// Retrieve all Users from the database.
+// Find user by Email
 exports.findByEmail = (req, res) => {
 
   console.log("inside user.controller.js findByEmail")
@@ -137,24 +141,34 @@ exports.findByEmail = (req, res) => {
     });
 };
 
-// Retrieve all Users from the database.
+// Find User by JWT and access_token
 exports.findByToken = (req, res) => {
 
-  console.log("inside user.controller.js findByEmail")
+  console.log("inside user.controller.js findByToken")
 
-  const token = req.params.token;
-  var condition = token ? { access_token: token } : null;
+  try {
+    const decoded_jwt = jwt.verify(req.params.jwt, 'your-secret-key');
+    const access_token = req.params.access_token;
+    var condition = { id: decoded_jwt.id, access_token: access_token };
 
-  User.findOne({ where: condition })
-    .then(data => {
-      res.send(data);
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving user."
+    User.findOne({ where: condition })
+      .then(data => {
+        res.send(data);
+      })
+      .catch(err => {
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while retrieving user."
+        });
       });
+  } catch (err) {
+    res.status(500).send({
+      message:
+        err.message || "Some error occurred while retrieving user."
     });
+  }
+
+
 };
 
 // Send reset password email
@@ -162,7 +176,8 @@ exports.resetPassword = (req, res) => {
 
   console.log("inside user.controller.js resetPassword")
 
-  const link = "http://localhost:8081/password_change?token=" + req.body.access_token
+  const token = jwt.sign({ id: req.body.id }, 'your-secret-key', { expiresIn: '5m' });
+  const link = "http://localhost:8081/password_change?jwt=" + token + '&access_token=' + req.body.access_token
 
   const text =
     `
@@ -176,7 +191,7 @@ exports.resetPassword = (req, res) => {
       Website Thingy Team
     `
 
-  EmailService.sendMail(req.body.email, "WebsiteThingy Password Reset", text)
+  EmailService.sendMail(req.body.email, "ShoolWebsiteThingy Password Reset", text)
     .then(data => {
       res.send(data);
     })
