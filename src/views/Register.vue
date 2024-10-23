@@ -1,9 +1,15 @@
 <script>
-import { ref } from 'vue'
+import WarningAlert from "@/components/WarningAlert.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import SideText from "@/components/SideText.vue";
+
 import UserDataService from "../services/UserDataService.js";
 
 export default {
   name: 'register',
+  components: {
+    WarningAlert, LoadingSpinner, SideText
+  },
   data() {
     return {
       name: "",
@@ -221,83 +227,27 @@ export default {
                     </div>
                   </div>
 
+                  <!-- ERROR WARNINGS -->
                   <div class="col-12">
-                    <!-- USED USERNAME ALERT -->
-
-                    <div v-if="used_username" class="alert alert-danger d-flex align-items-center c m-3" role="alert">
-                      <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
-                        <use xlink:href="#exclamation-triangle-fill" />
-                      </svg>
-                      <div>
-                        The inserted username is already in use.
-                      </div>
-                    </div>
-
-                    <div v-if="used_email" class="alert alert-danger d-flex align-items-center c m-3" role="alert">
-                      <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
-                        <use xlink:href="#exclamation-triangle-fill" />
-                      </svg>
-                      <div>
-                        The inserted email is already in use.
-                      </div>
-                    </div>
-
-                    <!-- INCORRECT PASSWORD ALERT -->
-                    <div v-if="unmatched_passwords" class="alert alert-danger d-flex align-items-center c m-3"
-                      role="alert">
-                      <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
-                        <use xlink:href="#exclamation-triangle-fill" />
-                      </svg>
-                      <div>
-                        The inserted passwords do not match.
-                      </div>
-                    </div>
-
-                    <!-- INCORRECT TOKEN ALERT -->
-                    <div v-if="incorrect_token" class="alert alert-danger d-flex align-items-center c m-3" role="alert">
-                      <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
-                        <use xlink:href="#exclamation-triangle-fill" />
-                      </svg>
-                      <div>
-                        The inserted token is incorrect.
-                      </div>
-                    </div>
+                    <WarningAlert v-if="used_username" message="The inserted username is already in use." />
+                    <WarningAlert v-if="used_email" message="The inserted email is already in use." />
+                    <WarningAlert v-if="unmatched_passwords" message="The inserted passwords do not match." />
+                    <WarningAlert v-if="incorrect_token" message="The inserted token is incorrect." />
                   </div>
-
 
                 </div>
               </form>
 
               <!-- LOADING SPINNER -->
-              <div class="col-12 d-flex justify-content-center mt-4">
-                <div v-if="loading" class="spinner-border" role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </div>
-              </div>
+              <LoadingSpinner v-if="loading" />
+
             </div>
           </div>
         </div>
 
         <!-- SIDE TEXT -->
         <div class="col-12 col-md-6 col-xl-7">
-          <div class="d-flex justify-content-center text-white">
-            <div class="col-12 col-xl-9">
-              <img class="img-fluid rounded " loading="lazy" src="../assets/img/logo.png" width="150"
-                alt="School Website Thingy Logo">
-              <hr class="border-primary-subtle mb-4">
-              <h2 class="h1 mb-4">School Website Thingy</h2>
-              <p class="lead mb-5">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-                incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                laboris nisi ut aliquip ex ea commodo consequat.</p>
-              <div class="text-endx">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor"
-                  class="bi bi-grip-horizontal" viewBox="0 0 16 16">
-                  <path
-                    d="M2 8a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
-                </svg>
-              </div>
-            </div>
-          </div>
+          <SideText/>
         </div>
       </div>
     </div>

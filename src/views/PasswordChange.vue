@@ -1,10 +1,16 @@
 <script>
-import { ref } from 'vue'
+import WarningAlert from "@/components/WarningAlert.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
+
 import UserDataService from "../services/UserDataService.js";
+
 
 
 export default {
   name: 'password_change',
+  components: {
+    WarningAlert, LoadingSpinner
+  },
   data() {
     return {
       password: "",
@@ -132,24 +138,12 @@ export default {
               </form>
 
               <!-- LOADING SPINNER -->
-              <div class="col-12 d-flex justify-content-center mt-4">
-                <div v-if="loading" class="spinner-border" role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </div>
-              </div>
+              <LoadingSpinner v-if="loading" />
 
 
               <div class="col-12">
                 <!-- INCORRECT PASSWORD ALERT -->
-
-                <div v-if="unmatched_passwords" class="alert alert-danger d-flex align-items-center c m-3" role="alert">
-                  <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
-                    <use xlink:href="#exclamation-triangle-fill" />
-                  </svg>
-                  <div>
-                    The inserted passwords do not match.
-                  </div>
-                </div>
+                <WarningAlert v-if="unmatched_passwords" message="The inserted passwords do not match." />
               </div>
 
             </div>

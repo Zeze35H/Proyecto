@@ -1,8 +1,16 @@
 <script>
+import WarningAlert from "@/components/WarningAlert.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import InfoModal from "@/components/InfoModal.vue";
+import SideText from "@/components/SideText.vue";
+
 import UserDataService from "../services/UserDataService.js";
 
 export default {
   name: "login",
+  components: {
+    WarningAlert, LoadingSpinner, InfoModal, SideText
+  },
   props: {
     checkAuthStatus: Function, // Declare the prop
   },
@@ -119,43 +127,13 @@ export default {
 <template>
 
   <!-- UPDATED PASSWORD AND ACTIVATED ACCOUNT MODAL -->
-  <div>
-    <div v-if="updated_password || activated_account" class="modal fade show d-block" id="loginModal" tabindex="-1"
-      aria-labelledby="loginModalLabel" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);"
-      @click.self="closeModal">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:">
-              <use xlink:href="#info-fill" />
-            </svg>
 
-            <!-- UPDATED PASSWORD HEADER -->
-            <h5 v-if="updated_password" class="modal-title" id="loginModalLabel">Password Updated</h5>
+  <InfoModal v-if="updated_password" @closeModal="closeModal" header_message="Password Updated"
+    body_message="Your password has been updated successfully!" />
 
-            <!-- ACTIVETED ACCOUNT HEADER -->
-            <h5 v-else-if="activated_account" class="modal-title" id="loginModalLabel">Account Activated</h5>
+  <InfoModal v-if="activated_account" @closeModal="closeModal" header_message="Account Activated"
+    body_message="Your account has been activated! You can now login!" />
 
-            <button type="button" class="btn-close" aria-label="Close" @click="closeModal"></button>
-          </div>
-
-          <!-- UPDATED PASSWORD MESSAGE -->
-          <div v-if="updated_password" class="modal-body">
-            Your password has been updated successfully!
-          </div>
-
-          <!-- ACTIVATED ACCOUNT MESSAGE -->
-          <div v-else-if="activated_account" class="modal-body">
-            Your account has been activated! You can now login!
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <section class="gradient-custom-1 vh-100 p-3 py-md-5 py-xl-8">
     <div class="container">
@@ -163,24 +141,7 @@ export default {
 
         <!-- SIDE TEXT -->
         <div class="col-12 col-md-6 col-xl-7">
-          <div class="d-flex justify-content-center text-white">
-            <div class="col-12 col-xl-9">
-              <img class="img-fluid rounded" loading="lazy" src="../assets/img/logo.png" width="150"
-                alt="School Website Thingy Logo">
-              <hr class="border-primary-subtle mb-4">
-              <h2 class="h1 mb-4">School Website Thingy</h2>
-              <p class="lead mb-5">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-                incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                laboris nisi ut aliquip ex ea commodo consequat.</p>
-              <div class="text-endx">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor"
-                  class="bi bi-grip-horizontal" viewBox="0 0 16 16">
-                  <path
-                    d="M2 8a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
-                </svg>
-              </div>
-            </div>
-          </div>
+          <SideText/>
         </div>
 
         <!-- LOGIN DIV -->
@@ -238,22 +199,10 @@ export default {
               </form>
 
               <!-- LOADING SPINNER -->
-              <div class="col-12 d-flex justify-content-center mt-4">
-                <div v-if="loading" class="spinner-border" role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </div>
-              </div>
+              <LoadingSpinner v-if="loading" />
 
               <!-- INCORRECT PASSWORD ALERT -->
-
-              <div v-if="incorrect_login" class="alert alert-danger d-flex align-items-center c m-3" role="alert">
-                <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
-                  <use xlink:href="#exclamation-triangle-fill" />
-                </svg>
-                <div>
-                  {{ this.incorrect_login_message }}
-                </div>
-              </div>
+              <WarningAlert v-if="incorrect_login" :message="this.incorrect_login_message" />
 
               <!-- FORGOT PASSWORD -->
               <div class="row">

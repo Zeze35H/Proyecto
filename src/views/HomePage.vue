@@ -1,8 +1,14 @@
 <script>
+import BeforeAfterTable from "@/components/BeforeAfterTable.vue";
+import SingleRowTable from "@/components/SingleRowTable.vue";
+
 import UserDataService from "../services/UserDataService.js";
 
 export default {
   name: 'home_page',
+  components: {
+    BeforeAfterTable, SingleRowTable
+  },
   data() {
     return {
       professor: false,
@@ -88,7 +94,7 @@ export default {
           console.error("Error retrieving relations:", error);
         });
 
-        
+
     },
 
     // CHECK IF ANY CHANGES HAVE BEEN MADE TO THE INPUT FIELDS FOR EDIT
@@ -211,7 +217,7 @@ export default {
           <h5 v-if="this.delete" class="modal-title" id="editAndDeleteStaticBackdropLabel">Delete Student Entry?</h5>
           <!-- EDIT MODAL HEADER -->
           <h5 v-else-if="this.edit" class="modal-title" id="editAndDeleteStaticBackdropLabel">Update Student Info?</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="closeModal"></button>
         </div>
 
         <!-- MODAL BODY -->
@@ -220,64 +226,22 @@ export default {
           <strong v-else-if="this.edit">Are you sure you want to make the following changes to the student?</strong>
 
           <!-- DELETE MODAL BODY -->
-          <div v-if="this.delete" class="table-responsive bg-white my-3">
-            <table class="table mb-0">
-              <thead>
-                <tr>
-                  <th scope="col">NAME</th>
-                  <th scope="col">SURNAME</th>
-                  <th scope="col">E-MAIL</th>
-                  <th scope="col">SUBJECT</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>{{ row_delete.name }}</td>
-                  <td>{{ row_delete.surname }}</td>
-                  <td>{{ row_delete.email }}</td>
-                  <td>{{ row_delete.subject }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <SingleRowTable v-if="this.delete" :fields="['NAME', 'SURNAME', 'E-MAIL', 'SUBJECT']"
+            :contents="[row_delete.name, row_delete.surname, row_delete.email, row_delete.subject]" />
+
           <!-- EDIT MODAL BODY -->
-          <div v-else-if="this.edit" class="table-responsive bg-white my-3">
-            <table class="table mb-0">
-              <thead>
-                <tr>
-                  <th scope="col"></th>
-                  <th scope="col">BEFORE</th>
-                  <th scope="col">AFTER</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>Name</strong></td>
-                  <td>{{ table_contents[row_index].name }}</td>
-                  <td>{{ edit_row.name }}</td>
-                </tr>
-                <tr>
-                  <td><strong>Surname</strong></td>
-                  <td>{{ table_contents[row_index].surname }}</td>
-                  <td>{{ edit_row.surname }}</td>
-                </tr>
-                <tr>
-                  <td><strong>Email</strong></td>
-                  <td>{{ table_contents[row_index].email }}</td>
-                  <td>{{ edit_row.email }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <BeforeAfterTable v-else-if="this.edit" :fields="['Name', 'Surname', 'Email']"
+            :before="[table_contents[row_index].name, table_contents[row_index].surname, table_contents[row_index].email]"
+            :after="[edit_row.name, edit_row.surname, edit_row.email]" />
         </div>
 
         <!-- MODAL FOOTER -->
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="closeModal">Cancel</button>
 
           <!-- DELETE MODAL FOOTER -->
           <button v-if="this.delete" @click="confirmDeleteRow()" type="button" class="btn btn-danger"
-          data-bs-dismiss="modal">Confirm Delete</button>
+            data-bs-dismiss="modal">Confirm Delete</button>
           <!-- EDIT MODAL FOOTER -->
           <button v-else-if="this.edit" @click="confirmEdit()" type="button" class="btn btn-success"
             data-bs-dismiss="modal">Confirm Changes</button>
@@ -313,45 +277,14 @@ export default {
             <p v-else-if="this.edit">The following student has been updated successfully!</p>
 
             <!-- DELETE MODAL BODY -->
-            <div v-if="this.delete" class="table-responsive bg-white my-3">
-              <table class="table mb-0">
-                <thead>
-                  <tr>
-                    <th scope="col">NAME</th>
-                    <th scope="col">SURNAME</th>
-                    <th scope="col">E-MAIL</th>
-                    <th scope="col">SUBJECT</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>{{ row_delete.name }}</td>
-                    <td>{{ row_delete.surname }}</td>
-                    <td>{{ row_delete.email }}</td>
-                    <td>{{ row_delete.subject }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+
+            <SingleRowTable v-if="this.delete" :fields="['NAME', 'SURNAME', 'E-MAIL', 'SUBJECT']"
+            :contents="[row_delete.name, row_delete.surname, row_delete.email, row_delete.subject]" />
+
             <!-- EDIT MODAL BODY -->
-            <div v-else-if="this.edit" class="table-responsive bg-white my-3">
-              <table class="table mb-0">
-                <thead>
-                  <tr>
-                    <th scope="col">NAME</th>
-                    <th scope="col">SURNAME</th>
-                    <th scope="col">E-MAIL</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>{{ edit_row.name }}</td>
-                    <td>{{ edit_row.surname }}</td>
-                    <td>{{ edit_row.email }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+
+            <SingleRowTable v-else-if="this.edit" :fields="['NAME', 'SURNAME', 'E-MAIL']"
+            :contents="[edit_row.name, edit_row.surname, edit_row.email]" />
           </div>
 
           <!-- MODAL FOOTER -->
@@ -554,7 +487,7 @@ export default {
 
           </div>
 
-          <div v-else class="card-body p-3 p-md-4 p-xl-5" >
+          <div v-else class="card-body p-3 p-md-4 p-xl-5">
             <h5 v-if="professor" class="text-center">You're not enrolled in any classes yet!</h5>
             <h5 v-else class="text-center">You do not have any student enrolled in a class you lecture yet!</h5>
           </div>

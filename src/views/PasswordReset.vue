@@ -1,10 +1,15 @@
 <script>
-import { ref } from 'vue'
+import WarningAlert from "@/components/WarningAlert.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
+
 import UserDataService from "../services/UserDataService.js";
 
 
 export default {
   name: 'password_reset',
+  components: {
+    WarningAlert, LoadingSpinner
+  },
   data() {
     return {
       email: "",
@@ -107,37 +112,15 @@ export default {
               </form>
 
               <!-- LOADING SPINNER -->
-              <div class="col-12 d-flex justify-content-center mt-4">
-                <div v-if="loading" class="spinner-border" role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </div>
-              </div>
+              <LoadingSpinner v-if="loading" />
 
               <div class="col-12">
 
 
 
                 <!-- NO ACCOUNT ALERT -->
-                <div v-if="no_account" class="alert alert-danger d-flex align-items-center c m-3" role="alert">
-                  <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
-                    <use xlink:href="#exclamation-triangle-fill" />
-                  </svg>
-                  <div>
-                    There is no account linked to the inserted e-mail. Please try another e-mail.
-                  </div>
-                </div>
-
-                <!-- INACTIVE ACCOUNT ALERT -->
-                <div v-else-if="inactive_account" class="alert alert-danger d-flex align-items-center c m-3"
-                  role="alert">
-                  <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
-                    <use xlink:href="#exclamation-triangle-fill" />
-                  </svg>
-                  <div>
-                    Your account is inactive and it is not possible to reset the password. Please create a new account.
-                  </div>
-                </div>
-
+                <WarningAlert v-if="no_account" message="There is no account linked to the inserted e-mail. Please try another e-mail." />
+                <WarningAlert v-if="inactive_account" message="Your account is inactive and it is not possible to reset the password. Please create a new account." />
 
                 <!-- SUCCESS RESET SENT -->
                 <div v-else-if="reset_sent" class="alert alert-success d-flex align-items-center c m-3" role="alert">

@@ -1,4 +1,7 @@
 <script>
+import InfoModal from "@/components/InfoModal.vue";
+import BeforeAfterTable from "@/components/BeforeAfterTable.vue";
+
 import UserDataService from "../services/UserDataService.js";
 
 import Cropper from "cropperjs";
@@ -6,6 +9,9 @@ import "cropperjs/dist/cropper.css"; // Import cropper styles
 
 export default {
   name: 'profile',
+  components: {
+    InfoModal, BeforeAfterTable
+  },
   data() {
     return {
       profile: "",
@@ -225,7 +231,6 @@ export default {
     },
 
     areDifferent(d1, d2) {
-      console.log(this.user.picture)
       for (var key in d1) {
         if (key != "token" && d1[key] != d2[key])
           return true;
@@ -234,6 +239,7 @@ export default {
     },
 
     checkChanges() {
+      console.log(this.before_edit, this.edit_info)
       if (this.areDifferent(this.before_edit, this.edit_info)) {
         if (this.before_edit.role != 2 && this.edit_info.role == 2 && this.edit_info.token == "") {
           return false
@@ -354,42 +360,10 @@ export default {
         <!-- MODAL BODY -->
         <div class="modal-body">
           <strong>Are you sure you want to make the following changes?</strong>
-          <div class="table-responsive bg-white my-3">
-            <table class="table mb-0">
-              <thead>
-                <tr>
-                  <th scope="col"></th>
-                  <th scope="col">BEFORE</th>
-                  <th scope="col">AFTER</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>Name</strong></td>
-                  <td>{{ before_edit.name }}</td>
-                  <td>{{ edit_info.name }}</td>
-                </tr>
-                <tr>
-                  <td><strong>Surname</strong></td>
-                  <td>{{ before_edit.surname }}</td>
-                  <td>{{ edit_info.surname }}</td>
-                </tr>
-                <tr>
-                  <td><strong>Email</strong></td>
-                  <td>{{ before_edit.email }}</td>
-                  <td>{{ edit_info.email }}</td>
-                </tr>
-                <tr>
-                  <td><strong>Role</strong></td>
-                  <td v-if="before_edit.role == 2">Professor</td>
-                  <td v-else>Student</td>
 
-                  <td v-if="edit_info.role == 2">Professor</td>
-                  <td v-else>Student</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <BeforeAfterTable :fields="['Name', 'Surname', 'Email', 'Role']"
+            :before="[before_edit.name, before_edit.surname, before_edit.email, before_edit.role == 2 ? 'Professor' : 'Student']"
+            :after="[edit_info.name, edit_info.surname, edit_info.email, edit_info.role == 2 ? 'Professor' : 'Student']" />
         </div>
 
         <!-- MODAL FOOTER -->
@@ -403,34 +377,12 @@ export default {
   </div>
 
 
+  <InfoModal v-if="pictureConfirmationModal" @closeModal="closeModal" header_message="Porfile Picture Updated"
+    body_message="Your profile picture has been changed successfully!" />
 
-  <!-- PICTURE CONFIRMATION MODAL -->
-  <div>
-    <div v-if="pictureConfirmationModal || infoConfirmationModal" class="modal fade show d-block" id="pictureConfirmationModal" tabindex="-1"
-      aria-labelledby="pictureModalLabel" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);"
-      @click.self="closeModal">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Success:">
-              <use xlink:href="#check-circle-fill" />
-            </svg>
-            <h5 v-if="pictureConfirmationModal" class="modal-title" id="pictureModalLabel">Porfile Picture Updated</h5>
-            <h5 v-else-if="infoConfirmationModal" class="modal-title" id="pictureModalLabel">User Info Updated</h5>
-            <button type="button" class="btn-close" aria-label="Close" @click="closeModal"></button>
-          </div>
-          <div class="modal-body">
-            <p v-if="pictureConfirmationModal">Your profile picture has been changed successfully!</p>
-            <p v-else-if="infoConfirmationModal">Your info has been updated successfully!</p>
+  <InfoModal v-if="infoConfirmationModal" @closeModal="closeModal" header_message="User Info Updated"
+    body_message="Your info has been updated successfully!" />
 
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- SECTION -->
   <section class="gradient-custom-1 vh-100 p-3 py-md-5 py-xl-8">
