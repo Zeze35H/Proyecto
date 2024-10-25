@@ -1,18 +1,24 @@
 <script>
+import PaginationControls from "@/components/PaginationControls.vue";
+
 import UserDataService from "../services/UserDataService.js";
 
 export default {
   name: 'home_page',
+  components: {
+    PaginationControls,
+  },
   data() {
     return {
       users: [],
       search_users: [],
       query: "",
-
+      
       students_only: false,
       professors_only: false,
       active_only: true,
-
+      
+      paginated_users: [],
       current_page: 1,
       users_per_page: 5,
 
@@ -37,6 +43,7 @@ export default {
           }
           console.log(this.users)
           this.search_users = this.users.filter(this.filterUsers)
+          this.paginated_users = this.search_users
         }
         else {
           console.log("An error occurred while retrieving the users:", response.message);
@@ -45,16 +52,6 @@ export default {
       .catch(error => {
         console.error("An error occurred while retrieving the users:", error);
       });
-  },
-  computed: {
-    paginatedUsers() {
-      const start = (this.current_page - 1) * this.users_per_page;
-      const end = start + this.users_per_page;
-      return this.search_users.slice(start, end);
-    },
-    totalPages() {
-      return Math.ceil(this.search_users.length / this.users_per_page);
-    }
   },
   methods: {
     filterUsers(user) {
@@ -81,19 +78,15 @@ export default {
       this.$router.push({ name: 'profile', params: { username: username } });
     },
 
-    nextPage() {
-      if (this.current_page < this.totalPages) {
-        this.current_page++;
-      }
+    // PAGINATION SELECT PAGE
+    selectPage(page_num) {
+      this.current_page = page_num
     },
-    prevPage() {
-      if (this.current_page > 1) {
-        this.current_page--;
-      }
-    },
-    selectPage(pageNum) {
-      this.current_page = pageNum
-    },
+    // UPDATE PAGINATED LIST
+    updateList(items_list) {
+      console.log("items_list", items_list)
+      this.paginated_users = items_list
+    }
   }
 }
 
@@ -151,7 +144,7 @@ export default {
 
 
         <li v-if="no_users" class="list-group-item text-center py-3">No users found matching the search filters.</li>
-        <li v-for="({ username, name, surname, email, role, active, picture }, index) in paginatedUsers"
+        <li v-for="({ username, name, surname, email, role, active, picture }, index) in paginated_users"
           @click="visitUser(username)" class="list-group-item row d-flex justify-content-between align-items-center"
           style="cursor: pointer">
 
@@ -181,25 +174,7 @@ export default {
     </div>
 
     <!-- PAGINATION CONTROLS -->
-    <div class="d-flex justify-content-center align-items-center pt-4">
-      <ul class="pagination">
-
-        <!-- PREVIOUS PAGE -->
-        <li @click="prevPage" :class="{ 'disabled': current_page === 1 }" class="page-item">
-          <a class="page-link px-3" href="#">«</a>
-        </li>
-
-        <!-- PAGE NUMBER -->
-        <li v-for="pageNum in totalPages" :key="pageNum" @click="selectPage(pageNum)"
-          :class="{ 'active': pageNum == current_page }" class="page-item">
-          <a class="page-link" href="#">{{ pageNum }}</a>
-        </li>
-
-        <!-- NEXT PAGE -->
-        <li @click="nextPage" :class="{ 'disabled': current_page === totalPages }" class="page-item">
-          <a class="page-link px-3" href="#">»</a>
-        </li>
-      </ul>
-    </div>
+    <PaginationControls @selectPage="selectPage" @updateList="updateList" :current_page="current_page"
+      :items_list="search_users" :items_per_page="users_per_page" />
   </section>
 </template>

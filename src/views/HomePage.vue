@@ -1,13 +1,15 @@
 <script>
 import BeforeAfterTable from "@/components/BeforeAfterTable.vue";
 import SingleRowTable from "@/components/SingleRowTable.vue";
+import ConfirmationModal from "@/components/ConfirmationModal.vue";
+import PaginationControls from "@/components/PaginationControls.vue";
 
 import UserDataService from "../services/UserDataService.js";
 
 export default {
   name: 'home_page',
   components: {
-    BeforeAfterTable, SingleRowTable
+    BeforeAfterTable, SingleRowTable, ConfirmationModal, PaginationControls
   },
   data() {
     return {
@@ -24,6 +26,10 @@ export default {
 
       row_index: null,
       confirmationModal: false,
+
+      paginated_users: [],
+      current_page: 1,
+      users_per_page: 5,
 
     };
   },
@@ -86,6 +92,7 @@ export default {
             }
 
           }
+          this.paginated_users = this.table_contents
 
           console.log(this.table_contents)
         })
@@ -99,6 +106,11 @@ export default {
 
     // CHECK IF ANY CHANGES HAVE BEEN MADE TO THE INPUT FIELDS FOR EDIT
     checkChanges(index) {
+      console.log("<<<<<<<<<<<CHACK CHANGES")
+      console.log(index)
+      console.log(this.edit_row)
+      console.log(this.table_contents[index])
+      console.log("CHACK CHANGES>>>>>>>>>>>")
       for (var key in this.edit_row) {
         if (key != "token" && this.edit_row[key] != this.table_contents[index][key])
           return true;
@@ -111,6 +123,8 @@ export default {
       this.edit = true
       this.edit_row = { ...this.table_contents[index] }
       this.row_index = index
+      console.log(index)
+      console.log(this.edit_row)
     },
 
     // CANCEL ROW EDIT
@@ -132,8 +146,8 @@ export default {
           if (response.data.success) {
             console.log(response.data.message)
 
-            // UPDATE THE USER LIST AFTER THE UPDATE
-            this.updateRelations()
+            // // UPDATE THE USER LIST AFTER THE UPDATE
+            // this.updateRelations()
 
             setTimeout(() => {
               this.confirmationModal = true
@@ -166,7 +180,10 @@ export default {
             console.log(response.data.message)
 
             // REMOVE USER FROM TBLE
-            this.table_contents.splice(this.index, 1)
+            this.table_contents.splice(this.row_index, 1)
+            if (this.paginated_users.length == 1) {
+              this.current_page--
+            }
             setTimeout(() => {
               this.confirmationModal = true
             }, 500); // 1-second delay
@@ -185,6 +202,11 @@ export default {
 
     // RESET VARIABLES AFTER MODAL CLOSING
     closeModal() {
+
+      // UPDATE THE USER LIST AFTER THE UPDATE
+      if (this.edit)
+        this.updateRelations()
+      
       this.edit = false
       this.delete = false
 
@@ -194,7 +216,17 @@ export default {
       this.confirmationModal = false
 
       this.row_index = null
-    }
+    },
+
+    // PAGINATION SELECT PAGE
+    selectPage(page_num) {
+      this.current_page = page_num
+    },
+    // UPDATE PAGINATED LIST
+    updateList(items_list) {
+      console.log("items_list", items_list)
+      this.paginated_users = items_list
+    },
   }
 };
 
@@ -202,53 +234,31 @@ export default {
 
 <template class="p-3 py-md-5 py-xl-8">
   <!-- EDIT AND DELETE CONFIRMATION MODAL -->
-  <div class="modal fade" id="editAndDeleteStaticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false"
-    tabindex="-5" aria-labelledby="editAndDeleteStaticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
 
-        <!-- MODAL HEADER -->
-        <div class="modal-header">
-          <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
-            <use xlink:href="#exclamation-triangle-fill" />
-          </svg>
+  <ConfirmationModal id="deleteConfirmationModal" @closeModal="closeModal" header_message="Delete Student Entry?"
+    body_message="Are you sure you want to delete the following student entry?">
+    <template #body_content>
+      <SingleRowTable :fields="['NAME', 'SURNAME', 'E-MAIL', 'SUBJECT']"
+        :contents="[row_delete.name, row_delete.surname, row_delete.email, row_delete.subject]" />
+    </template>
+    <template #footer_button>
+      <button @click="confirmDeleteRow()" type="button" class="btn btn-danger" data-bs-dismiss="modal">Confirm
+        Delete</button>
+    </template>
+  </ConfirmationModal>
 
-          <!-- DELETE MODAL HEADER -->
-          <h5 v-if="this.delete" class="modal-title" id="editAndDeleteStaticBackdropLabel">Delete Student Entry?</h5>
-          <!-- EDIT MODAL HEADER -->
-          <h5 v-else-if="this.edit" class="modal-title" id="editAndDeleteStaticBackdropLabel">Update Student Info?</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="closeModal"></button>
-        </div>
-
-        <!-- MODAL BODY -->
-        <div class="modal-body">
-          <strong v-if="this.delete">Are you sure you want to delete the following student entry?</strong>
-          <strong v-else-if="this.edit">Are you sure you want to make the following changes to the student?</strong>
-
-          <!-- DELETE MODAL BODY -->
-          <SingleRowTable v-if="this.delete" :fields="['NAME', 'SURNAME', 'E-MAIL', 'SUBJECT']"
-            :contents="[row_delete.name, row_delete.surname, row_delete.email, row_delete.subject]" />
-
-          <!-- EDIT MODAL BODY -->
-          <BeforeAfterTable v-else-if="this.edit" :fields="['Name', 'Surname', 'Email']"
-            :before="[table_contents[row_index].name, table_contents[row_index].surname, table_contents[row_index].email]"
-            :after="[edit_row.name, edit_row.surname, edit_row.email]" />
-        </div>
-
-        <!-- MODAL FOOTER -->
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="closeModal">Cancel</button>
-
-          <!-- DELETE MODAL FOOTER -->
-          <button v-if="this.delete" @click="confirmDeleteRow()" type="button" class="btn btn-danger"
-            data-bs-dismiss="modal">Confirm Delete</button>
-          <!-- EDIT MODAL FOOTER -->
-          <button v-else-if="this.edit" @click="confirmEdit()" type="button" class="btn btn-success"
-            data-bs-dismiss="modal">Confirm Changes</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <ConfirmationModal id="editConfirmationModal" @closeModal="closeModal" header_message="Delete Student Entry?"
+    body_message="Are you sure you want to delete the following student entry?">
+    <template #body_content>
+      <BeforeAfterTable v-if="this.edit" :fields="['Name', 'Surname', 'Email']"
+        :before="[table_contents[row_index].name, table_contents[row_index].surname, table_contents[row_index].email]"
+        :after="[edit_row.name, edit_row.surname, edit_row.email]" />
+    </template>
+    <template #footer_button>
+      <button @click="confirmEdit()" type="button" class="btn btn-success" data-bs-dismiss="modal">Confirm
+        Changes</button>
+    </template>
+  </ConfirmationModal>
 
 
   <!-- SUCCESS CONFIRMATION MODAL -->
@@ -279,12 +289,12 @@ export default {
             <!-- DELETE MODAL BODY -->
 
             <SingleRowTable v-if="this.delete" :fields="['NAME', 'SURNAME', 'E-MAIL', 'SUBJECT']"
-            :contents="[row_delete.name, row_delete.surname, row_delete.email, row_delete.subject]" />
+              :contents="[row_delete.name, row_delete.surname, row_delete.email, row_delete.subject]" />
 
             <!-- EDIT MODAL BODY -->
 
             <SingleRowTable v-else-if="this.edit" :fields="['NAME', 'SURNAME', 'E-MAIL']"
-            :contents="[edit_row.name, edit_row.surname, edit_row.email]" />
+              :contents="[edit_row.name, edit_row.surname, edit_row.email]" />
           </div>
 
           <!-- MODAL FOOTER -->
@@ -338,10 +348,10 @@ export default {
 
                   <!-- TABLE BODY -->
                   <tbody>
-                    <template v-for="({ name, surname, email, subject }, index) in table_contents">
+                    <template v-for="({ name, surname, email, subject }, index) in paginated_users">
 
                       <!-- ROW EDIT -->
-                      <tr v-if="index === this.row_index">
+                      <tr v-if="index + (current_page - 1) * users_per_page === this.row_index">
                         <td>
                           <input v-model="edit_row.name" type="text" class="form-control" name="name"
                             :placeholder="name" required>
@@ -373,7 +383,7 @@ export default {
 
                             <!-- CONFIRM BUTTON -->
                             <button type="submit" class="btn btn-outline-success" data-bs-toggle="modal"
-                              data-bs-target="#editAndDeleteStaticBackdrop" title="Confirm Edit"
+                              data-bs-target="#editConfirmationModal" title="Confirm Edit"
                               :disabled="!checkChanges(index)" :style="{ opacity: !checkChanges(index) ? 0.2 : 1.0 }">
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 class="bi bi-check-lg" viewBox="0 0 16 16">
@@ -445,7 +455,7 @@ export default {
 
                 <!-- TABLE BODY -->
                 <tbody>
-                  <tr v-for="({ name, surname, email, subject }, index) in table_contents">
+                  <tr v-for="({ name, surname, email, subject }, index) in paginated_users">
                     <td>{{ name }}</td>
                     <td>{{ surname }}</td>
                     <td>{{ email }}</td>
@@ -456,7 +466,8 @@ export default {
                       <div class="d-flex justify-content-end">
 
                         <!-- EDIT BUTTON -->
-                        <button @click="editRow(index)" type="button" class="btn btn-outline-primary me-2" title="Edit">
+                        <button @click="editRow(index + (current_page - 1) * users_per_page)" type="button"
+                          class="btn btn-outline-primary me-2" title="Edit">
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-pen" viewBox="0 0 16 16">
                             <path
@@ -466,8 +477,9 @@ export default {
                         </button>
 
                         <!-- DELETE BUTTON -->
-                        <button @click="deleteRowModal(index)" type="button" class="btn btn-outline-danger"
-                          data-bs-toggle="modal" data-bs-target="#editAndDeleteStaticBackdrop" title="Delete">
+                        <button @click="deleteRowModal(index + (current_page - 1) * users_per_page)" type="button"
+                          class="btn btn-outline-danger" data-bs-toggle="modal"
+                          data-bs-target="#deleteConfirmationModal" title="Delete">
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-trash" viewBox="0 0 16 16">
                             <path
@@ -485,12 +497,17 @@ export default {
               </table>
             </div>
 
+            <PaginationControls v-if="!edit" @selectPage="selectPage" @updateList="updateList"
+              :current_page="current_page" :items_list="table_contents" :items_per_page="users_per_page" />
+
           </div>
 
           <div v-else class="card-body p-3 p-md-4 p-xl-5">
             <h5 v-if="professor" class="text-center">You're not enrolled in any classes yet!</h5>
             <h5 v-else class="text-center">You do not have any student enrolled in a class you lecture yet!</h5>
           </div>
+
+
         </div>
       </div>
     </div>
