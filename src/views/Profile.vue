@@ -41,6 +41,7 @@ export default {
   props: {
     checkAuthStatus: Function, // Declare the prop
   },
+  emits: ['updatePicture'],
   async created() {
 
     console.log("created")
@@ -200,6 +201,8 @@ export default {
                 console.log(response.data)
 
                 this.user.picture = response.data.imageUrl;
+
+                this.$emit('updatePicture', this.user.picture)
 
                 this.pictureConfirmationModal = true
 

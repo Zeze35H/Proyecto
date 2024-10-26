@@ -42,6 +42,10 @@ const logout = () => {
       console.error("Error logging out user:", error);
     });
 }
+
+const updatePicture = (new_picture) => {
+  user.value.picture = new_picture
+}
 </script>
 
 <template>
@@ -105,7 +109,11 @@ const logout = () => {
           </a>
 
           <!-- PROFILE -->
-          <a v-if="isAuthenticated" type="button" class="btn btn-primary rounded-circle" title="Profile"
+           <a v-if="isAuthenticated" :href="`/profile/${user.username}`">
+             <img :src="user.picture" alt="" style="width: 42px; height: 42px" class="rounded-circle" />
+           </a>
+
+          <!-- <a v-if="isAuthenticated" type="button" class="btn btn-primary rounded-circle" title="Profile"
             :href="`/profile/${user.username}`">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person"
               viewBox="0 0 16 16">
@@ -113,7 +121,7 @@ const logout = () => {
                 d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z">
               </path>
             </svg>
-          </a>
+          </a> -->
 
           <a v-if="!isAuthenticated" class="nav-link active me-3" aria-current="page" href="/login">Login</a>
 
@@ -122,7 +130,7 @@ const logout = () => {
       </div>
     </div>
   </nav>
-  <router-view :checkAuthStatus="checkAuthStatus" />
+  <router-view @updatePicture="updatePicture" :checkAuthStatus="checkAuthStatus" />
 </template>
 
 <style scoped>

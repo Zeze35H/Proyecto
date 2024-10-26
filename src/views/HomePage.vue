@@ -3,13 +3,14 @@ import BeforeAfterTable from "@/components/BeforeAfterTable.vue";
 import SingleRowTable from "@/components/SingleRowTable.vue";
 import ConfirmationModal from "@/components/ConfirmationModal.vue";
 import PaginationControls from "@/components/PaginationControls.vue";
+import InfoModal from "@/components/InfoModal.vue";
 
 import UserDataService from "../services/UserDataService.js";
 
 export default {
   name: 'home_page',
   components: {
-    BeforeAfterTable, SingleRowTable, ConfirmationModal, PaginationControls
+    BeforeAfterTable, SingleRowTable, ConfirmationModal, InfoModal, PaginationControls
   },
   data() {
     return {
@@ -106,11 +107,6 @@ export default {
 
     // CHECK IF ANY CHANGES HAVE BEEN MADE TO THE INPUT FIELDS FOR EDIT
     checkChanges(index) {
-      console.log("<<<<<<<<<<<CHACK CHANGES")
-      console.log(index)
-      console.log(this.edit_row)
-      console.log(this.table_contents[index])
-      console.log("CHACK CHANGES>>>>>>>>>>>")
       for (var key in this.edit_row) {
         if (key != "token" && this.edit_row[key] != this.table_contents[index][key])
           return true;
@@ -181,7 +177,7 @@ export default {
 
             // REMOVE USER FROM TBLE
             this.table_contents.splice(this.row_index, 1)
-            if (this.paginated_users.length == 1) {
+            if (this.paginated_users.length == 1 && this.current_page > 1) {
               this.current_page--
             }
             setTimeout(() => {
@@ -206,7 +202,7 @@ export default {
       // UPDATE THE USER LIST AFTER THE UPDATE
       if (this.edit)
         this.updateRelations()
-      
+
       this.edit = false
       this.delete = false
 
@@ -261,50 +257,23 @@ export default {
   </ConfirmationModal>
 
 
-  <!-- SUCCESS CONFIRMATION MODAL -->
-  <div>
-    <div v-if="confirmationModal" class="modal fade show d-block" id="homepageConfirmationModal" tabindex="-1"
-      aria-labelledby="homepageConfirmationModalLabel" aria-hidden="true" style="background: rgba(0, 0, 0, 0.5);"
-      @click.self="closeModal">
-      <div class="modal-dialog">
-        <div class="modal-content">
+  <!-- SUCCESS INFORMATION MODAL -->
 
-          <!-- MODAL HEADER -->
-          <div class="modal-header">
-            <!-- DELETE MODAL HEADER -->
-            <h5 v-if="this.delete" class="modal-title" id="homepageConfirmationModalLabel">Student Entry Deleted</h5>
-            <!-- EDIT MODAL HEADER -->
-            <h5 v-else-if="this.edit" class="modal-title" id="homepageConfirmationModalLabel">Student Updated
-              successfully</h5>
-            <button type="button" class="btn-close" aria-label="Close" @click="closeModal"></button>
-          </div>
+  <InfoModal v-if="confirmationModal && this.delete" @closeModal="closeModal" header_message="Student Entry Deleted"
+    body_message="The following student entry has been deleted successfully!">
+    <template #body_content>
+      <SingleRowTable :fields="['NAME', 'SURNAME', 'E-MAIL', 'SUBJECT']"
+        :contents="[row_delete.name, row_delete.surname, row_delete.email, row_delete.subject]" />
+    </template>
+  </InfoModal>
 
-          <!-- MODAL BODY -->
-          <div class="modal-body">
-            <!-- DELETE CONFIRMATION MESSAGE -->
-            <p v-if="this.delete">The following student entry has been deleted successfully!</p>
-            <!-- EDIT CONFIRMATION MESSAGE -->
-            <p v-else-if="this.edit">The following student has been updated successfully!</p>
-
-            <!-- DELETE MODAL BODY -->
-
-            <SingleRowTable v-if="this.delete" :fields="['NAME', 'SURNAME', 'E-MAIL', 'SUBJECT']"
-              :contents="[row_delete.name, row_delete.surname, row_delete.email, row_delete.subject]" />
-
-            <!-- EDIT MODAL BODY -->
-
-            <SingleRowTable v-else-if="this.edit" :fields="['NAME', 'SURNAME', 'E-MAIL']"
-              :contents="[edit_row.name, edit_row.surname, edit_row.email]" />
-          </div>
-
-          <!-- MODAL FOOTER -->
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <InfoModal v-if="confirmationModal && this.edit" @closeModal="closeModal" header_message="Student Updated
+              successfully" body_message="The following student has been updated successfully!">
+    <template #body_content>
+      <SingleRowTable :fields="['NAME', 'SURNAME', 'E-MAIL']"
+        :contents="[edit_row.name, edit_row.surname, edit_row.email]" />
+    </template>
+  </InfoModal>
 
   <!-- SECTION -->
   <section v-if="user" class="gradient-custom-1 vh-100 p-3 py-md-5 py-xl-8">

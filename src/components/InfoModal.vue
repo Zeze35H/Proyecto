@@ -22,7 +22,8 @@ defineEmits(["closeModal"])
 
                 <!-- BODY MESSAGE -->
                 <div class="modal-body">
-                    {{body_message}}
+                    <p>{{body_message}}</p>
+                    <slot name="body_content"></slot>
                 </div>
 
                 <div class="modal-footer">
