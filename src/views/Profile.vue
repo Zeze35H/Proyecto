@@ -152,6 +152,11 @@ export default {
             autoCropArea: 1,
           });
         });
+
+        // Small delay to ensure cropper is ready before assigning the cropped image
+        setTimeout(() => {
+          this.cropImage(); // Automatically assign the cropped image content
+        }, 50);
       }
     },
 
@@ -165,33 +170,14 @@ export default {
       }
     },
 
-    dataURLtoBlob(dataURL) {
-      // Split the base64 string into parts
-      const arr = dataURL.split(',');
-      const mime = arr[0].match(/:(.*?);/)[1]; // Get the mime type
-      const bstr = atob(arr[1]); // Decode base64
-      let n = bstr.length;
-      const u8arr = new Uint8Array(n);
-
-      // Convert to binary data
-      while (n--) {
-        u8arr[n] = bstr.charCodeAt(n);
-      }
-
-      // Create a Blob object from the binary data and mime type
-      return new Blob([u8arr], { type: mime });
-    },
-
     saveImage() {
 
       if (this.croppedImage) {
         try {
 
-          const blob = this.dataURLtoBlob(this.croppedImage);
-
           // Prepare the formData for upload
           const formData = new FormData();
-          formData.append('file', blob, 'profile_picture.jpg'); // Append the blob as a file
+          formData.append('imageBase64', this.croppedImage)
 
           // Send the formData to the server
           UserDataService.uploadImage(this.user.id, formData)
@@ -318,23 +304,28 @@ export default {
             </div>
           </div>
 
-          <!-- Cropper container -->
-          <div class="container d-flex justify-content-center mb-5 pb-5">
-            <div v-if="imageSource" style="width: 400px; height: 400px;">
-              <h5>Please crop your image before uploading it!</h5>
-              <img ref="image" :src="imageSource" alt="Image to Crop" />
-              <button @click="cropImage" class="btn btn-primary mt-2">Crop Image</button>
+
+          <div class="d-flex justify-content-center align-items-center">
+            <!-- Cropper container -->
+            <div class="container d-flex justify-content-center mb-5 pb-5">
+              <div v-if="imageSource" style="width: 250px; height: 250px;">
+                <h5>Crop the original picture if necessary:</h5>
+                <img ref="image" :src="imageSource" alt="Image to Crop" />
+                <button @click="cropImage" class="btn btn-primary mt-2">Crop Image</button>
+              </div>
             </div>
-          </div>
 
 
-          <!-- Preview the cropped image -->
-          <div class="container d-flex justify-content-center">
-            <div v-if="croppedImage">
-              <h5>Cropped Image Preview:</h5>
-              <img :src="croppedImage" alt="Cropped Image" />
+            <!-- Preview the cropped image -->
+            <div class="container d-flex justify-content-center">
+              <div v-if="croppedImage">
+                <h5>Profile Picture Preview:</h5>
+                <img :src="croppedImage" class="rounded-circle img-fluid" alt="Cropped Image" />
+              </div>
             </div>
+
           </div>
+
         </div>
 
         <!-- MODAL FOOTER -->

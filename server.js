@@ -99,13 +99,9 @@ db.sequelize.sync({ force: true }).then(() => {
     { id: 17, id_student: 9, id_teacher: 1, id_subject: 4 },
   ]
 
-  // One-To-One association
+  // Role associations
   db.user.belongsTo(db.role, { as: 'userRole', foreignKey: 'role' });
-  // One-To-Many association
   db.role.hasMany(db.user, { foreignKey: 'role' })
-  // Many-To-Many association
-  // db.subject.belongsToMany(db.user, { through: 'student_teacher_relation' })
-  // db.user.belongsToMany(db.subject, { through: 'student_teacher_relation' })
 
   // Define associations for the student_teacher_relation table
   db.student_teacher_relation.belongsTo(db.user, { as: 'student', foreignKey: 'id_student' });
@@ -138,10 +134,7 @@ db.sequelize.sync({ force: true }).then(() => {
   console.error('Unable to create table: ', error);
 });
 
-// // simple route
-// app.get("/", (req, res) => {
-//   res.json({ message: "Welcome to bezkoder application." });
-// });
+require("./src/services/DBCleanupService")(db);
 
 app.use(passport.initialize());
 app.use(passport.session());

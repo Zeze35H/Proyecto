@@ -11,7 +11,8 @@ module.exports = (sequelize, Sequelize, User, Subject) => {
       references: {
         model: User,
         key: 'id'
-      }
+      },
+      onDelete: 'CASCADE'
     },
     id_teacher: {
       type: Sequelize.INTEGER,
@@ -19,7 +20,8 @@ module.exports = (sequelize, Sequelize, User, Subject) => {
       references: {
         model: User,
         key: 'id'
-      }
+      },
+      onDelete: 'CASCADE'
     },
     id_subject: {
       type: Sequelize.INTEGER,
@@ -27,7 +29,8 @@ module.exports = (sequelize, Sequelize, User, Subject) => {
       references: {
         model: Subject,
         key: 'id'
-      }
+      },
+      onDelete: 'CASCADE'
     },
   })
 

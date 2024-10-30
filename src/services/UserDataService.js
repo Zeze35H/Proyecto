@@ -56,7 +56,8 @@ class UserDataService {
 
   uploadImage(id, data) {
     console.log("inside UserDataService.js uploadImage()")
-    return http.post(`/users/uploadImage/${id}`, data, { headers: { "Content-type": "multipart/form-data" } });
+    // return http.post(`/users/uploadImage/${id}`, data, { headers: { "Content-type": "multipart/form-data" } });
+    return http.post(`/users/uploadImage/${id}`, data);
   }
 
   // RELATIONS

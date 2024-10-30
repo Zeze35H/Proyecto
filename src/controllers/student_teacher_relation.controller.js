@@ -3,6 +3,8 @@ const User = db.user;
 const StudentTeacherRelation = db.student_teacher_relation
 const Subject = db.subject
 
+const DBCleanupService = require("../services/DBCleanupService.js")(db)
+
 // Retrieve all Users from the database.
 exports.findAllRelations = (req, res) => {
   console.log("inside student_teacher_relation.controller.js findAllRelations")
@@ -91,6 +93,8 @@ exports.deleteRelation = (req, res) => {
     where: { id: id }
   })
     .then(num => {
+      DBCleanupService.cleanDatabase();
+      
       if (num == 1) {
         res.send({
           success: true,

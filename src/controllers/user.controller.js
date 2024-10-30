@@ -10,6 +10,10 @@ const { v4: uuidv4 } = require('uuid');
 
 const jwt = require('jsonwebtoken');
 
+const DBCleanupService = require("../services/DBCleanupService.js")(db)
+
+const fs = require('fs');
+const path = require('path');
 
 // Create and Save a new User
 exports.create = (req, res) => {
@@ -46,6 +50,8 @@ exports.create = (req, res) => {
     // Save User in the database
     User.create(user)
       .then(data => {
+
+        DBCleanupService.cleanDatabase();
 
         const token = jwt.sign({ id: data.id }, 'your-secret-key', { expiresIn: '7d' });
         const link = "http://localhost:8081/login?jwt=" + token + '&access_token=' + data.access_token
@@ -167,8 +173,6 @@ exports.findByToken = (req, res) => {
         err.message || "Some error occurred while retrieving user."
     });
   }
-
-
 };
 
 // Send reset password email
@@ -223,6 +227,8 @@ exports.update = (req, res) => {
     where: { id: id }
   })
     .then(num => {
+      DBCleanupService.cleanDatabase();
+
       if (num == 1) {
         res.send({
           success: true,
@@ -262,6 +268,8 @@ exports.changePassword = (req, res) => {
       where: { id: id }
     })
       .then(num => {
+        DBCleanupService.cleanDatabase();
+
         if (num == 1) {
           res.send({
             message: "User was updated successfully.",
@@ -293,6 +301,8 @@ exports.activateAccount = (req, res) => {
     where: { id: req.params.id }
   })
     .then(num => {
+      DBCleanupService.cleanDatabase();
+
       if (num == 1) {
         res.send({
           message: "User was updated successfully.",
@@ -319,33 +329,56 @@ exports.uploadImage = (req, res) => {
 
   console.log("inside user.controller.js uploadImage")
 
-  if (req.file) {
-    const imageUrl = `/${req.file.filename}`;
+  const { imageBase64 } = req.body;
 
-    User.update({ picture: imageUrl }, {
-      where: { id: req.params.id }
-    })
-      .then(num => {
-        if (num == 1) {
-          res.send({
-            imageUrl: imageUrl,
-            message: "User picture was updated successfully.",
-            success: true,
-          });
-        } else {
-          res.send({
-            message: `Cannot update User picture with id=${id}. Maybe User was not found!`,
+  if (imageBase64) {
+    // Decode Base64 string and save it as an image file
+    const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
+    const buffer = Buffer.from(base64Data, 'base64');
+
+    // Generate a unique filename with a timestamp
+    const filename = `${Date.now()}.jpg`;
+    const filePath = path.join(__dirname, '../../public', filename);
+
+    // Write the file to the public directory
+    fs.writeFile(filePath, buffer, (err) => {
+      if (err) {
+        return res.status(500).send({
+          success: false,
+          message: "Error saving image to the server.",
+        });
+      }
+
+      // Update the user's profile picture URL in the database
+      const imageUrl = `/${filename}`;
+
+      User.update({ picture: imageUrl }, {
+        where: { id: req.params.id }
+      })
+        .then(num => {
+          DBCleanupService.cleanDatabase();
+
+          if (num == 1) {
+            res.send({
+              imageUrl: imageUrl,
+              message: "User picture was updated successfully.",
+              success: true,
+            });
+          } else {
+            res.send({
+              message: `Cannot update User picture with id=${id}. Maybe User was not found!`,
+              success: false,
+            });
+          }
+        })
+        .catch(err => {
+          res.status(500).send({
+            message: "Error updating User picture with id=" + id + "\n" + err,
             success: false,
           });
-        }
-      })
-      .catch(err => {
-        res.status(500).send({
-          message: "Error updating User picture with id=" + id + "\n" + err,
-          success: false,
         });
-      });
 
+    })
   } else {
     res.status(500).send({
       success: false,
@@ -448,19 +481,3 @@ exports.findAllProfessors = (req, res) => {
       });
     });
 };
-
-exports.login = (req, res) => {
-
-  console.log("inside user.controller.js login")
-
-  User.findOne({ where: { username: "zeze35h" } })
-    .then(data => {
-      res.send(data);
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving users."
-      });
-    });
-}

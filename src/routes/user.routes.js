@@ -1,19 +1,19 @@
 module.exports = app => {
   const user = require("../controllers/user.controller.js");
 
-  const multer = require('multer');
-  const path = require('path');
+  // const multer = require('multer');
+  // const path = require('path');
 
-  const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, 'public'); // Directory to save the files
-    },
-    filename: function (req, file, cb) {
-      cb(null, Date.now() + path.extname(file.originalname)); // Append timestamp to avoid conflicts
-    }
-  });
+  // const storage = multer.diskStorage({
+  //   destination: function (req, file, cb) {
+  //     cb(null, 'public'); // Directory to save the files
+  //   },
+  //   filename: function (req, file, cb) {
+  //     cb(null, Date.now() + path.extname(file.originalname)); // Append timestamp to avoid conflicts
+  //   }
+  // });
 
-  const upload = multer({ storage: storage });
+  // const upload = multer({ storage: storage });
 
   var router = require("express").Router();
 
@@ -45,7 +45,8 @@ module.exports = app => {
   router.post("/activateAccount/:id", user.activateAccount)
 
   // Upload user picture
-  router.post("/uploadImage/:id", upload.single('file'), user.uploadImage)
+  // router.post("/uploadImage/:id", upload.single('file'), user.uploadImage)
+  router.post("/uploadImage/:id", user.uploadImage)
 
   // // Retrieve all published Users
   // router.get("/published", user.findAllStudents);
