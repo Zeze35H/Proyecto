@@ -36,7 +36,7 @@ To edit users, change the `users_data` variable inside the 'server.js' file
 ![login](https://github.com/user-attachments/assets/01bebbb5-6174-4ddd-8013-65a0cb6756a8)
 - Homepage for students and professors + Student info and class enrolment management for professors
 
-![homepage](https://github.com/user-attachments/assets/e5ac7fc6-48e1-43c6-9025-4903ebd14ab3)
+![homepage](https://github.com/user-attachments/assets/53c86191-7776-40e7-ba0e-5e30dc542623)
 - User list with search and filter functionalities
 
 ![userlist](https://github.com/user-attachments/assets/5e9b40d7-231d-449d-87da-ac29c6e1692b)
