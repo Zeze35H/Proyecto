@@ -5,15 +5,19 @@
 ## Usage
 After cloning the repository, execute the following commands to get the website running:
 
-#### 1. Start the Server side (backend):
+#### 1. Install dependencies:
+```bash
+npm install
+```
+#### 2. Start the Server side (backend):
 ```bash
 node server
 ```
-#### 2. Start the Client side (frontend):
+#### 3. Start the Client side (frontend):
 ```bash
 npm run dev
 ```
-#### 3. Open the website on your browser:
+#### 4. Open the website on your browser:
 [http://localhost:8081/](http://localhost:8081/)
 
 ## Example users
@@ -22,6 +26,7 @@ npm run dev
 - Inactive account: **goodstudent**
 
 All passwords are set as "a".
+
 To edit users, change the `users_data` variable inside the 'server.js' file
 
 ## Main features
