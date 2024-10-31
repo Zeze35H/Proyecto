@@ -6,9 +6,8 @@ const path = require('path');
 
 // OAuth2 Credentials
 const CLIENT_ID = '358811769009-srq02fehhptag5q9l5sebapa7obt0saq.apps.googleusercontent.com';
-const CLIENT_SECRET = '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';
+const CLIENT_SECRET = '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'; // REPLACE WITH THE CURRENT FUNCTIONAL CLIENT_SECRET
 const REDIRECT_URI = 'https://developers.google.com/oauthplayground';
-// const REFRESH_TOKEN = '1//0413WEw6dW1wFCgYIARAAGAQSNwF-L9IrHmqrBjVdLbeOc9Lk8xDEXTJXDynWDfPTakmjjGT2Orwu3EeV25e2ZDIfJ_rajhfZZLs';
 
 // Create an OAuth2 client with your credentials
 const oAuth2Client = new google.auth.OAuth2(
