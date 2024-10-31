@@ -167,6 +167,7 @@ export default {
           // Prepare the formData for upload
           const formData = new FormData();
           formData.append('imageBase64', this.croppedImage)
+          formData.append('old_picture', this.user.picture)
 
           // Send the formData to the server
           UserDataService.uploadImage(this.user.id, formData)

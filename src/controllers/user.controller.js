@@ -331,7 +331,7 @@ exports.uploadImage = (req, res) => {
 
   console.log("inside user.controller.js uploadImage")
 
-  const { imageBase64 } = req.body;
+  const { old_picture, imageBase64 } = req.body;
 
   const id = req.params.id
 
@@ -363,6 +363,17 @@ exports.uploadImage = (req, res) => {
           DBCleanupService.cleanDatabase();
 
           if (num == 1) {
+
+            // Delete old profile picture after successful update
+            if (old_picture != "/default_picture.png") {
+              const oldPath = path.join(__dirname, '../../public', old_picture);
+
+              fs.unlink(oldPath, (err) => {
+                if (err) console.log(err);
+                else console.log('Old picture successfully deleted');
+              });
+            }
+
             res.send({
               imageUrl: imageUrl,
               message: "User picture was updated successfully.",
