@@ -46,7 +46,7 @@ const routes = [
   },
   {
     path: "/profile/:username",
-    alias: "/profile",
+    alias: "/profile/:username",
     name: "profile",
 
     beforeEnter: async (to, from, next) => {

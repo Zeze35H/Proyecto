@@ -16,15 +16,14 @@ export default {
 
       loading: false,
 
-      no_account: false,
-      inactive_account: false,
+      error_message: "",
+
       reset_sent: false,
     };
   },
   methods: {
     resetPassword() {
-      this.no_account = false
-      this.inactive_account = false
+      this.error_message = ""
       this.reset_sent = false
 
       this.loading = true
@@ -33,13 +32,13 @@ export default {
       UserDataService.findByEmail(this.email)
         .then(response => {
           if (response.data.length == 0) {
-            this.no_account = true
+            this.error_message = "There is no account linked to the inserted e-mail. Please try another e-mail."
             this.loading = false
             return
           }
           else {
             if (!response.data.active) {
-              this.inactive_account = true
+              this.error_message = "Your account is inactive and it is not possible to reset the password. Please create a new account."
               this.loading = false
               return
             }
@@ -50,14 +49,17 @@ export default {
                   this.reset_sent = true
                   this.loading = false
                 })
-                .catch(e => {
-                  console.log(e);
+                .catch(err => {
+                  console.log(err)
+                  this.error_message = "Some error occurred while sending the email."
+                  this.loading = false
                 });
             }
           }
         })
-        .catch(e => {
-          console.log(e);
+        .catch(err => {
+          this.error_message = err.message
+          this.loading = false
         });
 
 
@@ -114,9 +116,8 @@ export default {
 
 
 
-                <!-- NO ACCOUNT ALERT -->
-                <WarningAlert v-if="no_account" message="There is no account linked to the inserted e-mail. Please try another e-mail." />
-                <WarningAlert v-if="inactive_account" message="Your account is inactive and it is not possible to reset the password. Please create a new account." />
+                <!-- WARNING ALERT ALERT -->
+                <WarningAlert v-if="error_message" :message="error_message" />
 
                 <!-- SUCCESS RESET SENT -->
                 <div v-else-if="reset_sent" class="alert alert-success d-flex align-items-center c m-3" role="alert">

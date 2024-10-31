@@ -21,10 +21,7 @@ export default {
       role: "Student",
       token: "",
 
-      unmatched_passwords: false,
-      used_username: false,
-      used_email: false,
-      incorrect_token: false,
+      error_message: "",
 
       loading: false
     };
@@ -35,15 +32,12 @@ export default {
     },
     registerUser() {
 
-      this.unmatched_passwords = false
-      this.used_username = false
-      this.used_email = false
-      this.incorrect_token = false
+      this.error_message = ""
 
       this.loading = true
 
       if (this.password !== this.confirm_password) {
-        this.unmatched_passwords = true
+        this.error_message = "The inserted passwords do not match."
         this.loading = false
         return
       }
@@ -51,7 +45,7 @@ export default {
       UserDataService.findByUsername(this.username)
         .then(response => {
           if (response.data.length != 0) {
-            this.used_username = true
+            this.error_message = "The inserted username is already in use."
             this.loading = false
             return
           }
@@ -60,7 +54,7 @@ export default {
             UserDataService.findByEmail(this.email)
               .then(response => {
                 if (response.data.length != 0) {
-                  this.used_email = true
+                  this.error_message = "The inserted email is already in use."
                   this.loading = false
                   return
                 }
@@ -82,19 +76,18 @@ export default {
                       console.log("User registered:", response);
                       this.$router.push({ name: 'confirm_email', query: {} });
                     })
-                    .catch(error => {
+                    .catch(err => {
                       // Handle errors
-                      console.error("Error registering user:", error);
+                      console.log(err.response)
+                      this.error_message = err.response.data.message || err.message
                       this.loading = false
-                      this.incorrect_token = true
                     });
                 }
               })
           }
         })
-        .catch(error => {
-          // Handle errors
-          console.error("Error registering user:", error);
+        .catch(err => {
+          this.error_message = err.message
           this.loading = false
           return
         });
@@ -225,10 +218,7 @@ export default {
 
                   <!-- ERROR WARNINGS -->
                   <div class="col-12">
-                    <WarningAlert v-if="used_username" message="The inserted username is already in use." />
-                    <WarningAlert v-if="used_email" message="The inserted email is already in use." />
-                    <WarningAlert v-if="unmatched_passwords" message="The inserted passwords do not match." />
-                    <WarningAlert v-if="incorrect_token" message="The inserted token is incorrect." />
+                    <WarningAlert v-if="error_message" :message="error_message" />
                   </div>
 
                 </div>

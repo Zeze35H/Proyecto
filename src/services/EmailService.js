@@ -88,7 +88,7 @@ async function sendMail(to_email, subject, text) {
     return result
   } catch (error) {
     console.log('Error sending email:', error);
-    return error
+    throw error
   }
 }
 

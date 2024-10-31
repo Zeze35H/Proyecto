@@ -25,6 +25,7 @@ export default {
 
       pictureConfirmationModal: false,
       infoConfirmationModal: false,
+      errorModal: false,
 
       edit: false,
       before_edit: { name: "", surname: "", email: "", role: null, token: "" },
@@ -94,6 +95,7 @@ export default {
 
       this.pictureConfirmationModal = false
       this.infoConfirmationModal = false
+      this.errorModal = false
     },
 
     resetCropper() {
@@ -180,10 +182,12 @@ export default {
                 this.resetCropper()
               }
               else {
+                this.errorModal = true
                 console.log("An error occurred while uploading the image:", response.data.message);
               }
             })
             .catch(err => {
+              this.errorModal = true
               console.error("An error occurred while uploading the image:", err);
             });
         } catch (err) {
@@ -245,6 +249,7 @@ export default {
           }
         })
         .catch(err => {
+          this.errorModal = true
           console.error("An error occurred while updating the user:", err);
         });
     }
@@ -256,286 +261,294 @@ export default {
 </script>
 
 <template class="gradient-custom-1 h-100 p-3 py-md-5 py-xl-8">
+  <div>
+    <!-- CHANGE PICTURE MODAL -->
+    <div class="modal fade" id="pictureModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-5"
+      aria-labelledby="pictureModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
 
-  <!-- CHANGE PICTURE MODAL -->
-  <div class="modal fade" id="pictureModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-5"
-    aria-labelledby="pictureModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-
-        <!-- MODAL HEADER -->
-        <div class="modal-header">
-          <h5 class="modal-title" id="pictureModalLabel">Change Profile Picture</h5>
-          <button @click="closeModal()" type="button" class="btn-close" data-bs-dismiss="modal"
-            aria-label="Close"></button>
-        </div>
-
-        <!-- MODAL BODY -->
-        <div class="modal-body">
-          <p>Click below to upload a new profile picture</p>
-          <div class="mb-3">
-            <input type="file" @click="resetCropper()" @change="onFileChanged($event)" accept="image/*" capture />
+          <!-- MODAL HEADER -->
+          <div class="modal-header">
+            <h5 class="modal-title" id="pictureModalLabel">Change Profile Picture</h5>
+            <button @click="closeModal()" type="button" class="btn-close" data-bs-dismiss="modal"
+              aria-label="Close"></button>
           </div>
 
-          <div v-if="invalid_file_message" class="alert alert-danger d-flex align-items-center c m-3" role="alert">
-            <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
-              <use xlink:href="#exclamation-triangle-fill" />
-            </svg>
-            <div>
-              {{ invalid_file_message }}
+          <!-- MODAL BODY -->
+          <div class="modal-body">
+            <p>Click below to upload a new profile picture</p>
+            <div class="mb-3">
+              <input type="file" @click="resetCropper()" @change="onFileChanged($event)" accept="image/*" capture />
             </div>
-          </div>
 
-
-          <div class="d-flex justify-content-center align-items-center">
-            <!-- Cropper container -->
-            <div class="container d-flex justify-content-center mb-5 pb-5">
-              <div v-if="imageSource" style="width: 250px; height: 250px;">
-                <h5>Crop the original picture if necessary:</h5>
-                <img ref="image" :src="imageSource" alt="Image to Crop" />
-                <button @click="cropImage" class="btn btn-primary mt-2">Crop Image</button>
+            <div v-if="invalid_file_message" class="alert alert-danger d-flex align-items-center c m-3" role="alert">
+              <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
+                <use xlink:href="#exclamation-triangle-fill" />
+              </svg>
+              <div>
+                {{ invalid_file_message }}
               </div>
             </div>
 
 
-            <!-- Preview the cropped image -->
-            <div class="container d-flex justify-content-center">
-              <div v-if="croppedImage">
-                <h5>Profile Picture Preview:</h5>
-                <img :src="croppedImage" class="rounded-circle img-fluid" alt="Cropped Image" />
+            <div class="d-flex justify-content-center align-items-center">
+              <!-- Cropper container -->
+              <div class="container d-flex justify-content-center mb-5 pb-5">
+                <div v-if="imageSource" style="width: 250px; height: 250px;">
+                  <h5>Crop the original picture if necessary:</h5>
+                  <img ref="image" :src="imageSource" alt="Image to Crop" />
+                  <button @click="cropImage" class="btn btn-primary mt-2">Crop Image</button>
+                </div>
               </div>
+
+
+              <!-- Preview the cropped image -->
+              <div class="container d-flex justify-content-center">
+                <div v-if="croppedImage">
+                  <h5>Profile Picture Preview:</h5>
+                  <img :src="croppedImage" class="rounded-circle img-fluid" alt="Cropped Image" />
+                </div>
+              </div>
+
             </div>
 
           </div>
 
-        </div>
-
-        <!-- MODAL FOOTER -->
-        <div class="modal-footer">
-          <button @click="closeModal()" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button @click="saveImage()" type="button" class="btn btn-success" data-bs-dismiss="modal"
-            :disabled="!croppedImage">Upload Image</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- CHANGE INFO MODAL -->
-  <div class="modal fade" id="infoModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-5"
-    aria-labelledby="infoModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-
-        <!-- MODAL HEADER -->
-        <div class="modal-header">
-          <h5 class="modal-title" id="infoModalLabel">Update User Info</h5>
-          <button @click="closeModal()" type="button" class="btn-close" data-bs-dismiss="modal"
-            aria-label="Close"></button>
-        </div>
-
-        <!-- MODAL BODY -->
-        <div class="modal-body">
-          <strong>Are you sure you want to make the following changes?</strong>
-
-          <BeforeAfterTable :fields="['Name', 'Surname', 'Email', 'Role']"
-            :before="[before_edit.name, before_edit.surname, before_edit.email, before_edit.role == 2 ? 'Professor' : 'Student']"
-            :after="[edit_info.name, edit_info.surname, edit_info.email, edit_info.role == 2 ? 'Professor' : 'Student']" />
-        </div>
-
-        <!-- MODAL FOOTER -->
-        <div class="modal-footer">
-          <button @click="cancelEdit()" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button @click="saveChanges()" type="button" class="btn btn-success" data-bs-dismiss="modal">Confirm
-            Changes</button>
+          <!-- MODAL FOOTER -->
+          <div class="modal-footer">
+            <button @click="closeModal()" type="button" class="btn btn-secondary"
+              data-bs-dismiss="modal">Cancel</button>
+            <button @click="saveImage()" type="button" class="btn btn-success" data-bs-dismiss="modal"
+              :disabled="!croppedImage">Upload Image</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+
+    <!-- CHANGE INFO MODAL -->
+    <div class="modal fade" id="infoModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-5"
+      aria-labelledby="infoModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+
+          <!-- MODAL HEADER -->
+          <div class="modal-header">
+            <h5 class="modal-title" id="infoModalLabel">Update User Info</h5>
+            <button @click="closeModal()" type="button" class="btn-close" data-bs-dismiss="modal"
+              aria-label="Close"></button>
+          </div>
+
+          <!-- MODAL BODY -->
+          <div class="modal-body">
+            <strong>Are you sure you want to make the following changes?</strong>
+
+            <BeforeAfterTable :fields="['Name', 'Surname', 'Email', 'Role']"
+              :before="[before_edit.name, before_edit.surname, before_edit.email, before_edit.role == 2 ? 'Professor' : 'Student']"
+              :after="[edit_info.name, edit_info.surname, edit_info.email, edit_info.role == 2 ? 'Professor' : 'Student']" />
+          </div>
+
+          <!-- MODAL FOOTER -->
+          <div class="modal-footer">
+            <button @click="cancelEdit()" type="button" class="btn btn-secondary"
+              data-bs-dismiss="modal">Cancel</button>
+            <button @click="saveChanges()" type="button" class="btn btn-success" data-bs-dismiss="modal">Confirm
+              Changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
 
-  <InfoModal v-if="pictureConfirmationModal" @closeModal="closeModal" header_message="Porfile Picture Updated"
-    body_message="Your profile picture has been changed successfully!" />
+    <InfoModal v-if="pictureConfirmationModal" @closeModal="closeModal" header_message="Porfile Picture Updated"
+      body_message="Your profile picture has been changed successfully!" />
 
-  <InfoModal v-if="infoConfirmationModal" @closeModal="closeModal" header_message="User Info Updated"
-    body_message="Your info has been updated successfully!" />
+    <InfoModal v-if="infoConfirmationModal" @closeModal="closeModal" header_message="User Info Updated"
+      body_message="Your info has been updated successfully!" />
+
+    <InfoModal v-if="errorModal" @closeModal="closeModal" :error="true" header_message="Some error occurred"
+      body_message="Some error occurred updating your profile. Your changes were not saved."></InfoModal>
 
 
-  <!-- SECTION -->
-  <section class="gradient-custom-1 vh-100 p-3 py-md-5 py-xl-8">
-    <div class="container px-5">
-      <div class="col-12 ">
+    <!-- SECTION -->
+    <section class="gradient-custom-1 vh-100 p-3 py-md-5 py-xl-8">
+      <div class="container px-5">
+        <div class="col-12 ">
 
-        <div v-if="user" class="row">
+          <div v-if="user" class="row">
 
-          <!-- PROFILE CARD -->
-          <div class="col-lg-4">
-            <div class="card mb-4">
-              <div class="card-body">
+            <!-- PROFILE CARD -->
+            <div class="col-lg-4">
+              <div class="card mb-4">
+                <div class="card-body">
 
-                <!-- Profile Picture Display -->
-                <div class="d-flex justify-content-center">
-                  <!-- Profile Picture Upload Icon -->
+                  <!-- Profile Picture Display -->
+                  <div class="d-flex justify-content-center">
+                    <!-- Profile Picture Upload Icon -->
 
-                  <img :src="user.picture" alt="Profile Picture" class="rounded-circle img-fluid"
-                    style="width: 150px;" />
-                  <svg v-if="!edit && authenticated && user.id === auth_user.id" data-bs-toggle="modal"
-                    data-bs-target="#pictureModal" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                    fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16" style="cursor: pointer">
+                    <img :src="user.picture" alt="Profile Picture" class="rounded-circle img-fluid"
+                      style="width: 150px;" />
+                    <svg v-if="!edit && authenticated && user.id === auth_user.id" data-bs-toggle="modal"
+                      data-bs-target="#pictureModal" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                      fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16" style="cursor: pointer">
+                      <path
+                        d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                      <path fill-rule="evenodd"
+                        d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+                    </svg>
+                  </div>
+
+                  <h5 class="mt-3">{{ user.name }} {{ user.surname }}</h5>
+                  <p v-if="user.active" class="text-muted mb-2">Active user</p>
+                  <p v-else class="text-muted mb-2">Inactive user</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- INFO CARD -->
+            <div class="col-lg-8">
+              <div class="card mb-4">
+                <div class="card-body position-relative" :class="{ 'pb-0': edit }">
+
+                  <!-- EDIT BUTTON -->
+                  <svg v-if="!edit && authenticated && user.id === auth_user.id" @click="editInfo()"
+                    xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
+                    class="bi bi-pencil-square position-absolute top-0 end-0 m-2" viewBox="0 0 16 16"
+                    style="cursor: pointer">
                     <path
                       d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
                     <path fill-rule="evenodd"
                       d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
                   </svg>
-                </div>
 
-                <h5 class="mt-3">{{ user.name }} {{ user.surname }}</h5>
-                <p v-if="user.active" class="text-muted mb-2">Active user</p>
-                <p v-else class="text-muted mb-2">Inactive user</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- INFO CARD -->
-          <div class="col-lg-8">
-            <div class="card mb-4">
-              <div class="card-body position-relative" :class="{ 'pb-0': edit }">
-
-                <!-- EDIT BUTTON -->
-                <svg v-if="!edit && authenticated && user.id === auth_user.id" @click="editInfo()"
-                  xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
-                  class="bi bi-pencil-square position-absolute top-0 end-0 m-2" viewBox="0 0 16 16"
-                  style="cursor: pointer">
-                  <path
-                    d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                  <path fill-rule="evenodd"
-                    d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
-                </svg>
-
-                <!-- NAME FIELD -->
-                <div class="row d-flex align-items-center">
-                  <div class="col-sm-3">
-                    <p class="mb-0">Name</p>
+                  <!-- NAME FIELD -->
+                  <div class="row d-flex align-items-center">
+                    <div class="col-sm-3">
+                      <p class="mb-0">Name</p>
+                    </div>
+                    <div class="col-sm-9">
+                      <input v-model="edit_info.name" v-if="edit" type="text" class="form-control"
+                        :placeholder="user.name" required>
+                      <p v-else class="text-muted mb-0">{{ user.name }}</p>
+                    </div>
                   </div>
-                  <div class="col-sm-9">
-                    <input v-model="edit_info.name" v-if="edit" type="text" class="form-control"
-                      :placeholder="user.name" required>
-                    <p v-else class="text-muted mb-0">{{ user.name }}</p>
-                  </div>
-                </div>
-                <hr>
+                  <hr>
 
-                <!-- SURNAME FIELD -->
-                <div class="row d-flex align-items-center">
-                  <div class="col-sm-3">
-                    <p class="mb-0">Surname</p>
+                  <!-- SURNAME FIELD -->
+                  <div class="row d-flex align-items-center">
+                    <div class="col-sm-3">
+                      <p class="mb-0">Surname</p>
+                    </div>
+                    <div class="col-sm-9">
+                      <input v-model="edit_info.surname" v-if="edit" type="text" class="form-control"
+                        :placeholder="user.surname" required>
+                      <p v-else class="text-muted mb-0">{{ user.surname }}</p>
+                    </div>
                   </div>
-                  <div class="col-sm-9">
-                    <input v-model="edit_info.surname" v-if="edit" type="text" class="form-control"
-                      :placeholder="user.surname" required>
-                    <p v-else class="text-muted mb-0">{{ user.surname }}</p>
-                  </div>
-                </div>
-                <hr>
+                  <hr>
 
-                <!-- EMAIL FIELD -->
-                <div class="row d-flex align-items-center">
-                  <div class="col-sm-3">
-                    <p class="mb-0">Email</p>
+                  <!-- EMAIL FIELD -->
+                  <div class="row d-flex align-items-center">
+                    <div class="col-sm-3">
+                      <p class="mb-0">Email</p>
+                    </div>
+                    <div class="col-sm-9">
+                      <input v-model="edit_info.email" v-if="edit" type="text" class="form-control"
+                        :placeholder="user.email" required>
+                      <p v-else class="text-muted mb-0">{{ user.email }}</p>
+                    </div>
                   </div>
-                  <div class="col-sm-9">
-                    <input v-model="edit_info.email" v-if="edit" type="text" class="form-control"
-                      :placeholder="user.email" required>
-                    <p v-else class="text-muted mb-0">{{ user.email }}</p>
-                  </div>
-                </div>
-                <hr>
+                  <hr>
 
-                <!-- ROLE FIELD -->
-                <div class="row d-flex align-items-center">
-                  <div class="col-sm-3">
-                    <p class="mb-0">Role</p>
-                  </div>
-                  <div class="col-sm-9">
-                    <div v-if="edit" class="d-flex align-items-center">
+                  <!-- ROLE FIELD -->
+                  <div class="row d-flex align-items-center">
+                    <div class="col-sm-3">
+                      <p class="mb-0">Role</p>
+                    </div>
+                    <div class="col-sm-9">
+                      <div v-if="edit" class="d-flex align-items-center">
 
-                      <!-- STUDENT OPTION -->
-                      <div class="form-check form-check-inline">
-                        <input v-model="edit_info.role" class="form-check-input" type="radio" name="inlineRadioOptions"
-                          id="student_option" value="1" style="cursor: pointer" :checked="user.role != 2">
-                        <label class="form-check-label" for="student_option">Student</label>
+                        <!-- STUDENT OPTION -->
+                        <div class="form-check form-check-inline">
+                          <input v-model="edit_info.role" class="form-check-input" type="radio"
+                            name="inlineRadioOptions" id="student_option" value="1" style="cursor: pointer"
+                            :checked="user.role != 2">
+                          <label class="form-check-label" for="student_option">Student</label>
+                        </div>
+
+                        <!-- PROFESSOR OPTION -->
+                        <div class="form-check form-check-inline">
+                          <input v-model="edit_info.role" class="form-check-input" type="radio"
+                            name="inlineRadioOptions" id="professor_option" value="2" style="cursor: pointer"
+                            :checked="user.role == 2">
+                          <label class="form-check-label" for="professor_option">Professor</label>
+                        </div>
+                        <input v-model="edit_info.token" v-if="edit && edit_info.role == 2" type="text"
+                          class="form-control" placeholder="Token" required>
                       </div>
 
-                      <!-- PROFESSOR OPTION -->
-                      <div class="form-check form-check-inline">
-                        <input v-model="edit_info.role" class="form-check-input" type="radio" name="inlineRadioOptions"
-                          id="professor_option" value="2" style="cursor: pointer" :checked="user.role == 2">
-                        <label class="form-check-label" for="professor_option">Professor</label>
+                      <div v-else>
+                        <p v-if="user.role == 2" class="text-muted mb-0">Professor</p>
+                        <p v-else class="text-muted mb-0">Student</p>
                       </div>
-                      <input v-model="edit_info.token" v-if="edit && edit_info.role == 2" type="text"
-                        class="form-control" placeholder="Token" required>
+
+
                     </div>
+                  </div>
+                  <hr v-if="edit">
 
-                    <div v-else>
-                      <p v-if="user.role == 2" class="text-muted mb-0">Professor</p>
-                      <p v-else class="text-muted mb-0">Student</p>
-                    </div>
-
-
+                </div>
+                <div v-if="incorrect_token" class="alert alert-danger d-flex align-items-center c m-3" role="alert">
+                  <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
+                    <use xlink:href="#exclamation-triangle-fill" />
+                  </svg>
+                  <div>
+                    The inserted token is incorrect.
                   </div>
                 </div>
-                <hr v-if="edit">
-
-              </div>
-              <div v-if="incorrect_token" class="alert alert-danger d-flex align-items-center c m-3" role="alert">
-                <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Danger:">
-                  <use xlink:href="#exclamation-triangle-fill" />
-                </svg>
-                <div>
-                  The inserted token is incorrect.
+                <div v-if="edit" class="d-flex justify-content-end mb-3 me-3">
+                  <button @click="cancelEdit()" type="button" class="btn btn-secondary me-2"
+                    data-bs-dismiss="modal">Cancel</button>
+                  <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#infoModal"
+                    :disabled="!checkChanges()">Save Changes</button>
                 </div>
               </div>
-              <div v-if="edit" class="d-flex justify-content-end mb-3 me-3">
-                <button @click="cancelEdit()" type="button" class="btn btn-secondary me-2"
-                  data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#infoModal"
-                  :disabled="!checkChanges()">Save Changes</button>
-              </div>
-            </div>
 
-            <!-- LECTURED SUBJECTS -->
-            <div v-if="user.role == 2" class="col-md-12">
-              <div class="card mb-4 mb-md-0">
-                <div v-if="lectured_subjects.length" class="card-body">
-                  <div class="d-flex d-flex justify-content-between">
-                    <h5 class="text-primary font-italic mb-3">Lectured Subjects</h5>
-                    <p class="text-muted" style="font-size: .75rem;">Num. of Students</p>
-                  </div>
-
-
-                  <div v-for="({ subject, num_students }, index) in lectured_subjects" :key="index">
+              <!-- LECTURED SUBJECTS -->
+              <div v-if="user.role == 2" class="col-md-12">
+                <div class="card mb-4 mb-md-0">
+                  <div v-if="lectured_subjects.length" class="card-body">
                     <div class="d-flex d-flex justify-content-between">
-                      <p class="mb-1">{{ subject }}</p>
-                      <p class="mb-1" style="font-size: .90rem;">{{ num_students }}</p>
+                      <h5 class="text-primary font-italic mb-3">Lectured Subjects</h5>
+                      <p class="text-muted" style="font-size: .75rem;">Num. of Students</p>
                     </div>
-                    <div class="progress rounded" style="height: 5px;">
-                      <div class="progress-bar" role="progressbar"
-                        :style="{ width: `${num_students / max_students * 100}%` }" :aria-valuenow="num_students"
-                        aria-valuemin="0" :aria-valuemax="max_students"></div>
+
+
+                    <div v-for="({ subject, num_students }, index) in lectured_subjects" :key="index">
+                      <div class="d-flex d-flex justify-content-between">
+                        <p class="mb-1">{{ subject }}</p>
+                        <p class="mb-1" style="font-size: .90rem;">{{ num_students }}</p>
+                      </div>
+                      <div class="progress rounded" style="height: 5px;">
+                        <div class="progress-bar" role="progressbar"
+                          :style="{ width: `${num_students / max_students * 100}%` }" :aria-valuenow="num_students"
+                          aria-valuemin="0" :aria-valuemax="max_students"></div>
+                      </div>
                     </div>
+
+
                   </div>
-
-
-                </div>
-                <div v-else class="card-body p-3 p-md-4 p-xl-5">
-                  <h5 class="text-center">You do not have any students enrolled in a class you lecture yet!</h5>
+                  <div v-else class="card-body p-3 p-md-4 p-xl-5">
+                    <h5 class="text-center">You do not have any students enrolled in a class you lecture yet!</h5>
+                  </div>
                 </div>
               </div>
             </div>
+
           </div>
 
         </div>
-
       </div>
-    </div>
-  </section>
+    </section>
+  </div>
 </template>

@@ -1,5 +1,5 @@
 <script setup>
-defineProps(['header_message', 'body_message'])
+defineProps(['header_message', 'body_message', 'error'])
 defineEmits(["closeModal"])
 </script>
 
@@ -10,8 +10,10 @@ defineEmits(["closeModal"])
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
+
                     <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:">
-                        <use xlink:href="#info-fill" />
+                        <use v-if="error" xlink:href="#exclamation-triangle-fill" />
+                        <use v-else xlink:href="#info-fill" />
                     </svg>
 
                     <!-- HEADER MESSAGE -->

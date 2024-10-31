@@ -7,12 +7,12 @@ defineProps(["fields", "contents"])
         <table class="table mb-0">
             <thead>
                 <tr>
-                    <th v-for="({ field }, index) in fields" :key="index" scope="col">{{ field }}</th>
+                    <th v-for="( field , index) in fields" :key="index" scope="col">{{ field }}</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td v-for="({ content }, index) in contents" :key="index">{{ content }}</td>
+                    <td v-for="( content , index) in contents" :key="index">{{ content }}</td>
                 </tr>
             </tbody>
         </table>

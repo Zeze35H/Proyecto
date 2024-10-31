@@ -15,7 +15,8 @@ export default {
     return {
       password: "",
       confirm_password: "",
-      unmatched_passwords: false,
+
+      error_message: "",
       loading: false,
 
       valid_token: false,
@@ -53,10 +54,10 @@ export default {
   },
   methods: {
     changePassword() {
-      this.unmatched_passwords = false
+      this.error_message = ""
 
       if (this.password !== this.confirm_password) {
-        this.unmatched_passwords = true
+        this.error_message = "The inserted passwords do not match."
       }
       else {
         this.loading = true
@@ -66,11 +67,13 @@ export default {
               this.$router.push({ name: 'login', query: { updated_password: 1 } });
             }
             else {
-              console.log("An error occurred while changing the password:", response.message);
+              this.error_message = response.message
+              this.loading = false
             }
           })
-          .catch(error => {
-            console.error("An error occurred while changing the password:", error);
+          .catch(err => {
+            this.error_message = err.message
+            this.loading = false
           });
 
       }
@@ -141,7 +144,7 @@ export default {
 
               <div class="col-12">
                 <!-- INCORRECT PASSWORD ALERT -->
-                <WarningAlert v-if="unmatched_passwords" message="The inserted passwords do not match." />
+                <WarningAlert v-if="error_message" :message="error_message" />
               </div>
 
             </div>

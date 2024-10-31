@@ -23,7 +23,7 @@ exports.create = (req, res) => {
   // Validate request
   if (req.body.role == 2 && req.body.token != correct_token) {
     res.status(400).send({
-      message: "Incorrect token."
+      message: "The inserted token is incorrect."
     });
     return;
   }
@@ -202,7 +202,7 @@ exports.resetPassword = (req, res) => {
     .catch(err => {
       res.status(500).send({
         message:
-          err.message || "Some error occurred while retrieving user."
+          err.message || "Some error occurred while sending the email."
       });
     });
 };

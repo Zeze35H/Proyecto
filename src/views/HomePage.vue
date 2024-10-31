@@ -27,6 +27,7 @@ export default {
 
       row_index: null,
       confirmationModal: false,
+      errorModal: false,
 
       paginated_users: [],
       current_page: 1,
@@ -45,13 +46,8 @@ export default {
       this.user = result.user
 
       // UPDATE PROFESSOR VARIABLE
-      console.log(this.professor)
-      console.log(this.user.role)
       if (this.user.role == 2)
         this.professor = true
-
-      console.log(this.professor)
-      console.log(this.user.role)
 
       // FIND AUTHENTICATED USER
       UserDataService.findByUsername(this.user.username)
@@ -147,10 +143,12 @@ export default {
           }
           else {
             console.log("An error occurred while updating the user:", response.data.message);
+            this.errorModal = true
           }
         })
         .catch(err => {
           console.error("An error occurred while updating the user:", err);
+          this.errorModal = true
         });
 
     },
@@ -181,10 +179,12 @@ export default {
           }
           else {
             console.log("An error occurred while deleting the relation:", response.message);
+            this.errorModal = true
           }
         })
         .catch(error => {
           console.error("An error occurred while deleting the relation:", error);
+          this.errorModal = true
         });
 
 
@@ -205,6 +205,7 @@ export default {
       this.row_delete = { name: '', surname: '', email: '', subject: '' }
 
       this.confirmationModal = false
+      this.errorModal = false
 
       this.row_index = null
     },
@@ -223,79 +224,190 @@ export default {
 </script>
 
 <template class="p-3 py-md-5 py-xl-8">
-  <!-- EDIT AND DELETE CONFIRMATION MODAL -->
 
-  <ConfirmationModal id="deleteConfirmationModal" @closeModal="closeModal" header_message="Delete Student Entry?"
-    body_message="Are you sure you want to delete the following student entry?">
-    <template #body_content>
-      <SingleRowTable :fields="['NAME', 'SURNAME', 'E-MAIL', 'SUBJECT']"
-        :contents="[row_delete.name, row_delete.surname, row_delete.email, row_delete.subject]" />
-    </template>
-    <template #footer_button>
-      <button @click="confirmDeleteRow()" type="button" class="btn btn-danger" data-bs-dismiss="modal">Confirm
-        Delete</button>
-    </template>
-  </ConfirmationModal>
+  <div>
+    <!-- EDIT AND DELETE CONFIRMATION MODAL -->
+    <ConfirmationModal id="deleteConfirmationModal" @closeModal="closeModal" header_message="Delete Student Entry?"
+      body_message="Are you sure you want to delete the following student entry?">
+      <template #body_content>
+        <SingleRowTable :fields="['NAME', 'SURNAME', 'E-MAIL', 'SUBJECT']"
+          :contents="[row_delete.name, row_delete.surname, row_delete.email, row_delete.subject]" />
+      </template>
+      <template #footer_button>
+        <button @click="confirmDeleteRow()" type="button" class="btn btn-danger" data-bs-dismiss="modal">Confirm
+          Delete</button>
+      </template>
+    </ConfirmationModal>
 
-  <ConfirmationModal id="editConfirmationModal" @closeModal="closeModal" header_message="Delete Student Entry?"
-    body_message="Are you sure you want to delete the following student entry?">
-    <template #body_content>
-      <BeforeAfterTable v-if="this.edit" :fields="['Name', 'Surname', 'Email']"
-        :before="[table_contents[row_index].name, table_contents[row_index].surname, table_contents[row_index].email]"
-        :after="[edit_row.name, edit_row.surname, edit_row.email]" />
-    </template>
-    <template #footer_button>
-      <button @click="confirmEdit()" type="button" class="btn btn-success" data-bs-dismiss="modal">Confirm
-        Changes</button>
-    </template>
-  </ConfirmationModal>
+    <ConfirmationModal id="editConfirmationModal" @closeModal="closeModal" header_message="Delete Student Entry?"
+      body_message="Are you sure you want to delete the following student entry?">
+      <template #body_content>
+        <BeforeAfterTable v-if="this.edit" :fields="['Name', 'Surname', 'Email']"
+          :before="[table_contents[row_index].name, table_contents[row_index].surname, table_contents[row_index].email]"
+          :after="[edit_row.name, edit_row.surname, edit_row.email]" />
+      </template>
+      <template #footer_button>
+        <button @click="confirmEdit()" type="button" class="btn btn-success" data-bs-dismiss="modal">Confirm
+          Changes</button>
+      </template>
+    </ConfirmationModal>
 
 
-  <!-- SUCCESS INFORMATION MODAL -->
+    <!-- SUCCESS INFORMATION MODAL -->
 
-  <InfoModal v-if="confirmationModal && this.delete" @closeModal="closeModal" header_message="Student Entry Deleted"
-    body_message="The following student entry has been deleted successfully!">
-    <template #body_content>
-      <SingleRowTable :fields="['NAME', 'SURNAME', 'E-MAIL', 'SUBJECT']"
-        :contents="[row_delete.name, row_delete.surname, row_delete.email, row_delete.subject]" />
-    </template>
-  </InfoModal>
+    <InfoModal v-if="confirmationModal && this.delete" @closeModal="closeModal" header_message="Student Entry Deleted"
+      body_message="The following student entry has been deleted successfully!">
+      <template #body_content>
+        <SingleRowTable :fields="['NAME', 'SURNAME', 'E-MAIL', 'SUBJECT']"
+          :contents="[row_delete.name, row_delete.surname, row_delete.email, row_delete.subject]" />
+      </template>
+    </InfoModal>
 
-  <InfoModal v-if="confirmationModal && this.edit" @closeModal="closeModal" header_message="Student Updated
+    <InfoModal v-if="confirmationModal && this.edit" @closeModal="closeModal" header_message="Student Updated
               successfully" body_message="The following student has been updated successfully!">
-    <template #body_content>
-      <SingleRowTable :fields="['NAME', 'SURNAME', 'E-MAIL']"
-        :contents="[edit_row.name, edit_row.surname, edit_row.email]" />
-    </template>
-  </InfoModal>
+      <template #body_content>
+        <SingleRowTable :fields="['NAME', 'SURNAME', 'E-MAIL']"
+          :contents="[edit_row.name, edit_row.surname, edit_row.email]" />
+      </template>
+    </InfoModal>
 
-  <!-- SECTION -->
-  <section v-if="user" class="gradient-custom-1 vh-100 p-3 py-md-5 py-xl-8">
-    <div class="container px-5">
-      <div class="col-12 ">
+    <InfoModal v-if="errorModal" @closeModal="closeModal" :error="true" header_message="Some error occurred"
+      body_message="Some error occurred managing your students. Your changes were not saved."></InfoModal>
 
-        <!-- USER GREETING -->
-        <div class="d-flex justify-content-center text-white text-center">
-          <div class="col-12 col-xl-9 mb-5">
-            <h1>Greetings, {{ user.name }}!</h1>
+    <!-- SECTION -->
+    <section v-if="user" class="gradient-custom-1 vh-100 p-3 py-md-5 py-xl-8">
+      <div class="container px-5">
+        <div class="col-12 ">
+
+          <!-- USER GREETING -->
+          <div class="d-flex justify-content-center text-white text-center">
+            <div class="col-12 col-xl-9 mb-5">
+              <h1>Greetings, {{ user.name }}!</h1>
+            </div>
           </div>
-        </div>
 
-        <!-- TABLE DIV -->
-        <div class="card border-0 rounded-4">
-          <div v-if="table_contents.length" class="card-body p-3 p-md-4 p-xl-5">
+          <!-- TABLE DIV -->
+          <div class="card border-0 rounded-4">
+            <div v-if="table_contents.length" class="card-body p-3 p-md-4 p-xl-5">
 
-            <!-- TABLE MESSAGE -->
-            <div v-if="professor" class="pb-3">
-              <h6>List of your students for this semester:</h6>
-            </div>
-            <div v-else class="pb-3">
-              <h6>List of your professors for this semester:</h6>
-            </div>
+              <!-- TABLE MESSAGE -->
+              <div v-if="professor" class="pb-3">
+                <h6>List of your students for this semester:</h6>
+              </div>
+              <div v-else class="pb-3">
+                <h6>List of your professors for this semester:</h6>
+              </div>
 
-            <!-- EDIT VIEW -->
-            <div v-if="edit" class="table-responsive bg-white">
-              <form class="login-form" @submit.prevent="">
+              <!-- EDIT VIEW -->
+              <div v-if="edit" class="table-responsive bg-white">
+                <form class="login-form" @submit.prevent="">
+                  <table class="table mb-0">
+
+                    <!-- TABLE HEAD -->
+                    <thead>
+                      <tr>
+                        <th scope="col">NAME</th>
+                        <th scope="col">SURNAME</th>
+                        <th scope="col">E-MAIL</th>
+                        <th scope="col">SUBJECT</th>
+                        <th v-if="professor" scope="col" class="d-flex justify-content-end">ACTIONS</th>
+                      </tr>
+                    </thead>
+
+                    <!-- TABLE BODY -->
+                    <tbody>
+                      <template v-for="({ name, surname, email, subject }, index) in paginated_users" :key="index">
+
+                        <!-- ROW EDIT -->
+                        <tr v-if="index + (current_page - 1) * users_per_page === this.row_index">
+                          <td>
+                            <input v-model="edit_row.name" type="text" class="form-control" name="name"
+                              :placeholder="name" required>
+                          </td>
+                          <td>
+                            <input v-model="edit_row.surname" type="text" class="form-control" name="surname"
+                              :placeholder="surname" required>
+                          </td>
+                          <td>
+                            <input v-model="edit_row.email" type="text" class="form-control" name="email"
+                              :placeholder="email" required>
+                          </td>
+                          <td class="disabled-row">
+                            {{ subject }}
+                          </td>
+                          <!-- PROFESSOR ACTION BUTTONS -->
+                          <td v-if="professor">
+                            <div class="d-flex justify-content-end">
+
+                              <!-- CANCEL BUTTON -->
+                              <button @click="closeEdit()" type="button" class="btn btn-outline-secondary me-2"
+                                title="Cancel Edit">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                  class="bi bi-x" viewBox="0 0 16 16">
+                                  <path
+                                    d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
+                                </svg>
+                              </button>
+
+                              <!-- CONFIRM BUTTON -->
+                              <button type="submit" class="btn btn-outline-success" data-bs-toggle="modal"
+                                data-bs-target="#editConfirmationModal" title="Confirm Edit"
+                                :disabled="!checkChanges(index)" :style="{ opacity: !checkChanges(index) ? 0.2 : 1.0 }">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                  class="bi bi-check-lg" viewBox="0 0 16 16">
+                                  <path
+                                    d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z" />
+                                </svg>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+
+                        <!-- DISABLED ROWS -->
+                        <tr v-else :class="{ 'disabled-row': true }">
+                          <td>{{ name }}</td>
+                          <td>{{ surname }}</td>
+                          <td>{{ email }}</td>
+                          <td>{{ subject }}</td>
+
+                          <!-- PROFESSOR ACTION BUTTONS -->
+                          <td v-if="professor">
+                            <div class="d-flex justify-content-end">
+
+                              <!-- EDIT BUTTON -->
+                              <button type="button" class="btn btn-outline-primary me-2" title="Edit" disabled>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                  class="bi bi-pen" viewBox="0 0 16 16">
+                                  <path
+                                    d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001m-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708z">
+                                  </path>
+                                </svg>
+                              </button>
+
+                              <!-- DELETE BUTTON -->
+                              <button type="button" class="btn btn-outline-danger" title="Delete" disabled>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                  class="bi bi-trash" viewBox="0 0 16 16">
+                                  <path
+                                    d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z">
+                                  </path>
+                                  <path
+                                    d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z">
+                                  </path>
+                                </svg>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      </template>
+
+                    </tbody>
+                  </table>
+                </form>
+              </div>
+
+              <!-- NORMAL VIEW -->
+              <div v-else class="table-responsive bg-white">
                 <table class="table mb-0">
 
                   <!-- TABLE HEAD -->
@@ -311,168 +423,64 @@ export default {
 
                   <!-- TABLE BODY -->
                   <tbody>
-                    <template v-for="({ name, surname, email, subject }, index) in paginated_users" :key="index">
+                    <tr v-for="({ name, surname, email, subject }, index) in paginated_users" :key="index">
+                      <td>{{ name }}</td>
+                      <td>{{ surname }}</td>
+                      <td>{{ email }}</td>
+                      <td>{{ subject }}</td>
 
-                      <!-- ROW EDIT -->
-                      <tr v-if="index + (current_page - 1) * users_per_page === this.row_index">
-                        <td>
-                          <input v-model="edit_row.name" type="text" class="form-control" name="name"
-                            :placeholder="name" required>
-                        </td>
-                        <td>
-                          <input v-model="edit_row.surname" type="text" class="form-control" name="surname"
-                            :placeholder="surname" required>
-                        </td>
-                        <td>
-                          <input v-model="edit_row.email" type="text" class="form-control" name="email"
-                            :placeholder="email" required>
-                        </td>
-                        <td class="disabled-row">
-                          {{ subject }}
-                        </td>
-                        <!-- PROFESSOR ACTION BUTTONS -->
-                        <td v-if="professor">
-                          <div class="d-flex justify-content-end">
+                      <!-- PROFESSOR ACTION BUTTONS -->
+                      <td v-if="professor">
+                        <div class="d-flex justify-content-end">
 
-                            <!-- CANCEL BUTTON -->
-                            <button @click="closeEdit()" type="button" class="btn btn-outline-secondary me-2"
-                              title="Cancel Edit">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-x" viewBox="0 0 16 16">
-                                <path
-                                  d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
-                              </svg>
-                            </button>
+                          <!-- EDIT BUTTON -->
+                          <button @click="editRow(index + (current_page - 1) * users_per_page)" type="button"
+                            class="btn btn-outline-primary me-2" title="Edit">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                              class="bi bi-pen" viewBox="0 0 16 16">
+                              <path
+                                d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001m-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708z">
+                              </path>
+                            </svg>
+                          </button>
 
-                            <!-- CONFIRM BUTTON -->
-                            <button type="submit" class="btn btn-outline-success" data-bs-toggle="modal"
-                              data-bs-target="#editConfirmationModal" title="Confirm Edit"
-                              :disabled="!checkChanges(index)" :style="{ opacity: !checkChanges(index) ? 0.2 : 1.0 }">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-check-lg" viewBox="0 0 16 16">
-                                <path
-                                  d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z" />
-                              </svg>
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-
-                      <!-- DISABLED ROWS -->
-                      <tr v-else :class="{ 'disabled-row': true }">
-                        <td>{{ name }}</td>
-                        <td>{{ surname }}</td>
-                        <td>{{ email }}</td>
-                        <td>{{ subject }}</td>
-
-                        <!-- PROFESSOR ACTION BUTTONS -->
-                        <td v-if="professor">
-                          <div class="d-flex justify-content-end">
-
-                            <!-- EDIT BUTTON -->
-                            <button type="button" class="btn btn-outline-primary me-2" title="Edit" disabled>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-pen" viewBox="0 0 16 16">
-                                <path
-                                  d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001m-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708z">
-                                </path>
-                              </svg>
-                            </button>
-
-                            <!-- DELETE BUTTON -->
-                            <button type="button" class="btn btn-outline-danger" title="Delete" disabled>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-trash" viewBox="0 0 16 16">
-                                <path
-                                  d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z">
-                                </path>
-                                <path
-                                  d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z">
-                                </path>
-                              </svg>
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    </template>
-
+                          <!-- DELETE BUTTON -->
+                          <button @click="deleteRowModal(index + (current_page - 1) * users_per_page)" type="button"
+                            class="btn btn-outline-danger" data-bs-toggle="modal"
+                            data-bs-target="#deleteConfirmationModal" title="Delete">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                              class="bi bi-trash" viewBox="0 0 16 16">
+                              <path
+                                d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z">
+                              </path>
+                              <path
+                                d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z">
+                              </path>
+                            </svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
-              </form>
+              </div>
+
+              <PaginationControls v-if="!edit" @selectPage="selectPage" @updateList="updateList"
+                :current_page="current_page" :items_list="table_contents" :items_per_page="users_per_page" />
+
             </div>
 
-            <!-- NORMAL VIEW -->
-            <div v-else class="table-responsive bg-white">
-              <table class="table mb-0">
-
-                <!-- TABLE HEAD -->
-                <thead>
-                  <tr>
-                    <th scope="col">NAME</th>
-                    <th scope="col">SURNAME</th>
-                    <th scope="col">E-MAIL</th>
-                    <th scope="col">SUBJECT</th>
-                    <th v-if="professor" scope="col" class="d-flex justify-content-end">ACTIONS</th>
-                  </tr>
-                </thead>
-
-                <!-- TABLE BODY -->
-                <tbody>
-                  <tr v-for="({ name, surname, email, subject }, index) in paginated_users" :key="index">
-                    <td>{{ name }}</td>
-                    <td>{{ surname }}</td>
-                    <td>{{ email }}</td>
-                    <td>{{ subject }}</td>
-
-                    <!-- PROFESSOR ACTION BUTTONS -->
-                    <td v-if="professor">
-                      <div class="d-flex justify-content-end">
-
-                        <!-- EDIT BUTTON -->
-                        <button @click="editRow(index + (current_page - 1) * users_per_page)" type="button"
-                          class="btn btn-outline-primary me-2" title="Edit">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                            class="bi bi-pen" viewBox="0 0 16 16">
-                            <path
-                              d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001m-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708z">
-                            </path>
-                          </svg>
-                        </button>
-
-                        <!-- DELETE BUTTON -->
-                        <button @click="deleteRowModal(index + (current_page - 1) * users_per_page)" type="button"
-                          class="btn btn-outline-danger" data-bs-toggle="modal"
-                          data-bs-target="#deleteConfirmationModal" title="Delete">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                            class="bi bi-trash" viewBox="0 0 16 16">
-                            <path
-                              d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z">
-                            </path>
-                            <path
-                              d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z">
-                            </path>
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            <div v-else class="card-body p-3 p-md-4 p-xl-5">
+              <h5 v-if="professor" class="text-center">You do not have any students enrolled in a class you lecture yet!
+              </h5>
+              <h5 v-else class="text-center">You're not enrolled in any classes yet!</h5>
             </div>
 
-            <PaginationControls v-if="!edit" @selectPage="selectPage" @updateList="updateList"
-              :current_page="current_page" :items_list="table_contents" :items_per_page="users_per_page" />
 
           </div>
-
-          <div v-else class="card-body p-3 p-md-4 p-xl-5">
-            <h5 v-if="professor" class="text-center">You do not have any students enrolled in a class you lecture yet!</h5>
-            <h5 v-else class="text-center">You're not enrolled in any classes yet!</h5>
-          </div>
-
-
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </div>
+
 </template>
