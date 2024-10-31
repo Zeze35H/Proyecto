@@ -72,12 +72,10 @@ module.exports = (app, passport, db) => {
                 // Ensure id_user and signed_in fields are properly set before saving session
                 if (!req.session.id_user) {
                     req.session.id_user = user.id;
-                    console.log('Set session id_user:', req.session.id_user);
                 }
 
                 if (!req.session.signed_in) {
                     req.session.signed_in = new Date();
-                    console.log('Set session signed_in:', req.session.signed_in);
                 }
 
                 req.session.save(err => {

@@ -45,8 +45,13 @@ export default {
       this.user = result.user
 
       // UPDATE PROFESSOR VARIABLE
+      console.log(this.professor)
+      console.log(this.user.role)
       if (this.user.role == 2)
         this.professor = true
+
+      console.log(this.professor)
+      console.log(this.user.role)
 
       // FIND AUTHENTICATED USER
       UserDataService.findByUsername(this.user.username)
@@ -94,8 +99,6 @@ export default {
 
           }
           this.paginated_users = this.table_contents
-
-          console.log(this.table_contents)
         })
         .catch(error => {
           // Handle errors
@@ -119,8 +122,6 @@ export default {
       this.edit = true
       this.edit_row = { ...this.table_contents[index] }
       this.row_index = index
-      console.log(index)
-      console.log(this.edit_row)
     },
 
     // CANCEL ROW EDIT
@@ -138,16 +139,11 @@ export default {
 
       UserDataService.update(this.edit_row.id_student, edit_data)
         .then(response => {
-          console.log(response)
           if (response.data.success) {
-            console.log(response.data.message)
-
-            // // UPDATE THE USER LIST AFTER THE UPDATE
-            // this.updateRelations()
 
             setTimeout(() => {
               this.confirmationModal = true
-            }, 500); // 1-second delay
+            }, 500);
           }
           else {
             console.log("An error occurred while updating the user:", response.data.message);
@@ -173,7 +169,6 @@ export default {
       UserDataService.delete(this.row_delete.id)
         .then(response => {
           if (response.data.success) {
-            console.log(response.data.message)
 
             // REMOVE USER FROM TBLE
             this.table_contents.splice(this.row_index, 1)
@@ -220,7 +215,6 @@ export default {
     },
     // UPDATE PAGINATED LIST
     updateList(items_list) {
-      console.log("items_list", items_list)
       this.paginated_users = items_list
     },
   }
@@ -317,7 +311,7 @@ export default {
 
                   <!-- TABLE BODY -->
                   <tbody>
-                    <template v-for="({ name, surname, email, subject }, index) in paginated_users">
+                    <template v-for="({ name, surname, email, subject }, index) in paginated_users" :key="index">
 
                       <!-- ROW EDIT -->
                       <tr v-if="index + (current_page - 1) * users_per_page === this.row_index">
@@ -424,7 +418,7 @@ export default {
 
                 <!-- TABLE BODY -->
                 <tbody>
-                  <tr v-for="({ name, surname, email, subject }, index) in paginated_users">
+                  <tr v-for="({ name, surname, email, subject }, index) in paginated_users" :key="index">
                     <td>{{ name }}</td>
                     <td>{{ surname }}</td>
                     <td>{{ email }}</td>
@@ -472,8 +466,8 @@ export default {
           </div>
 
           <div v-else class="card-body p-3 p-md-4 p-xl-5">
-            <h5 v-if="professor" class="text-center">You're not enrolled in any classes yet!</h5>
-            <h5 v-else class="text-center">You do not have any student enrolled in a class you lecture yet!</h5>
+            <h5 v-if="professor" class="text-center">You do not have any students enrolled in a class you lecture yet!</h5>
+            <h5 v-else class="text-center">You're not enrolled in any classes yet!</h5>
           </div>
 
 

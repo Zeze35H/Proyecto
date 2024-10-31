@@ -7,7 +7,7 @@ import SideText from "@/components/SideText.vue";
 import UserDataService from "../services/UserDataService.js";
 
 export default {
-  name: "login",
+  name: "login-view",
   components: {
     WarningAlert, LoadingSpinner, InfoModal, SideText
   },
@@ -30,8 +30,6 @@ export default {
   },
   created() {
 
-    console.log(this.$route.query)
-
     // CLEAR USER TOKEN FROM URL AFER UPDATED PASSWORD
     if (this.$route.query.updated_password) {
       this.updated_password = 1
@@ -50,7 +48,6 @@ export default {
       UserDataService.findByToken(jwt, access_token)
         .then(response => {
           if (response.data.length != 0) {
-            console.log("Username found:", response);
 
             UserDataService.activateAccount(response.data.id)
               .then(response => {
@@ -59,12 +56,10 @@ export default {
                 }
               })
               .catch(error => {
-                // Handle errors
                 console.error("An error occurred while activating user:", error);
               });
           }
           else {
-            console.log("Username not found:", response);
             this.$router.replace({ name: 'login' });
             return
           }

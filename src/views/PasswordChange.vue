@@ -32,7 +32,6 @@ export default {
       UserDataService.findByToken(jwt, access_token)
         .then(response => {
           if (response.data.length != 0) {
-            console.log("Username found:", response);
             this.user = response.data
             return
           }
@@ -43,7 +42,6 @@ export default {
           }
         })
         .catch(error => {
-          // Handle errors
           console.error("An error occurred while retrieving user:", error);
         });
     }

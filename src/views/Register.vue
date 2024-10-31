@@ -6,7 +6,7 @@ import SideText from "@/components/SideText.vue";
 import UserDataService from "../services/UserDataService.js";
 
 export default {
-  name: 'register',
+  name: 'register-view',
   components: {
     WarningAlert, LoadingSpinner, SideText
   },
@@ -51,7 +51,6 @@ export default {
       UserDataService.findByUsername(this.username)
         .then(response => {
           if (response.data.length != 0) {
-            console.log("Username found:", response);
             this.used_username = true
             this.loading = false
             return
@@ -61,14 +60,11 @@ export default {
             UserDataService.findByEmail(this.email)
               .then(response => {
                 if (response.data.length != 0) {
-                  console.log("Username found:", response);
                   this.used_email = true
                   this.loading = false
                   return
                 }
                 else {
-                  console.log("Username not found:", response);
-
                   const userData = {
                     name: this.name,
                     surname: this.surname,

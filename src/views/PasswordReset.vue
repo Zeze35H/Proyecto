@@ -33,21 +33,17 @@ export default {
       UserDataService.findByEmail(this.email)
         .then(response => {
           if (response.data.length == 0) {
-            console.log("Email not found:", response);
             this.no_account = true
             this.loading = false
             return
           }
           else {
-            console.log("Email found:", response);
             if (!response.data.active) {
-              console.log("User inactive:", response);
               this.inactive_account = true
               this.loading = false
               return
             }
             else {
-              console.log("Active user with email found!", response.data)
               UserDataService.resetPassword(response.data)
                 .then(response => {
                   console.log("Reset Password email sent", response)

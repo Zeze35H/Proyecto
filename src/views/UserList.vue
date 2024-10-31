@@ -38,10 +38,8 @@ export default {
             let role = response.data[i].role == 2 ? "Professor" : "Student"
             let active = response.data[i].active ? "Active" : "Inactive"
             let picture = response.data[i].picture
-            console.log(picture)
             this.users.push({ id: id, username: username, name: name, surname: surname, email: email, role: role, active: active, picture: picture })
           }
-          console.log(this.users)
           this.search_users = this.users.filter(this.filterUsers)
           this.paginated_users = this.search_users
         }
@@ -84,7 +82,6 @@ export default {
     },
     // UPDATE PAGINATED LIST
     updateList(items_list) {
-      console.log("items_list", items_list)
       this.paginated_users = items_list
     }
   }
@@ -144,7 +141,7 @@ export default {
 
 
         <li v-if="no_users" class="list-group-item text-center py-3">No users found matching the search filters.</li>
-        <li v-for="({ username, name, surname, email, role, active, picture }, index) in paginated_users"
+        <li v-for="({ username, name, surname, email, role, active, picture }, index) in paginated_users" :key="index"
           @click="visitUser(username)" class="list-group-item row d-flex justify-content-between align-items-center"
           style="cursor: pointer">
 

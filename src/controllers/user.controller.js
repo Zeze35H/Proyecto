@@ -35,7 +35,7 @@ exports.create = (req, res) => {
         message:
           err.message || "Some error occurred while creating the User."
       });
-    };
+    }
 
     // Create a User
     const user = {
@@ -244,7 +244,7 @@ exports.update = (req, res) => {
     .catch(err => {
       res.status(500).send({
         success: false,
-        message: "Error updating User with id=" + id
+        message: `Error updating User with id=${id}. ${err}`
       });
     });
 };
@@ -262,7 +262,7 @@ exports.changePassword = (req, res) => {
         message:
           err.message || "Some error occurred while updating the User."
       });
-    };
+    }
 
     User.update({ access_token: uuidv4(), password_token: hashedPassword }, {
       where: { id: id }
@@ -284,7 +284,7 @@ exports.changePassword = (req, res) => {
       })
       .catch(err => {
         res.status(500).send({
-          message: "Error updating User with id=" + id,
+          message: `Error updating User with id=${id}. ${err}`,
           success: false,
         });
       });
@@ -297,8 +297,10 @@ exports.activateAccount = (req, res) => {
 
   console.log("inside user.controller.js activateAccount")
 
+  const id = req.params.id
+
   User.update({ access_token: uuidv4(), active: true }, {
-    where: { id: req.params.id }
+    where: { id: id }
   })
     .then(num => {
       DBCleanupService.cleanDatabase();
@@ -317,7 +319,7 @@ exports.activateAccount = (req, res) => {
     })
     .catch(err => {
       res.status(500).send({
-        message: "Error updating User with id=" + id,
+        message: `Error updating User with id=${id}. ${err}`,
         success: false,
       });
     });
@@ -330,6 +332,8 @@ exports.uploadImage = (req, res) => {
   console.log("inside user.controller.js uploadImage")
 
   const { imageBase64 } = req.body;
+
+  const id = req.params.id
 
   if (imageBase64) {
     // Decode Base64 string and save it as an image file
@@ -353,7 +357,7 @@ exports.uploadImage = (req, res) => {
       const imageUrl = `/${filename}`;
 
       User.update({ picture: imageUrl }, {
-        where: { id: req.params.id }
+        where: { id: id }
       })
         .then(num => {
           DBCleanupService.cleanDatabase();
@@ -373,7 +377,7 @@ exports.uploadImage = (req, res) => {
         })
         .catch(err => {
           res.status(500).send({
-            message: "Error updating User picture with id=" + id + "\n" + err,
+            message: `Error updating User picture with id=${id}. ${err}`,
             success: false,
           });
         });
@@ -407,7 +411,7 @@ exports.findOne = (req, res) => {
     })
     .catch(err => {
       res.status(500).send({
-        message: "Error retrieving User with id=" + id
+        message: `Error retrieving User with id=${id}. ${err}`,
       });
     });
 };
@@ -432,7 +436,7 @@ exports.delete = (req, res) => {
     })
     .catch(err => {
       res.status(500).send({
-        message: "Could not delete User with id=" + id
+        message: `Error deleting User with id=${id}. ${err}`,
       });
     });
 };

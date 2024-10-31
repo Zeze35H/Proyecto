@@ -1,6 +1,6 @@
 <script setup>
 import UserDataService from "./services/UserDataService.js";
-import { onMounted, computed, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from "vue-router"; // Import useRouter
 import http from "./http-common.js";
 
@@ -12,7 +12,6 @@ let user = ref(null)
 const checkAuthStatus = async () => {
   try {
     const response = await http.get('/auth/checkAuth', { withCredentials: true })
-    console.log(response)
     console.log("isAuthenticated:", response.data.authenticated)
     isAuthenticated.value = response.data.authenticated;
     if (response.data.user)

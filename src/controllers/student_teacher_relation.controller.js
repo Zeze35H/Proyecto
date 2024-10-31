@@ -9,10 +9,7 @@ const DBCleanupService = require("../services/DBCleanupService.js")(db)
 exports.findAllRelations = (req, res) => {
   console.log("inside student_teacher_relation.controller.js findAllRelations")
 
-  console.log(req.params)
-  console.log(req.query)
   const id = req.params.id
-  console.log(id)
 
   let student_conditon = {}
   let professor_conditon = {}
@@ -110,7 +107,7 @@ exports.deleteRelation = (req, res) => {
     .catch(err => {
       res.status(500).send({
         success: false,
-        message: "Could not delete Relation with id=" + id
+        message: `Could not delete Relation with id=${id}. id=${err}`
       });
     });
 };

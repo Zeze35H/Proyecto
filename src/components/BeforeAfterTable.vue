@@ -13,7 +13,7 @@ defineProps(["fields", "before", "after"])
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="({ field }, index) in fields">
+                <tr v-for="({ field }, index) in fields" :key="index">
                     <td><strong>{{field}}</strong></td>
                     <td>{{ before[index] }}</td>
                     <td>{{ after[index] }}</td>

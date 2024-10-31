@@ -8,7 +8,7 @@ import Cropper from "cropperjs";
 import "cropperjs/dist/cropper.css"; // Import cropper styles
 
 export default {
-  name: 'profile',
+  name: 'profile-view',
   components: {
     InfoModal, BeforeAfterTable
   },
@@ -44,8 +44,6 @@ export default {
   emits: ['updatePicture'],
   async created() {
 
-    console.log("created")
-
     const result = await this.checkAuthStatus()
     if (result) {
       this.authenticated = result.authenticated
@@ -56,27 +54,19 @@ export default {
     UserDataService.findByUsername(this.profile)
       .then(response => {
         if (response.data.length != 0) {
-          console.log("Username found:", response);
           this.user = response.data
-          console.log(this.user)
 
-          console.log(this.user.role)
           if (this.user.role == 2) {
-            console.log("inside")
             this.lectured_subjects = []
 
             UserDataService.findAllProfessorRelations(this.user.id)
               .then(response => {
-                console.log(response)
                 if (response.data.length != 0) {
                   for (let i = 0; i < response.data.length; i++) {
                     let subject = response.data[i].subject_name
                     let num_students = response.data[i].num_students
                     this.lectured_subjects.push({ subject: subject, num_students: num_students })
                   }
-                }
-                else {
-                  console.log("NO SUBJECTS!!!!!!!!!!!!!!!!")
                 }
               })
               .catch(error => {
@@ -98,8 +88,6 @@ export default {
   methods: {
 
     closeModal() {
-      console.log("closeModal")
-
       this.imageSource = null
       this.croppedImage = null
       this.cropper = null
@@ -125,7 +113,6 @@ export default {
       const target = $event.target;
       if (target && target.files) {
         const uploadedFile = target.files[0];
-        console.log(uploadedFile)
 
         // Validate file type
         const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
@@ -182,9 +169,7 @@ export default {
           // Send the formData to the server
           UserDataService.uploadImage(this.user.id, formData)
             .then(response => {
-              console.log(response)
               if (response.data.success) {
-                console.log(response.data)
 
                 this.user.picture = response.data.imageUrl;
 
@@ -228,7 +213,6 @@ export default {
     },
 
     checkChanges() {
-      console.log(this.before_edit, this.edit_info)
       if (this.areDifferent(this.before_edit, this.edit_info)) {
         if (this.before_edit.role != 2 && this.edit_info.role == 2 && this.edit_info.token == "") {
           return false
@@ -245,9 +229,7 @@ export default {
 
       UserDataService.update(this.user.id, this.edit_info)
         .then(response => {
-          console.log(response)
           if (response.data.success) {
-            console.log(response.data.message)
 
             this.user.name = this.edit_info.name
             this.user.surname = this.edit_info.surname
@@ -523,13 +505,14 @@ export default {
             <!-- LECTURED SUBJECTS -->
             <div v-if="user.role == 2" class="col-md-12">
               <div class="card mb-4 mb-md-0">
-                <div class="card-body">
+                <div v-if="lectured_subjects.length" class="card-body">
                   <div class="d-flex d-flex justify-content-between">
                     <h5 class="text-primary font-italic mb-3">Lectured Subjects</h5>
                     <p class="text-muted" style="font-size: .75rem;">Num. of Students</p>
                   </div>
 
-                  <div v-for="({ subject, num_students }, index) in lectured_subjects">
+
+                  <div v-for="({ subject, num_students }, index) in lectured_subjects" :key="index">
                     <div class="d-flex d-flex justify-content-between">
                       <p class="mb-1">{{ subject }}</p>
                       <p class="mb-1" style="font-size: .90rem;">{{ num_students }}</p>
@@ -542,6 +525,9 @@ export default {
                   </div>
 
 
+                </div>
+                <div v-else class="card-body p-3 p-md-4 p-xl-5">
+                  <h5 class="text-center">You do not have any students enrolled in a class you lecture yet!</h5>
                 </div>
               </div>
             </div>
