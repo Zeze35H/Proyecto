@@ -1,6 +1,6 @@
 # School Website Thingy
 
-"School Website Thingy" is a full-stack website formation project for the University of Salamanca.
+"School Website Thingy" is a full-stack website formation project for "BISITE Research Group" at the University of Salamanca.
 
 ## Usage
 After cloning the repository, execute the following commands to get the website running:
