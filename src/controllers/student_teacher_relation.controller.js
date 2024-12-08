@@ -38,7 +38,8 @@ exports.findAllRelations = (req, res) => {
         model: Subject, // No alias needed as it's direct relation
         attributes: ['id', 'name'] // Include the relevant attributes for subjects
       }
-    ]
+    ],
+    order: [[Subject, 'name', 'ASC']]
   }).then(data => {
     res.send(data);
   })
@@ -69,7 +70,8 @@ exports.findAllProfessorRelations = (req, res) => {
         attributes: []   // Do not return the Subject attributes separately (handled above)
       }
     ],
-    group: ['id_subject', 'subject.name']  // Use 'subject.name' in GROUP BY
+    group: ['id_subject', 'subject.name'],  // Use 'subject.name' in GROUP BY
+    order: [['subject_name', 'ASC']]
   })
     .then(data => {
       res.send(data);
